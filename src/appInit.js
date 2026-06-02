@@ -29,8 +29,8 @@ const initApp = async () => {
 
     app.provide('$toast', toast);
 
-    app.use(router)
-       .use(pinia)
+    app.use(pinia)
+       .use(router)
        .use(i18n)
        .use(MotionPlugin);
 
