@@ -49,7 +49,8 @@ const legacyStore = {
       isLoggedIn: auth.isLoggedIn,
       userInfo: auth.userInfo,
       currentTheme: theme.currentTheme,
-      isDarkTheme: theme.isDarkTheme
+      isDarkTheme: theme.isDarkTheme,
+      isAutoTheme: theme.isAutoTheme
     };
   },
   commit(type, payload) {
@@ -77,6 +78,8 @@ const legacyStore = {
       },
       setUser: () => auth.setUser(payload),
       toggleTheme: () => theme.toggleTheme(),
+      syncThemeByTime: () => theme.syncThemeByTime(),
+      setAutoTheme: () => theme.setAutoTheme(payload),
       initUserInfo: () => auth.initUserInfo()
     };
 

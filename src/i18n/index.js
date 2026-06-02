@@ -1,4 +1,4 @@
-﻿
+
 
 import { createI18n } from 'vue-i18n';
 
@@ -148,7 +148,7 @@ const loadLocaleMessages = async (isLoggedIn) => {
 
         if (indexModule.default[locale]) {
 
-          messages[locale] = indexModule.default[locale];
+          messages[locale] = { ...indexModule.default[locale] };
 
         }
 
@@ -206,7 +206,7 @@ const loadLocaleMessages = async (isLoggedIn) => {
 
           if (module && module.default) {
 
-            messages[locale] = module.default;
+            messages[locale] = { ...messages[locale], ...module.default };
 
           }
 

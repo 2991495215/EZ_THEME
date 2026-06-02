@@ -1,4 +1,4 @@
-﻿
+
 
 import { createRouter, createWebHashHistory } from 'vue-router';
 
@@ -20,11 +20,24 @@ const ApiValidation = () => import('@/views/errors/ApiValidation.vue');
 
 
 
+const authComponents = {
+  center: {
+    Login: () => import('@/views/auth/center/Login.vue'),
+    Register: () => import('@/views/auth/center/Register.vue'),
+    ForgotPassword: () => import('@/views/auth/center/ForgotPassword.vue')
+  },
+  split: {
+    Login: () => import('@/views/auth/split/Login.vue'),
+    Register: () => import('@/views/auth/split/Register.vue'),
+    ForgotPassword: () => import('@/views/auth/split/ForgotPassword.vue')
+  }
+};
+
 const getAuthComponent = (componentName) => {
 
-  const layoutType = AUTH_LAYOUT_CONFIG?.layoutType || 'center';
+  const layoutType = ['center', 'split'].includes(AUTH_LAYOUT_CONFIG?.layoutType) ? AUTH_LAYOUT_CONFIG.layoutType : 'center';
 
-  return () => import(`@/views/auth/${layoutType}/${componentName}.vue`);
+  return authComponents[layoutType][componentName] || authComponents.center[componentName];
 
 };
 
@@ -743,6 +756,17 @@ router.beforeEach(async (to, from, next) => {
     next({ name: 'Login' });
 
   } else if (to.path === '/login' && token) {
+
+    try {
+
+      window._lastLoginCheck = undefined;
+      window._lastLoginCheckTime = 0;
+      window.isUserLoggedIn = true;
+
+      await reloadMessages();
+
+    } catch (error) {
+    }
 
     next({ path: '/dashboard' });
 

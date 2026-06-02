@@ -1,0 +1,124 @@
+body.performance-mode .main-board {
+  animation: none !important;
+  background-size: 100% 100% !important;
+}
+
+body.performance-mode .background-decoration::before,
+body.performance-mode .background-decoration::after,
+body.performance-mode .aurora-layer,
+body.performance-mode .aurora-orb,
+body.performance-mode .floating-ball {
+  animation: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+body.performance-mode .aurora-layer,
+body.performance-mode .aurora-orb,
+body.performance-mode .floating-ball {
+  filter: none !important;
+  opacity: 0.12 !important;
+}
+
+body.performance-mode .background-decoration::before,
+body.performance-mode .background-decoration::after {
+  opacity: 0.14 !important;
+}
+
+body.performance-mode .page-transition-enter-active,
+body.performance-mode .page-transition-leave-active,
+body.performance-mode .content-transition-enter-active,
+body.performance-mode .content-transition-leave-active,
+body.performance-mode .fade-enter-active,
+body.performance-mode .fade-leave-active {
+  transition-duration: 0.12s !important;
+}
+
+body.performance-mode .page-transition-enter-from,
+body.performance-mode .page-transition-leave-to,
+body.performance-mode .content-transition-enter-from,
+body.performance-mode .content-transition-leave-to,
+body.performance-mode .fade-enter-from,
+body.performance-mode .fade-leave-to {
+  transform: none !important;
+}
+
+body.performance-mode .nodes-content,
+body.performance-mode .modal-content,
+body.performance-mode .shop-popup-container,
+body.performance-mode .ticket-popup-container,
+body.performance-mode .notice-modal,
+body.performance-mode .qrcode-modal {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.performance-mode .dashboard-card,
+body.performance-mode .plan-card,
+body.performance-mode .node-item,
+body.performance-mode .stats-card,
+body.performance-mode .ticket-item,
+body.performance-mode .doc-item,
+body.performance-mode .order-card,
+body.performance-mode .profile-card,
+body.performance-mode .balance-card,
+body.performance-mode .import-card,
+body.performance-mode .payment-card,
+body.performance-mode .invite-code-card {
+  box-shadow: 0 1px 6px rgba(15, 23, 42, 0.06) !important;
+  transition-property: background-color, border-color, color, opacity !important;
+  transition-duration: 0.16s !important;
+}
+
+body.performance-mode .dashboard-card:hover,
+body.performance-mode .plan-card:hover,
+body.performance-mode .node-item:hover,
+body.performance-mode .stats-card:hover,
+body.performance-mode .ticket-item:hover,
+body.performance-mode .doc-item:hover,
+body.performance-mode .order-card:hover,
+body.performance-mode .profile-card:hover,
+body.performance-mode .balance-card:hover,
+body.performance-mode .import-card:hover,
+body.performance-mode .payment-card:hover,
+body.performance-mode .invite-code-card:hover {
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+}
+
+body.performance-mode .node-status.online,
+body.performance-mode .badge-dot,
+body.performance-mode .skeleton-card,
+body.performance-mode .skeleton-button,
+body.performance-mode .skeleton-line,
+body.performance-mode .loading-spinner,
+body.performance-mode .spinner {
+  animation: none !important;
+}
+
+body.performance-mode .invite-card,
+body.performance-mode .carousel-control,
+body.performance-mode .avatar-wrapper,
+body.performance-mode .dropdown-menu .menu-item {
+  transition-duration: 0.14s !important;
+}
+
+body.performance-mode .avatar-wrapper:hover,
+body.performance-mode .carousel-control:hover {
+  transform: none !important;
+}
+
+body.performance-mode.dark-theme .dashboard-card,
+body.performance-mode.dark-theme .plan-card,
+body.performance-mode.dark-theme .node-item,
+body.performance-mode.dark-theme .stats-card,
+body.performance-mode.dark-theme .ticket-item,
+body.performance-mode.dark-theme .doc-item,
+body.performance-mode.dark-theme .order-card,
+body.performance-mode.dark-theme .profile-card,
+body.performance-mode.dark-theme .balance-card,
+body.performance-mode.dark-theme .import-card,
+body.performance-mode.dark-theme .payment-card,
+body.performance-mode.dark-theme .invite-code-card {
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.22) !important;
+}

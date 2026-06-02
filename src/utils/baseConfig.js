@@ -38,7 +38,7 @@ const isObject = item => {
 
 // 获取面板类型的常量
 // 可选值: 'V2board', 'Xiao-V2board' 或 'Xboard'
-export const PANEL_TYPE = getConfig('PANEL_TYPE', 'V2board');
+export const PANEL_TYPE = getConfig('PANEL_TYPE', 'Xboard');
 
 // 判断是否为Xiao-V2board面板
 export const isXiaoV2board = () => {
@@ -146,14 +146,16 @@ const DEFAULT_SECURITY_CONFIG = {
     enableFrontendDomainCheck: false,
 
     // 是否启用授权码验证
-    enableLicenseCheck: true,
+    enableLicenseCheck: false,
 };
 
 export const SECURITY_CONFIG = mergeDeep(DEFAULT_SECURITY_CONFIG, getConfig('SECURITY_CONFIG'));
 
 // 授权的前端域名列表
 const DEFAULT_AUTHORIZED_DOMAINS = [
-    'panghu.com',
+    'sub.trent30.com',
+    'localhost',
+    '127.0.0.1',
     // 在此处添加您授权的其他域名
 ];
 
@@ -198,9 +200,9 @@ export const CUSTOM_HEADERS_CONFIG = mergeDeep(DEFAULT_CUSTOM_HEADERS_CONFIG, ge
 
 // 网站名称配置
 const DEFAULT_SITE_CONFIG = {
-    siteName: 'EZ THEME',
-    siteDescription: 'EZ UI',
-    copyright: `© ${new Date().getFullYear()} EZ THEME. All Rights Reserved.`,
+    siteName: '锌元素',
+    siteDescription: '锌元素',
+    copyright: `© ${new Date().getFullYear()} 锌元素. All Rights Reserved.`,
 
     // 是否显示标题中的网站Logo (true=显示, false=隐藏)
     showLogo: true,
@@ -222,6 +224,27 @@ const DEFAULT_SITE_CONFIG = {
 };
 
 export const SITE_CONFIG = mergeDeep(DEFAULT_SITE_CONFIG, getConfig('SITE_CONFIG'));
+
+const getBackendSiteName = (backendConfig) => {
+    if (!backendConfig || typeof backendConfig !== 'object') return '';
+
+    const siteName = backendConfig.app_name || backendConfig.appName || backendConfig.site_name || backendConfig.siteName;
+    return typeof siteName === 'string' ? siteName.trim() : '';
+};
+
+export const applyBackendSiteConfig = (backendConfig) => {
+    const siteName = getBackendSiteName(backendConfig);
+
+    if (!siteName) {
+        return SITE_CONFIG;
+    }
+
+    SITE_CONFIG.siteName = siteName;
+    SITE_CONFIG.siteDescription = backendConfig.app_description || backendConfig.appDescription || SITE_CONFIG.siteDescription;
+    SITE_CONFIG.copyright = `© ${new Date().getFullYear()} ${siteName}. All Rights Reserved.`;
+
+    return SITE_CONFIG;
+};
 
 // 默认语言和主题配置
 const DEFAULT_BASE_CONFIG = {
@@ -293,11 +316,9 @@ export const PROFILE_CONFIG = mergeDeep(DEFAULT_PROFILE_CONFIG, getConfig('PROFI
  * 控制工单功能的行为
  */
 const DEFAULT_TICKET_CONFIG = {
-    // 是否在创建工单时发送用户基础信息 (true=发送, false=不发送)
     includeUserInfoInTicket: true,
-    // 弹窗配置
     popup: {
-        enabled: true,
+        enabled: false,
         title: '工单须知',
         content: '<p>请您准确描述您的问题，再提交工单，以便我们更快帮助您。</p>',
         cooldownHours: 24,
@@ -336,21 +357,21 @@ const DEFAULT_CLIENT_CONFIG = {
     showDownloadCard: false,  // 设置为false将隐藏整个客户端下载卡片
 
     // 平台显示控制 (true=显示, false=隐藏)
-    showIOS: false,         // iOS客户端显示控制
-    showAndroid: false,     // Android客户端显示控制
-    showMacOS: false,       // MacOS客户端显示控制
-    showWindows: false,     // Windows客户端显示控制
+    showIOS: true,          // iOS客户端显示控制
+    showAndroid: true,      // Android客户端显示控制
+    showMacOS: true,        // MacOS客户端显示控制
+    showWindows: true,      // Windows客户端显示控制
     showLinux: false,       // Linux客户端显示控制
     showOpenWrt: false,     // OpenWrt客户端显示控制
 
     // 客户端下载链接
     clientLinks: {
-        ios: 'https://apps.apple.com/app/xxx',         // iOS客户端下载链接
-        android: 'https://play.google.com/store/apps/xxx', // Android客户端下载链接
-        macos: 'https://github.com/xxx/releases/latest',     // MacOS客户端下载链接
-        windows: 'https://github.com/xxx/releases/latest', // Windows客户端下载链接
-        linux: 'https://github.com/xxx/releases/latest',     // Linux客户端下载链接
-        openwrt: 'https://github.com/xxx/releases/latest'  // OpenWrt客户端下载链接
+        ios: '/#/docs',
+        android: '/#/docs',
+        macos: '/#/docs',
+        windows: '/#/docs',
+        linux: '/#/docs',
+        openwrt: '/#/docs'
     },
 
     // ===========================================================
@@ -460,9 +481,7 @@ export const SHOP_CONFIG = mergeDeep(DEFAULT_SHOP_CONFIG, getConfig('SHOP_CONFIG
  * 提交订单强制二次确认
  */
 const DEFAULT_ORDER_CONFIG = {
-    // 是否启用二次确认
-    confirmOrder: true,
-    // 二次确认内容
+    confirmOrder: false,
     confirmOrderContent: "<p>您确定要购买该套餐吗？</p>",
 };
 export const ORDER_CONFIG = mergeDeep(DEFAULT_ORDER_CONFIG, getConfig('ORDER_CONFIG'));

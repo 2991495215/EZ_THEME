@@ -1,16 +1,16 @@
-﻿<template>
+<template>
   <transition name="fade">
     <div v-if="show" class="auth-popup-overlay" @click.self="attemptClose">
       <transition name="popup-slide">
         <div v-if="show" class="auth-popup-container">
           <div class="auth-popup-header">
-            <h2 class="popup-title" v-html="title"></h2>
-            <button class="popup-close-btn" @click="attemptClose">
-              <IconX :size="20" />
-            </button>
-          </div>
-          <div class="auth-popup-content">
-            <div v-html="content"></div>
+            <h2 class="popup-title" v-html="sanitizeHtml(title)"></h2>
+            <button class="popup-close-btn" @click="attemptClose">
+              <IconX :size="20" />
+            </button>
+          </div>
+          <div class="auth-popup-content">
+            <div v-html="sanitizeHtml(content)"></div>
           </div>
           <div class="auth-popup-footer">
             <button 
@@ -33,8 +33,9 @@
 </template>
 
 <script>
-import { ref, watch, onUnmounted } from 'vue';
-import { IconX } from '@tabler/icons-vue';
+import { ref, watch, onUnmounted } from 'vue';
+import { IconX } from '@tabler/icons-vue';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 export default {
   name: 'AuthPopup',
@@ -125,9 +126,10 @@ export default {
     });
     
     return {
-      show,
-      attemptClose,
-      waitTimeRemaining
+      show,
+      attemptClose,
+      waitTimeRemaining,
+      sanitizeHtml
     };
   }
 };

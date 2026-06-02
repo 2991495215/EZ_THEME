@@ -1,4 +1,4 @@
-﻿
+
 import { SITE_CONFIG } from '../../utils/baseConfig';
 
 export default {
@@ -465,8 +465,8 @@ export default {
   },
   contextMenu: {
     refresh: '重新整理頁面',
-    back: '返回上一頁',
-    forward: '前進下一頁',
+    back: '後退到上一頁',
+    forward: '前進到下一頁',
     copy: '複製',
     paste: '貼上'
   },

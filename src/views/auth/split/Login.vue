@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="login-view-container">
     <div class="auth-split-container">
 
@@ -180,7 +180,7 @@ export default {
     const { showToast } = useToast();
     const { goTo } = useNavigator()
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref('/images/logo.png');
     const handleLogoError = () => {
       logoPath.value = '/images/logo.png';
     };

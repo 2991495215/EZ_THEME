@@ -1,7 +1,7 @@
-﻿
+
 import request from './request';
 import store from '@/store';
-import { SITE_CONFIG } from '@/utils/baseConfig';
+import { SITE_CONFIG, applyBackendSiteConfig } from '@/utils/baseConfig';
 import { reloadMessages } from '@/i18n';
 
 
@@ -137,6 +137,12 @@ export const handleLoginSuccess = (responseData, rememberMe) => {
     if (responseData.auth_data) {
       localStorage.setItem('auth_data', responseData.auth_data);
     }
+
+    _cacheLoginStatus(true);
+    window.isUserLoggedIn = true;
+    window.authDataInStorage = responseData.auth_data || null;
+    reloadMessages().catch(() => {
+    });
     
     const days = rememberMe ? 30 : 1; 
     if (responseData.auth_data) {
@@ -154,9 +160,6 @@ export const handleLoginSuccess = (responseData, rememberMe) => {
           localStorage.setItem('cookie_auth_data', responseData.auth_data);
         }
       }
-      
-      reloadMessages().catch(() => {
-      });
     }, 500);
     
     return { success: true };
@@ -291,11 +294,17 @@ export const logout = async () => {
 };
 
 
-export function getWebsiteConfig() {
-  return request({
+export async function getWebsiteConfig() {
+  const response = await request({
     url: '/guest/comm/config',
     method: 'get'
   });
+
+  if (response && response.data) {
+    applyBackendSiteConfig(response.data);
+  }
+
+  return response;
 }
 
 

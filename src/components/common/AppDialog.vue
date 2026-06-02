@@ -41,13 +41,13 @@
               <slot name="icon" />
             </div>
             <slot name="header">
-              <h2 class="app-dialog__heading" v-html="title"></h2>
+              <h2 class="app-dialog__heading" v-html="sanitizeHtml(title)"></h2>
             </slot>
           </header>
 
           <main class="app-dialog__body">
             <slot>
-              <div v-if="content" v-html="content"></div>
+              <div v-if="content" v-html="sanitizeHtml(content)"></div>
             </slot>
           </main>
 
@@ -63,6 +63,7 @@
 <script>
 import { onBeforeUnmount, watch } from 'vue';
 import { IconX } from '@tabler/icons-vue';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 export default {
   name: 'AppDialog',
@@ -161,7 +162,8 @@ export default {
 
     return {
       close,
-      handleBackdropClick
+      handleBackdropClick,
+      sanitizeHtml
     };
   }
 };

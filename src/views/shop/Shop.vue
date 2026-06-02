@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="shop-container">
 
@@ -6,7 +6,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -26,7 +26,7 @@
 
       <!-- 套餐统计卡片组 -->
 
-      <div class="stats-grid" v-if="SHOP_CONFIG.showPlanFeatureCards">
+      <div class="stats-grid" v-if="false && SHOP_CONFIG.showPlanFeatureCards">
 
         <div class="stats-card animate-card">
 
@@ -348,7 +348,7 @@
 
               <!-- HTML格式内容 -->
 
-              <div v-else class="html-content" v-html="plan.content"></div>
+              <div v-else class="html-content" v-html="sanitizeHtml(plan.content)"></div>
 
             </div>
 
@@ -419,6 +419,8 @@ import { useToast } from '@/composables/useToast';
 import { fetchPlans, getCommConfig } from '@/api/shop';
 
 import { SHOP_CONFIG } from '@/utils/baseConfig';
+
+import { sanitizeHtml } from '@/utils/sanitize';
 
 import ShopPopup from '@/components/shop/ShopPopup.vue';
 
@@ -1242,6 +1244,8 @@ export default {
 
       parseJsonContent,
 
+      sanitizeHtml,
+
       purchasePlan,
 
       filterToggle,
@@ -1286,11 +1290,17 @@ export default {
 
 .shop-container {
 
+  width: 100%;
+
   padding: 20px;
 
   display: flex;
 
   justify-content: center;
+
+  box-sizing: border-box;
+
+  overflow-x: hidden;
 
   
 
@@ -2038,7 +2048,7 @@ export default {
 
             font-size: 12px;
 
-            background-color: rgba(var(--border-color-rgb), 0.1);
+            background-color: rgba(255, 255, 255, 0.34);
 
             color: var(--secondary-text-color);
 
@@ -2096,11 +2106,11 @@ export default {
 
             &.active {
 
-              background-color: rgba(var(--theme-color-rgb), 0.1);
+              background-color: rgba(var(--theme-color-rgb), 0.06);
 
-              color: var(--text-color);
+              color: var(--theme-color);
 
-              border-color: rgba(var(--theme-color-rgb), 0.2);
+              border-color: rgba(var(--theme-color-rgb), 0.18);
 
             }
 
@@ -2132,9 +2142,17 @@ export default {
 
       padding: 8px 12px;
 
-      background-color: rgba(var(--theme-color-rgb), 0.05);
+      background-color: rgba(255, 255, 255, 0.32);
+
+      border: 1px solid rgba(var(--theme-color-rgb), 0.16);
 
       border-radius: 8px;
+
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48), 0 5px 14px rgba(31, 28, 22, 0.035);
+
+      backdrop-filter: blur(16px) saturate(145%);
+
+      -webkit-backdrop-filter: blur(16px) saturate(145%);
 
       
 
@@ -2489,63 +2507,54 @@ export default {
   
 
   .filter-toggle-container {
-
     margin-bottom: 30px;
-
     display: flex;
-
     justify-content: center;
-
+    padding: 0 2px;
     
 
     .filter-toggle-wrapper {
-
       background: rgba(var(--card-background-rgb, 255, 255, 255), 0.7);
-
       backdrop-filter: blur(12px);
-
       -webkit-backdrop-filter: blur(12px);
-
       border-radius: 18px;
-
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
       padding: 8px 20px;
-
       border: 1px solid var(--border-color, rgba(0, 0, 0, 0.1));
-
       display: flex;
-
-      flex-wrap: wrap;
-
+      align-items: center;
       justify-content: center;
-
-      gap: 15px;
-
-      max-width: 600px;
+      gap: 10px;
+      width: auto;
+      max-width: calc(100% - 4px);
 
       will-change: backdrop-filter, background-color;
 
       transition: background-color 0.3s ease;
-
       
-
+      @media (max-width: 420px) {
+        gap: 6px;
+        padding: 8px 12px;
+      }
+      
       .filter-option {
 
-        display: flex;
-
+        min-width: 84px;
+        display: inline-flex;
         align-items: center;
-
+        justify-content: center;
+        gap: 7px;
         cursor: pointer;
-
         transition: all 0.3s ease;
-
-        padding: 6px 10px;
-
+        padding: 7px 12px;
         border-radius: 12px;
-
         
-
+        @media (max-width: 420px) {
+          flex: 1;
+          min-width: 0;
+          padding: 7px 8px;
+        }
+        
         &:hover {
 
           background-color: rgba(var(--theme-color-rgb), 0.05);
@@ -2577,9 +2586,7 @@ export default {
         
 
         .option-icon {
-
-          margin-right: 6px;
-
+          flex-shrink: 0;
           display: flex;
 
           align-items: center;
@@ -2603,9 +2610,9 @@ export default {
         
 
         .option-text {
-
           font-size: 14px;
-
+          line-height: 1;
+          white-space: nowrap;
           color: var(--secondary-text-color);
 
           transition: color 0.3s ease;
@@ -2788,11 +2795,20 @@ export default {
 
   .shop-container {
 
-    padding: 15px;
+    padding: 15px 18px;
 
     padding-bottom: 80px;
 
-    
+    .shop-inner {
+      max-width: 430px;
+    }
+
+    .dashboard-card,
+    .plans-wrapper .plan-card {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
 
     .stats-grid {
 
@@ -2813,21 +2829,16 @@ export default {
   
 
   .shop-container .filter-toggle-container {
+    width: 100%;
+    padding: 0;
 
     .filter-toggle-wrapper {
-
       width: 100%;
-
       max-width: 100%;
-
-      padding: 10px;
-
+      padding: 10px 14px;
       flex-direction: row;
-
-      justify-content: space-around;
-
+      justify-content: center;
       gap: 5px;
-
       border-radius: 14px;
 
       
@@ -2882,6 +2893,11 @@ export default {
 
 @media (max-width: 480px) {
 
+  .shop-container {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
   .shop-container .filter-toggle-container {
 
     .filter-toggle-wrapper {
@@ -2912,6 +2928,21 @@ export default {
 
 }
 
+@media (max-width: 360px) {
+  .shop-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .shop-container .filter-toggle-container .filter-toggle-wrapper {
+    padding: 8px 6px;
+  }
+
+  .shop-container .filter-toggle-container .filter-toggle-wrapper .filter-option {
+    padding: 6px 5px;
+  }
+}
+
 .plans-wrapper .plan-card:hover {
   transform: none;
   box-shadow: none;
@@ -2919,40 +2950,55 @@ export default {
 
 .btn-purchase,
 .btn-purchase.glassmorphism {
-  background-color: var(--theme-color);
-  border: 1px solid var(--theme-color);
-  color: #fff;
-  box-shadow: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.34);
+  color: var(--theme-color);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 8px 20px rgba(var(--theme-color-rgb), 0.12), 0 2px 8px rgba(31, 28, 22, 0.06);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
   transform: none;
 }
 
 .btn-purchase .btn-text,
 .btn-purchase .btn-icon {
-  color: #fff;
+  color: var(--theme-color);
   opacity: 1;
 }
 
 .btn-purchase:hover,
 .btn-purchase.glassmorphism:hover {
-  background-color: var(--theme-color);
-  box-shadow: none;
-  transform: none;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76), 0 10px 24px rgba(var(--theme-color-rgb), 0.16), 0 2px 8px rgba(31, 28, 22, 0.06);
+  transform: translateY(-1px);
 }
 
 .btn-purchase.btn-disabled,
 .btn-purchase.btn-disabled:hover {
-  background-color: var(--disabled-bg-color, #e5e7eb);
-  border-color: var(--card-border-color, var(--border-color));
-  color: var(--secondary-text-color);
-  box-shadow: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(var(--theme-color-rgb), 0.2);
+  color: rgba(var(--theme-color-rgb), 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58), 0 4px 12px rgba(var(--theme-color-rgb), 0.06);
   transform: none;
+}
+
+.dark-theme .btn-purchase,
+.dark-theme .btn-purchase.glassmorphism {
+  background: linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.92), rgba(var(--theme-color-rgb), 0.68));
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 20px rgba(var(--theme-color-rgb), 0.18);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dark-theme .btn-purchase .btn-text,
+.dark-theme .btn-purchase .btn-icon {
+  color: #fff;
 }
 
 .btn-purchase.btn-disabled .btn-text,
 .btn-purchase.btn-disabled .btn-icon {
-  color: var(--secondary-text-color);
+  color: rgba(var(--theme-color-rgb), 0.58);
 }
 
 </style> 

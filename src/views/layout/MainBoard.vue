@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="main-board">
 
@@ -33,11 +33,23 @@
 
     <div class="background-decoration">
 
+      <div class="aurora-layer aurora-layer-1"></div>
+
+      <div class="aurora-layer aurora-layer-2"></div>
+
+      <div class="aurora-orb aurora-orb-1"></div>
+
+      <div class="aurora-orb aurora-orb-2"></div>
+
       <div class="floating-ball ball-1"></div>
 
       <div class="floating-ball ball-2"></div>
 
       <div class="floating-ball ball-3"></div>
+
+      <div class="floating-ball ball-4"></div>
+
+      <div class="floating-ball ball-5"></div>
 
     </div>
 
@@ -101,6 +113,16 @@ export default {
 
   z-index: 1;
 
+  background:
+    radial-gradient(circle at 82% 12%, rgba(79, 70, 229, 0.34), transparent 34%),
+    radial-gradient(circle at 16% 22%, rgba(37, 99, 235, 0.36), transparent 36%),
+    radial-gradient(circle at 46% 10%, rgba(212, 175, 55, 0.24), transparent 34%),
+    radial-gradient(circle at 76% 82%, rgba(20, 184, 166, 0.3), transparent 38%),
+    radial-gradient(circle at 24% 86%, rgba(168, 85, 247, 0.32), transparent 38%),
+    linear-gradient(135deg, #f8fbff 0%, #eaf3ff 42%, #f9fbff 74%, #fbf7ff 100%);
+  background-size: 230% 230%, 220% 220%, 210% 210%, 235% 235%, 225% 225%, 100% 100%;
+  animation: mainBoardAurora 6.8s ease-in-out infinite alternate;
+
 }
 
 
@@ -153,7 +175,34 @@ export default {
 
   pointer-events: none;
 
-  
+  background:
+    linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.38) 42%, transparent 66%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.28), transparent 46%);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -18%;
+    opacity: 0.7;
+    mix-blend-mode: soft-light;
+    will-change: transform, opacity;
+  }
+
+  &::before {
+    background:
+      linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.46) 18%, transparent 34%),
+      linear-gradient(128deg, transparent 28%, rgba(96, 165, 250, 0.18) 48%, transparent 66%);
+    animation: daylightSweep 7.2s ease-in-out infinite alternate;
+  }
+
+  &::after {
+    background:
+      radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.5), transparent 18%),
+      radial-gradient(circle at 74% 68%, rgba(255, 237, 213, 0.44), transparent 24%),
+      linear-gradient(60deg, transparent 16%, rgba(255, 255, 255, 0.22) 44%, transparent 72%);
+    animation: daylightShimmer 8.6s ease-in-out infinite alternate;
+  }
 
   @supports (-webkit-touch-callout: none) {
 
@@ -165,17 +214,104 @@ export default {
 
 
 
+.aurora-layer,
+.aurora-orb {
+
+  position: absolute;
+
+  border-radius: 999px;
+
+  pointer-events: none;
+
+  will-change: transform, opacity;
+
+}
+
+.aurora-layer {
+
+  inset: -24%;
+
+  opacity: 0.46;
+
+  filter: blur(28px);
+
+  mix-blend-mode: overlay;
+
+}
+
+.aurora-layer-1 {
+
+  background: conic-gradient(from 90deg at 50% 50%, rgba(59, 130, 246, 0.28), rgba(250, 204, 21, 0.2), rgba(34, 197, 94, 0.24), rgba(168, 85, 247, 0.22), rgba(59, 130, 246, 0.28));
+
+  animation: daylightAuroraRotate 12s ease-in-out infinite alternate;
+
+}
+
+.aurora-layer-2 {
+
+  inset: -18% -10%;
+
+  background: linear-gradient(105deg, transparent 18%, rgba(255, 255, 255, 0.46) 38%, rgba(96, 165, 250, 0.18) 52%, transparent 76%);
+
+  opacity: 0.58;
+
+  animation: daylightAuroraDrift 9.5s ease-in-out infinite alternate;
+
+}
+
+.aurora-orb {
+
+  filter: blur(34px);
+
+  mix-blend-mode: screen;
+
+}
+
+.aurora-orb-1 {
+
+  width: 280px;
+
+  height: 280px;
+
+  top: 18%;
+
+  left: 18%;
+
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.76), rgba(96, 165, 250, 0.22) 44%, transparent 72%);
+
+  animation: daylightOrbFloat 6.4s ease-in-out infinite alternate;
+
+}
+
+.aurora-orb-2 {
+
+  width: 230px;
+
+  height: 230px;
+
+  right: 18%;
+
+  bottom: 18%;
+
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.62), rgba(251, 191, 36, 0.24) 46%, transparent 74%);
+
+  animation: daylightOrbFloat 7.4s ease-in-out infinite alternate-reverse;
+
+}
+
 .floating-ball {
 
   position: absolute;
 
   border-radius: 50%;
 
-  filter: blur(60px);
+  filter: blur(52px) saturate(1.18);
 
-  opacity: 0.3;
+  opacity: 0.5;
 
-  mix-blend-mode: lighten;
+  mix-blend-mode: screen;
+
+  will-change: transform;
 
 }
 
@@ -189,9 +325,9 @@ export default {
 
   background: radial-gradient(circle at 30% 30%, 
 
-    rgba(var(--theme-color-rgb), 0.4),
+    rgba(59, 130, 246, 0.58),
 
-    rgba(var(--theme-color-rgb), 0.1) 70%,
+    rgba(59, 130, 246, 0.2) 70%,
 
     transparent
 
@@ -201,7 +337,7 @@ export default {
 
   left: -10%;
 
-  animation: floatingBall1 25s infinite ease-in-out;
+  animation: floatingBall1 7s infinite ease-in-out;
 
 }
 
@@ -215,9 +351,9 @@ export default {
 
   background: radial-gradient(circle at 70% 70%, 
 
-    rgba(167, 71, 254, 0.35),
+    rgba(168, 85, 247, 0.68),
 
-    rgba(167, 71, 254, 0.08) 70%,
+    rgba(168, 85, 247, 0.24) 70%,
 
     transparent
 
@@ -227,7 +363,7 @@ export default {
 
   right: -5%;
 
-  animation: floatingBall2 30s infinite ease-in-out;
+  animation: floatingBall2 8s infinite ease-in-out;
 
 }
 
@@ -241,9 +377,9 @@ export default {
 
   background: radial-gradient(circle at 50% 50%, 
 
-    rgba(55, 222, 201, 0.3),
+    rgba(20, 184, 166, 0.78),
 
-    rgba(55, 222, 201, 0.05) 70%,
+    rgba(20, 184, 166, 0.3) 70%,
 
     transparent
 
@@ -253,7 +389,175 @@ export default {
 
   left: 20%;
 
-  animation: floatingBall3 35s infinite ease-in-out;
+  animation: floatingBall3 9s infinite ease-in-out;
+
+}
+
+
+
+.ball-4 {
+
+  width: 420px;
+
+  height: 420px;
+
+  background: radial-gradient(circle at 40% 40%, 
+
+    rgba(168, 85, 247, 0.42),
+
+    rgba(217, 119, 6, 0.24) 70%,
+
+    transparent
+
+  );
+
+  top: 12%;
+
+  left: 42%;
+
+  animation: floatingBall2 8s infinite ease-in-out reverse;
+
+}
+
+
+
+.ball-5 {
+
+  width: 360px;
+
+  height: 360px;
+
+  background: radial-gradient(circle at 50% 45%, 
+
+    rgba(212, 175, 55, 0.48),
+
+    rgba(184, 134, 11, 0.2) 72%,
+
+    transparent
+
+  );
+
+  top: 60%;
+
+  left: 50%;
+
+  animation: floatingBall1 10s infinite ease-in-out reverse;
+
+}
+
+@media (max-width: 767px) {
+
+  .background-decoration {
+
+    overflow: hidden;
+
+  }
+
+  .aurora-layer {
+
+    inset: -18% -42%;
+
+    opacity: 0.38;
+
+  }
+
+  .aurora-orb {
+
+    filter: blur(30px);
+
+  }
+
+  .aurora-orb-1 {
+
+    width: 58vw;
+
+    height: 58vw;
+
+    top: 12%;
+
+    left: -14vw;
+
+  }
+
+  .aurora-orb-2 {
+
+    width: 52vw;
+
+    height: 52vw;
+
+    right: -16vw;
+
+    bottom: 18%;
+
+  }
+
+  .floating-ball {
+
+    filter: blur(44px) saturate(1.16);
+
+    opacity: 0.42;
+
+  }
+
+  .ball-1 {
+
+    width: 72vw;
+
+    height: 72vw;
+
+    top: 4%;
+
+    left: -28vw;
+
+  }
+
+  .ball-2 {
+
+    width: 66vw;
+
+    height: 66vw;
+
+    top: 32%;
+
+    right: -30vw;
+
+  }
+
+  .ball-3 {
+
+    width: 64vw;
+
+    height: 64vw;
+
+    bottom: 8%;
+
+    left: -24vw;
+
+  }
+
+  .ball-4 {
+
+    width: 58vw;
+
+    height: 58vw;
+
+    top: 18%;
+
+    left: 34vw;
+
+  }
+
+  .ball-5 {
+
+    width: 56vw;
+
+    height: 56vw;
+
+    top: 62%;
+
+    left: 22vw;
+
+  }
 
 }
 
@@ -294,6 +598,80 @@ export default {
 
 
 
+@keyframes mainBoardAurora {
+
+  0% { background-position: 0% 0%, 100% 18%, 48% 6%, 8% 34%, 82% 100%, 0 0; }
+
+  35% { background-position: 78% 20%, 38% 76%, 62% 26%, 88% 8%, 22% 38%, 0 0; }
+
+  70% { background-position: 38% 86%, 12% 42%, 22% 74%, 54% 94%, 104% 26%, 0 0; }
+
+  100% { background-position: 100% 76%, 0% 94%, 42% 18%, 42% 90%, 96% 10%, 0 0; }
+
+}
+
+
+
+@keyframes daylightSweep {
+
+  0% { transform: translate3d(-12%, -4%, 0) rotate(-8deg) scale(1); opacity: 0.42; }
+
+  45% { transform: translate3d(8%, 3%, 0) rotate(4deg) scale(1.08); opacity: 0.76; }
+
+  100% { transform: translate3d(18%, 8%, 0) rotate(10deg) scale(1.14); opacity: 0.56; }
+
+}
+
+
+
+@keyframes daylightShimmer {
+
+  0% { transform: translate3d(4%, -6%, 0) scale(1); opacity: 0.36; }
+
+  50% { transform: translate3d(-5%, 5%, 0) scale(1.1); opacity: 0.72; }
+
+  100% { transform: translate3d(7%, 9%, 0) scale(1.04); opacity: 0.5; }
+
+}
+
+
+
+@keyframes daylightAuroraRotate {
+
+  0% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+
+  50% { transform: rotate(18deg) scale(1.08); opacity: 0.56; }
+
+  100% { transform: rotate(-10deg) scale(1.16); opacity: 0.42; }
+
+}
+
+
+
+@keyframes daylightAuroraDrift {
+
+  0% { transform: translate3d(-10%, -2%, 0) skewX(-8deg); opacity: 0.34; }
+
+  50% { transform: translate3d(7%, 4%, 0) skewX(5deg); opacity: 0.68; }
+
+  100% { transform: translate3d(14%, 8%, 0) skewX(10deg); opacity: 0.48; }
+
+}
+
+
+
+@keyframes daylightOrbFloat {
+
+  0% { transform: translate3d(0, 0, 0) scale(0.92); opacity: 0.34; }
+
+  45% { transform: translate3d(8vw, -4vh, 0) scale(1.16); opacity: 0.68; }
+
+  100% { transform: translate3d(-4vw, 7vh, 0) scale(1.04); opacity: 0.46; }
+
+}
+
+
+
 @keyframes floatingBall2 {
 
   0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -320,6 +698,45 @@ export default {
 
 }
 
+body.dark-theme .main-board {
+
+  background:
+    radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.11), transparent 30%),
+    radial-gradient(circle at 92% 14%, rgba(168, 85, 247, 0.09), transparent 28%),
+    radial-gradient(circle at 48% 100%, rgba(99, 102, 241, 0.08), transparent 34%),
+    var(--background-color);
+  background-size: 145% 145%, 135% 135%, 150% 150%, 100% 100%;
+
+}
+
+body.dark-theme .floating-ball {
+
+  filter: blur(96px);
+
+  opacity: 0.22;
+
+  mix-blend-mode: screen;
+
+}
+
+body.dark-theme .background-decoration {
+
+  background: transparent;
+
+  &::before,
+  &::after {
+    display: none;
+  }
+
+}
+
+body.dark-theme .aurora-layer,
+body.dark-theme .aurora-orb {
+
+  display: none;
+
+}
+
 
 
 .view-wrapper {
@@ -328,6 +745,30 @@ export default {
 
   height: 100%;
 
+}
+
+body.performance-mode .main-board,
+:global(body.performance-mode) .main-board {
+  animation-play-state: paused;
+}
+
+body.performance-mode .background-decoration,
+:global(body.performance-mode) .background-decoration {
+  animation-play-state: paused;
+}
+
+body.performance-mode .content-transition-enter-active,
+body.performance-mode .content-transition-leave-active,
+:global(body.performance-mode) .content-transition-enter-active,
+:global(body.performance-mode) .content-transition-leave-active {
+  transition: opacity 0.14s ease;
+}
+
+body.performance-mode .content-transition-enter-from,
+body.performance-mode .content-transition-leave-to,
+:global(body.performance-mode) .content-transition-enter-from,
+:global(body.performance-mode) .content-transition-leave-to {
+  transform: none;
 }
 
 </style> 

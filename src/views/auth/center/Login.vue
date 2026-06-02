@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="auth-container">
 
@@ -320,7 +320,7 @@ export default {
 
 
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref('/images/logo.png');
 
     const handleLogoError = () => {
 

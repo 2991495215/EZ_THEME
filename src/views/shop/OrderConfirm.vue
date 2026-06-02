@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="order-confirm-container">
 
@@ -134,7 +134,7 @@
 
                 <!-- HTML格式内容 -->
 
-                <div v-else class="html-content" v-html="plan.content"></div>
+                <div v-else class="html-content" v-html="sanitizeHtml(plan.content)"></div>
 
               </div>
 
@@ -476,6 +476,8 @@ import { getCommConfig, fetchPlanById, verifyCoupon as checkCoupon, submitOrder 
 import { getUserInfo } from '@/api/dashboard';
 
 import { isXboard, ORDER_CONFIG } from '@/utils/baseConfig';
+
+import { sanitizeHtml } from '@/utils/sanitize';
 
 import CommonDialog from '@/components/popup/CommonDialog.vue';
 
@@ -1286,6 +1288,8 @@ export default {
       isJsonContent,
 
       parseJsonContent,
+
+      sanitizeHtml,
 
       selectPriceType,
 

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="forgot-password-view-container">
 
@@ -567,7 +567,7 @@ export default {
 
 
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref('/images/logo.png');
 
     const handleLogoError = () => {
 

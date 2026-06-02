@@ -1,15 +1,15 @@
-﻿<template>
+<template>
   <transition name="fade">
     <div v-if="show" class="shop-popup-overlay" @click.self="attemptClose">
       <div class="shop-popup-container">
         <div class="shop-popup-header">
-          <h2 class="popup-title" v-html="title"></h2>
-          <button class="popup-close-btn" @click="attemptClose">
-            <IconX :size="20" />
-          </button>
-        </div>
-        <div class="shop-popup-content">
-          <div v-html="content"></div>
+          <h2 class="popup-title" v-html="sanitizeHtml(title)"></h2>
+          <button class="popup-close-btn" @click="attemptClose">
+            <IconX :size="20" />
+          </button>
+        </div>
+        <div class="shop-popup-content">
+          <div v-html="sanitizeHtml(content)"></div>
         </div>
         <div class="shop-popup-footer">
           <button 
@@ -31,8 +31,9 @@
 </template>
 
 <script>
-import { ref, watch, onUnmounted } from 'vue';
-import { IconX } from '@tabler/icons-vue';
+import { ref, watch, onUnmounted } from 'vue';
+import { IconX } from '@tabler/icons-vue';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 export default {
   name: 'ShopPopup',
@@ -143,9 +144,10 @@ export default {
     });
     
     return {
-      show,
-      attemptClose,
-      waitTimeRemaining
+      show,
+      attemptClose,
+      waitTimeRemaining,
+      sanitizeHtml
     };
   }
 };

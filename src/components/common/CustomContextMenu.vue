@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <transition name="context-menu">
     <div 
       v-if="show" 
@@ -27,7 +27,7 @@
           </div>
           <div class="menu-text">{{ $t('contextMenu.refresh') }}</div>
         </div>
-        <div class="menu-item" @click="handleBack">
+        <div class="menu-item" :class="{ disabled: !canGoBack }" @click="handleBack">
           <div class="menu-icon">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path d="M19 12H5"></path>
@@ -36,7 +36,7 @@
           </div>
           <div class="menu-text">{{ $t('contextMenu.back') }}</div>
         </div>
-        <div class="menu-item" @click="handleForward">
+        <div class="menu-item" :class="{ disabled: !canGoForward }" @click="handleForward">
           <div class="menu-icon">
             <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path d="M5 12h14"></path>
@@ -65,9 +65,28 @@ export default {
     const canCopy = ref(false);
     const canRefresh = ref(true);
     const canNavigate = ref(true);
+    const canGoBack = ref(false);
+    const canGoForward = ref(false);
+    let currentHistoryIndex = Number(window.history.state?.position || 0);
+    let maxHistoryIndex = currentHistoryIndex;
+    
+    router.afterEach(() => {
+      const position = Number(window.history.state?.position || 0);
+      currentHistoryIndex = position;
+      maxHistoryIndex = Math.max(maxHistoryIndex, position);
+    });
+    
+    const updateNavigationState = () => {
+      const position = Number(window.history.state?.position || 0);
+      currentHistoryIndex = position;
+      maxHistoryIndex = Math.max(maxHistoryIndex, position);
+      canGoBack.value = currentHistoryIndex > 0;
+      canGoForward.value = currentHistoryIndex < maxHistoryIndex;
+    };
     
     const handleContextMenu = (event) => {
       event.preventDefault();
+      updateNavigationState();
       
       const selection = window.getSelection();
       selectedText.value = selection.toString();
@@ -116,12 +135,16 @@ export default {
     };
     
     const handleBack = () => {
-      router.back();
+      if (canGoBack.value) {
+        router.back();
+      }
       handleClickOutside();
     };
     
     const handleForward = () => {
-      router.forward();
+      if (canGoForward.value) {
+        router.forward();
+      }
       handleClickOutside();
     };
     
@@ -145,6 +168,8 @@ export default {
       canCopy,
       canRefresh,
       canNavigate,
+      canGoBack,
+      canGoForward,
       handleCopy,
       handleRefresh,
       handleBack,
@@ -203,6 +228,23 @@ export default {
   &:active {
     background-color: rgba(var(--theme-color-rgb), 0.2);
     transform: scale(0.98);
+  }
+  
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    pointer-events: auto;
+    
+    &:hover,
+    &:active {
+      background-color: transparent;
+      transform: translateY(0);
+      
+      .menu-icon {
+        color: var(--text-color);
+        transform: none;
+      }
+    }
   }
 }
 

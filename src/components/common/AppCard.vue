@@ -70,25 +70,21 @@ export default {
   position: relative;
   background: var(--card-background);
   border: 1px solid var(--card-border-color, var(--border-color));
-  border-radius: 12px;
+  border-radius: 30px;
   box-shadow: none;
   color: var(--text-color);
-  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+  transition: border-color 0.3s ease, background 0.3s ease, background-color 0.3s ease;
+  overflow: hidden;
 }
 
 .app-card--stats {
-  border-radius: 16px;
+  border-radius: 32px;
 }
 
 .app-card--hoverable:hover,
 .app-card--active {
   background: var(--card-hover-background, var(--card-background));
   border-color: var(--card-hover-border-color, var(--theme-color));
-  box-shadow: none;
-}
-
-.app-card--hoverable:hover {
-  transform: translateY(-2px);
 }
 
 .app-card__header {

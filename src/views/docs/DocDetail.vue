@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="doc-detail-container">
 
@@ -110,7 +110,7 @@ import { fetchKnowledgeDetail } from '@/api/docs';
 
 import MarkdownIt from 'markdown-it';
 
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 import { SITE_CONFIG } from '@/utils/baseConfig';
 
@@ -986,38 +986,8 @@ const renderedContent = computed(() => {
 
       
 
-      processedContent = DOMPurify.sanitize(processedContent, {
-
-        ADD_TAGS: ['script', 'style', 'link', 'button', 'a', 'img', 'iframe', 'div', 'span'],
-
-        ADD_ATTR: [
-
-          'onclick', 'class', 'style', 'type', 'rel', 'href', 'target', 
-
-          'src', 'alt', 'title', 'width', 'height', 'frameborder', 'allowfullscreen',
-
-          'data-original-onclick', 'data-href', 'data-target', 'data-*'
-
-        ],
-
-        ALLOW_DATA_ATTR: true,
-
-        WHOLE_DOCUMENT: false,
-
-        FORCE_BODY: false,
-
-        FORBID_TAGS: [],
-
-        FORBID_ATTR: [],
-
-        ALLOW_UNKNOWN_PROTOCOLS: true,
-
-        ALLOW_ARIA_ATTR: true
-
-      });
-
+      processedContent = sanitizeHtml(processedContent);
       
-
       if (styleMatches.length > 0) {
 
         const tempDiv = document.createElement('div');
@@ -1119,11 +1089,11 @@ const renderedContent = computed(() => {
         });
       }
 
-      return tempDiv.innerHTML;
+      return sanitizeHtml(tempDiv.innerHTML);
 
     } else {
 
-      return renderedMd;
+      return sanitizeHtml(renderedMd);
 
     }
 
@@ -1715,6 +1685,12 @@ onUnmounted(() => {
 
   line-height: 1.8;
 
+  max-width: 100%;
+
+  overflow-wrap: anywhere;
+
+  word-break: break-word;
+
   
 
   :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
@@ -2016,6 +1992,10 @@ onUnmounted(() => {
     transition: color 0.2s ease;
 
     font-weight: 500;
+
+    overflow-wrap: anywhere;
+
+    word-break: break-word;
 
     
 

@@ -5,21 +5,21 @@
 // 给CSS变量设置初始值
 :root {
   // 背景颜色
-  --background-color: #f5f7fa;
-  --card-background: #ffffff;
+  --background-color: #f9fbff;
+  --card-background: rgba(255, 255, 255, 0.58);
   --card-background-rgb: 255, 255, 255;
-  --card-border-color: #d9dee7;
-  --card-hover-border-color: rgba(var(--theme-color-rgb), 0.35);
-  --card-hover-background: #ffffff;
+  --card-border-color: rgba(99, 102, 241, 0.16);
+  --card-hover-border-color: rgba(99, 102, 241, 0.38);
+  --card-hover-background: rgba(255, 255, 255, 0.72);
   
   // 文本颜色
-  --text-color: #333333;
-  --text-color-rgb: 51, 51, 51;
-  --secondary-text-color: #666666;
+  --text-color: #1f2937;
+  --text-color-rgb: 31, 41, 55;
+  --secondary-text-color: rgba(71, 85, 105, 0.66);
   
   // 边框和阴影
-  --border-color: #e8e8e8;
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --border-color: rgba(99, 116, 139, 0.1);
+  --shadow-color: rgba(59, 130, 246, 0.08);
   
   // 功能色
   --success-color: #00B42A;
@@ -40,18 +40,19 @@
 }
 
 // 黑暗模式变量
+:root.dark-theme,
 body.dark-theme {
-  --background-color: #171A1D;
-  --card-background: #1f2329;
-  --card-background-rgb: 31, 35, 41;
-  --text-color: rgba(255, 255, 255, 0.9);
+  --background-color: #050712;
+  --card-background: rgba(15, 20, 36, 0.78);
+  --card-background-rgb: 15, 20, 36;
+  --text-color: rgba(255, 255, 255, 0.92);
   --text-color-rgb: 255, 255, 255;
-  --secondary-text-color: rgba(255, 255, 255, 0.6);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --card-border-color: rgba(255, 255, 255, 0.16);
-  --card-hover-border-color: rgba(var(--theme-color-rgb), 0.45);
-  --card-hover-background: #232832;
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  --secondary-text-color: rgba(255, 255, 255, 0.64);
+  --border-color: rgba(255, 255, 255, 0.09);
+  --card-border-color: rgba(255, 255, 255, 0.11);
+  --card-hover-border-color: rgba(var(--theme-color-rgb), 0.42);
+  --card-hover-background: rgba(20, 27, 48, 0.86);
+  --shadow-color: rgba(0, 0, 0, 0.45);
 }
 
 // 断点变量
@@ -88,10 +89,10 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 
 // 边框圆角
-$border-radius-sm: 4px;
-$border-radius: 8px;
-$border-radius-lg: 16px;
-$border-radius-xl: 24px;
+$border-radius-sm: 12px;
+$border-radius: 18px;
+$border-radius-lg: 26px;
+$border-radius-xl: 34px;
 
 // 动画时间
 $transition-time-fast: 0.2s;

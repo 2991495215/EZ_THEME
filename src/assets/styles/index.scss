@@ -7,6 +7,7 @@
 @use "./base/reset.scss" as *;
 @use "./base/animations.scss" as *;
 @use "./base/scrollbar.scss" as *;
+@use "./base/performance-mode.scss" as *;
 
 // 导入组件样式
 @use "./components/form.scss" as *;

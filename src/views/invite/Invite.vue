@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="account-container">
     <!-- 自定义确认弹窗 -->
     <transition name="modal">
@@ -28,7 +28,7 @@
     
     <div class="account-inner">
       <!-- 欢迎卡片 -->
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
         <div class="card-header">
           <h2 class="card-title">{{ $t('invite.title') }}</h2>
         </div>
@@ -159,11 +159,11 @@
               <div class="balance-description">{{ $t('invite.balance.description') }}</div>
             </div>
             <div class="balance-actions">
-              <button class="btn-primary" @click="toggleTransferCard">
+              <button class="plain-action-btn" @click="toggleTransferCard">
                 <IconCash class="btn-icon" />
                 {{ $t('invite.balance.transferToBalance') }}
               </button>
-              <button v-if="withdrawClose === 0" class="btn-primary withdraw-btn" @click="toggleWithdrawCard">
+              <button v-if="withdrawClose === 0" class="plain-action-btn" @click="toggleWithdrawCard">
                 <IconReceipt class="btn-icon" />
                 {{ $t('invite.balance.withdraw') }}
               </button>
@@ -332,7 +332,7 @@
         <div class="card-header">
           <h2 class="card-title">{{ $t('invite.inviteLink.title') }}</h2>
           <div class="card-actions">
-            <button class="btn-action" @click="createInviteCode" :disabled="creatingCode">
+            <button class="plain-action-btn create-invite-btn" @click="createInviteCode" :disabled="creatingCode">
               <div v-if="creatingCode" class="loading-icon"></div>
               <IconPlus v-else class="action-icon" />
               {{ creatingCode ? $t('invite.inviteLink.creating') : $t('invite.inviteLink.createCode') }}
@@ -413,7 +413,7 @@
                     :placeholder="$t('invite.inviteLink.placeholder')"
                   />
                 </div>
-                <button class="btn-primary" @click="copyInviteLink">
+                <button class="plain-action-btn copy-link-btn" @click="copyInviteLink">
                   <IconCopy class="btn-icon" />
                   {{ $t('invite.inviteLink.copyLink') }}
                 </button>
@@ -437,13 +437,6 @@
           </template>
           <div v-else class="no-invite-code">
             <p>{{ $t('invite.inviteLink.noInviteCode') }}</p>
-            <button class="btn-primary create-code-btn" @click="createInviteCode" :disabled="creatingCode">
-              <div v-if="creatingCode" class="loading-icon"></div>
-              <span v-else class="create-btn-content">
-                <IconPlus class="btn-icon" />
-                {{ $t('invite.inviteLink.createCode') }}
-              </span>
-            </button>
           </div>
         </div>
       </div>
@@ -1365,17 +1358,24 @@ export default {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
       margin-bottom: 15px;
+      min-width: 0;
       
       .card-title {
         font-size: 18px;
         font-weight: 600;
         margin: 0;
+        min-width: 0;
       }
       
       .card-actions {
         display: flex;
+        align-items: center;
+        justify-content: flex-end;
         gap: 10px;
+        flex: 0 0 auto;
+        min-width: max-content;
       }
     }
   }
@@ -1699,13 +1699,16 @@ export default {
   
   .invite-link-wrapper {
     display: flex;
+    align-items: stretch;
     gap: 10px;
     margin-top: 16px;
     margin-bottom: 20px;
+    min-width: 0;
     
     .input-with-icon {
       position: relative;
-      flex: 1;
+      flex: 1 1 auto;
+      min-width: 0;
       
       .input-icon {
         position: absolute;
@@ -1750,6 +1753,11 @@ export default {
           cursor: pointer;
         }
       }
+    }
+    
+    > .plain-action-btn {
+      flex: 0 0 auto;
+      min-width: 112px;
     }
   }
   
@@ -1815,7 +1823,7 @@ export default {
   .rules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 20px;
+    gap: 12px;
     
     @media (min-width: 768px) {
       grid-template-columns: repeat(2, 1fr);
@@ -1830,12 +1838,12 @@ export default {
       align-items: flex-start;
       gap: 15px;
       padding: 15px;
-      border-radius: 10px;
-      background-color: rgba(var(--border-color-rgb), 0.05);
-      transition: all 0.3s ease;
+      border-radius: 14px;
+      background: transparent;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
       
       &:hover {
-        background-color: rgba(var(--theme-color-rgb), 0.05);
+        background-color: rgba(var(--theme-color-rgb), 0.03);
       }
       
       .rule-icon {
@@ -1844,9 +1852,11 @@ export default {
         justify-content: center;
         width: 48px;
         height: 48px;
-        border-radius: 10px;
-        background-color: rgba(var(--theme-color-rgb), 0.1);
+        border-radius: 12px;
+        background-color: rgba(var(--theme-color-rgb), 0.08);
         color: var(--theme-color);
+        flex-shrink: 0;
+        box-shadow: none;
       }
       
       .rule-content {
@@ -2036,9 +2046,16 @@ export default {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  
+  > * {
+    position: relative;
+    z-index: 1;
+  }
   
   .btn-icon {
     width: 16px;
@@ -2089,21 +2106,93 @@ export default {
   }
 }
 
+.create-invite-btn,
+.transfer-balance-btn {
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+.plain-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 44px;
+  min-width: 118px;
+  padding: 0 18px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.28);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.12), rgba(255, 255, 255, 0.38));
+  color: var(--text-color);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(12px);
+  transition: transform 0.22s ease, border-color 0.22s ease, color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+  
+  &::after {
+    display: none !important;
+    content: none !important;
+  }
+  
+  &:hover:not(:disabled) {
+    border-color: rgba(var(--theme-color-rgb), 0.52);
+    background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.2), rgba(255, 255, 255, 0.52));
+    color: var(--theme-color);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(var(--theme-color-rgb), 0.17), inset 0 1px 0 rgba(255, 255, 255, 0.76);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 7px 16px rgba(15, 23, 42, 0.12);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .btn-icon,
+  .action-icon {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+  }
+}
+
 .btn-action {
-  background-color: transparent;
-  color: var(--secondary-text-color);
-  border: none;
-  padding: 5px 10px;
+  min-height: 40px;
+  background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.16), rgba(255, 255, 255, 0.42));
+  color: var(--text-color);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.3);
+  padding: 0 16px;
   font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
   
   &:hover:not(:disabled) {
     color: var(--theme-color);
-    background-color: rgba(var(--theme-color-rgb), 0.05);
+    background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.24), rgba(255, 255, 255, 0.54));
+    border-color: rgba(var(--theme-color-rgb), 0.56);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(var(--theme-color-rgb), 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
   }
   
   .action-icon {
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
   }
   
   .spin {
@@ -2274,19 +2363,32 @@ export default {
     padding: 15px;
     padding-bottom: 80px; 
     
+    .dashboard-card {
+      .card-header {
+        align-items: flex-start;
+        gap: 12px;
+      }
+      
+      .card-actions {
+        justify-content: flex-end;
+        min-width: auto;
+      }
+    }
+    
     .stats-grid {
       grid-template-columns: 1fr;
     }
     
     .invite-link-wrapper {
       flex-direction: column;
+      align-items: stretch;
       margin-bottom: 15px;
       
       .input-with-icon {
         width: 100%;
       
-      .invite-link {
-        width: 100%;
+        .invite-link {
+          width: 100%;
         }
       }
       
@@ -2305,6 +2407,12 @@ export default {
   }
 }
 
+
+@media (max-width: 768px) {
+  .rules-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
 .dark-theme .invite-code-tabs,
 .dark .invite-code-tabs {
@@ -3298,6 +3406,42 @@ export default {
   }
 }
 
+.rules-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.rule-item {
+  min-width: 0;
+  overflow: hidden;
+  align-items: center;
+  padding: 16px;
+  background: transparent !important;
+  box-shadow: none !important;
+  
+  &:hover {
+    background-color: rgba(var(--theme-color-rgb), 0.03) !important;
+  }
+  
+  .rule-icon {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    background-color: rgba(var(--theme-color-rgb), 0.08) !important;
+    box-shadow: none !important;
+  }
+  
+  .rule-content {
+    min-width: 0;
+    
+    h3,
+    p {
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
 .balance-container {
   display: flex;
   align-items: center;
@@ -3339,26 +3483,13 @@ export default {
     display: flex;
     gap: 10px;
     
-    .btn-primary {
-      height: 44px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      padding: 0 20px;
-      border-radius: 10px;
-      min-width: 140px;
-      box-shadow: 0 2px 8px rgba(var(--theme-color-rgb), 0.25);
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(var(--theme-color-rgb), 0.35);
-      }
-    }
-    
     @media (max-width: 768px) {
       width: 100%;
       margin-top: 10px;
+      flex-direction: column;
+      align-items: stretch;
       
-      .btn-primary {
+      .plain-action-btn {
         width: 100%;
         justify-content: center;
       }

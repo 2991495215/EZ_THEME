@@ -1,8 +1,8 @@
-﻿<template>
+<template>
   <div class="orders-container">
     <div class="orders-inner">
       <!-- 欢迎卡片 -->
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
         <div class="card-header">
           <h2 class="card-title">{{ $t('orders.welcome.title') || '订单列表' }}</h2>
         </div>
@@ -563,14 +563,15 @@ watch(locale, () => {
   margin: 0 auto;
 }
 
-.order-table-container {
-  overflow-x: auto; 
-  background-color: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  
+.order-table-container {
+  overflow-x: auto; 
+  background-color: var(--card-bg);
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  clip-path: inset(0 round 30px);
+  
   &:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
     border-color: rgba(var(--theme-color-rgb), 0.3);
@@ -599,12 +600,12 @@ watch(locale, () => {
     top: 0;
     z-index: 10;
     
-    &:first-child {
-      border-top-left-radius: 12px;
-    }
-    
-    &:last-child {
-      border-top-right-radius: 12px;
+    &:first-child {
+      border-top-left-radius: 30px;
+    }
+    
+    &:last-child {
+      border-top-right-radius: 30px;
     }
   }
   
@@ -631,12 +632,15 @@ watch(locale, () => {
     color: #f44336;
   }
   
-  .status-badge {
-    display: inline-block;
-    padding: 0.35rem 0.75rem;
-    border-radius: 5px; 
-    font-size: 0.85rem;
-    font-weight: 500;
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px; 
+    font-size: 0.85rem;
+    font-weight: 500;
+    min-width: 64px;
     
     &.status-pending {
       background-color: rgba(255, 152, 0, 0.1);
@@ -716,16 +720,18 @@ watch(locale, () => {
 }
 
 
-.orders-loading, 
-.orders-error, 
-.orders-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-  
+.orders-loading, 
+.orders-error, 
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  border-radius: 30px;
+  overflow: hidden;
+  
   p {
     margin-top: 1rem;
     color: var(--text-muted);
@@ -1054,12 +1060,12 @@ watch(locale, () => {
   gap: 1rem;
 }
 
-.order-card {
-  background-color: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+.order-card {
+  background-color: var(--card-bg);
+  border-radius: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
   overflow: hidden;
   
   &:hover {
@@ -1132,12 +1138,12 @@ watch(locale, () => {
   gap: 0.75rem;
   background-color: rgba(var(--theme-color-rgb), 0.02);
   
-  .action-button {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
+  .action-button {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;

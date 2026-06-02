@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" href="./images/logo.png">
+    <link rel="icon" href="/images/logo.png">
     <title>%VUE_APP_TITLE%</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,16 +12,31 @@
     <!--EZ_CONFIG_SCRIPT-->
     <style>
         @media (min-width: 769px) {
-            html, body, div, main, section, article, aside, nav {
-                scrollbar-width: none !important;
-                -ms-overflow-style: none !important;
+            html, body {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(120, 120, 120, 0.35) transparent;
             }
 
-            ::-webkit-scrollbar, ::-webkit-scrollbar-button, ::-webkit-scrollbar-track, ::-webkit-scrollbar-track-piece, ::-webkit-scrollbar-thumb, ::-webkit-scrollbar-corner, ::-webkit-resizer {
-                display: none !important;
-                width: 0 !important;
-                height: 0 !important;
-                background: transparent !important;
+            html::-webkit-scrollbar,
+            body::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            html::-webkit-scrollbar-track,
+            body::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            html::-webkit-scrollbar-thumb,
+            body::-webkit-scrollbar-thumb {
+                background: rgba(120, 120, 120, 0.35);
+                border-radius: 999px;
+            }
+
+            html::-webkit-scrollbar-thumb:hover,
+            body::-webkit-scrollbar-thumb:hover {
+                background: rgba(120, 120, 120, 0.5);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
     <div class="ticket-container">
         <!-- 屏幕尺寸提示 -->
 
@@ -21,7 +21,7 @@
         <template v-else>
             <!-- 欢迎卡片 -->
 
-            <div class="dashboard-card welcome-card">
+            <div v-if="false" class="dashboard-card welcome-card">
                 <div class="card-header">
                     <h2 class="card-title">{{ $t('tickets.title') }}</h2>
                 </div>
@@ -161,16 +161,17 @@
                                 </div>
                             </div>
 
-                            <div class="ticket-actions">
+                            <div class="ticket-actions close-ticket-actions">
                                 <button
                                     v-if="selectedTicket.status === 0"
                                     class="close-ticket-btn"
                                     @click="showCloseConfirm()"
                                     :disabled="closingTicket"
                                 >
-                                    <span v-if="!closingTicket">{{
-                                        $t('tickets.closeTicket')
-                                    }}</span>
+                                    <span
+                                        v-if="!closingTicket"
+                                        class="close-ticket-text"
+                                    >{{ $t('tickets.closeTicket') }}</span>
 
                                     <span v-else class="loading-text">
                                         <span class="loading-spinner"></span>
@@ -209,64 +210,96 @@
                                 </div>
 
                                 <template v-else>
-                                    <div
+                                    <template
                                         v-for="(
                                             message, index
                                         ) in ticketMessages"
                                         :key="message.id"
-                                        class="message-item"
-                                        :class="{
-                                            'admin-message': message.is_admin,
-                                            'user-message': !message.is_admin
-                                        }"
                                     >
                                         <div
                                             v-if="message.is_admin"
-                                            class="message-avatar admin-avatar"
+                                            class="ticket-message-row admin-message"
                                         >
-                                            <IconHeadset />
-                                        </div>
-
-                                        <div class="message-content">
-                                            <div class="message-header">
-                                                <span
-                                                    v-if="
-                                                        shouldShowMessageSender(
-                                                            index,
-                                                            message.is_admin
-                                                        )
-                                                    "
-                                                    class="message-sender"
-                                                >
-                                                    {{
-                                                        message.is_admin
-                                                            ? $t(
-                                                                  'tickets.admin'
-                                                              )
-                                                            : $t('tickets.you')
-                                                    }}
-                                                </span>
+                                            <div class="message-avatar admin-avatar">
+                                                <IconHeadset />
                                             </div>
 
-                                            <div
-                                                class="message-text"
-                                                v-html="
-                                                    md.render(message.message)
-                                                "
-                                            ></div>
+                                            <div class="ticket-message-main">
+                                                <div class="message-content">
+                                                    <div class="message-header">
+                                                        <span
+                                                            v-if="
+                                                                shouldShowMessageSender(
+                                                                    index,
+                                                                    message.is_admin
+                                                                )
+                                                            "
+                                                            class="message-sender"
+                                                        >
+                                                            {{ $t('tickets.admin') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div
+                                                        class="message-text"
+                                                        v-html="
+                                                            sanitizeHtml(md.render(
+                                                                message.message
+                                                            ))
+                                                        "
+                                                    ></div>
+                                                </div>
+
+                                                <span class="message-time-floating">{{
+                                                    formatTimeShort(
+                                                        message.created_at
+                                                    )
+                                                }}</span>
+                                            </div>
                                         </div>
 
                                         <div
-                                            v-if="!message.is_admin"
-                                            class="message-avatar user-avatar"
+                                            v-else
+                                            class="ticket-message-row user-message"
                                         >
-                                            <IconUser />
-                                        </div>
+                                            <div class="ticket-message-main">
+                                                <div class="message-content">
+                                                    <div class="message-header">
+                                                        <span
+                                                            v-if="
+                                                                shouldShowMessageSender(
+                                                                    index,
+                                                                    message.is_admin
+                                                                )
+                                                            "
+                                                            class="message-sender"
+                                                        >
+                                                            {{ $t('tickets.you') }}
+                                                        </span>
+                                                    </div>
 
-                                        <span class="message-time-floating">{{
-                                            formatTimeShort(message.created_at)
-                                        }}</span>
-                                    </div>
+                                                    <div
+                                                        class="message-text"
+                                                        v-html="
+                                                            sanitizeHtml(md.render(
+                                                                message.message
+                                                            ))
+                                                        "
+                                                    ></div>
+                                                </div>
+
+                                                <span class="message-time-floating">{{
+                                                    formatTimeShort(
+                                                        message.created_at
+                                                    )
+                                                }}</span>
+                                            </div>
+
+                                            <div class="message-avatar user-avatar">
+                                                <IconUser />
+                                            </div>
+                                        </div>
+                                    </template>
                                 </template>
                             </div>
                         </div>
@@ -648,6 +681,7 @@
         <!-- 工单弹窗 -->
 
         <TicketPopup
+            v-if="false"
             :show-popup="showTicketPopup"
             :title="ticketPopupCfg.title"
             :content="ticketPopupCfg.content"
@@ -666,6 +700,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import { createMarkdownRenderer, formatTicketTime, formatTicketTimeShort, shouldShowMessageSenderGroup } from './composables/ticketPresentation';
+import { sanitizeHtml } from '@/utils/sanitize';
 
 const md = ref({ render: (content) => content || '' });
 
@@ -737,7 +772,7 @@ const showCloseTicketModal = ref(false);
 
 const closingTicket = ref(false);
 
-const loadingTickets = ref(false);
+const loadingTickets = ref(true);
 
 const refreshInterval = ref(null);
 
@@ -803,47 +838,49 @@ const onDropImage = async (e) => {
 };
 
 const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
     uploadingImages.value = true;
 
-    for (const file of files) {
-        if (file.size > 5 * 1024 * 1024) {
-            showToast('图片不能超过 5MB', 'error');
-            continue;
-        }
-
-        try {
-            // 转成 base64
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
-            const formData = new FormData();
-            formData.append('image', base64);
-
-            const res = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await res.json();
-            if (result.success && result.data && result.data.url) {
-                uploadedImages.value.push(result.data.url);
-                newTicket.value.message += `\n![image](${result.data.url})`;
-            } else {
-                showToast(result.error?.message || '图片上传失败', 'error');
+    try {
+        for (const file of files) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('图片不能超过 5MB', 'error');
+                continue;
             }
-        } catch (err) {
-            console.error(err);
-            showToast('图片上传异常', 'error');
-        }
-    }
 
-    uploadingImages.value = false;
+            try {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                const formData = new FormData();
+                formData.append('image', base64);
+
+                const res = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (result.success && result.data && result.data.url) {
+                    uploadedImages.value.push(result.data.url);
+                    newTicket.value.message += `\n![image](${result.data.url})`;
+                } else {
+                    showToast(result.error?.message || '图片上传失败', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('图片上传异常', 'error');
+            }
+        }
+    } finally {
+        uploadingImages.value = false;
+        if (imageInput.value) imageInput.value.value = '';
+    }
 };
 
 // ========= 回复区上传图片 =========
@@ -1328,17 +1365,7 @@ const showTicketPopup = ref(false);
 const ticketPopupCfg = TICKET_CONFIG?.popup || {};
 
 const checkTicketPopup = () => {
-    if (!ticketPopupCfg.enabled) return;
-
-    const lastClose = Number(
-        localStorage.getItem('ticket_popup_close_time') || 0
-    );
-
-    const cooldownMs = (ticketPopupCfg.cooldownHours || 0) * 3600 * 1000;
-
-    if (!lastClose || Date.now() - lastClose >= cooldownMs) {
-        showTicketPopup.value = true;
-    }
+    return;
 };
 
 const handleTicketPopupClose = () => {
@@ -1352,8 +1379,6 @@ onMounted(async () => {
     window.addEventListener('resize', checkScreenSize);
 
     fetchTickets();
-
-    checkTicketPopup();
 });
 
 onUnmounted(() => {
@@ -1365,11 +1390,13 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 .ticket-container {
-    padding: 20px;
+    padding: 28px 32px;
 
     display: flex;
 
     flex-direction: column;
+
+    min-height: calc(100vh - 96px);
 }
 
 .dashboard-card {
@@ -1429,53 +1456,108 @@ onUnmounted(() => {
 .ticket-list-container {
     display: flex;
 
-    height: calc(100vh - 250px);
+    gap: 18px;
 
-    max-height: 700px;
+    height: min(82vh, 860px);
 
-    background-color: var(--card-bg);
+    min-height: 680px;
 
-    border-radius: 12px;
+    padding: 18px;
+
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+        var(--card-bg);
+
+    border-radius: 24px;
 
     overflow: hidden;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+
+    box-shadow:
+        0 0 0 1px rgba(var(--theme-color-rgb), 0.1) inset,
+        0 24px 70px rgba(0, 0, 0, 0.2),
+        0 0 42px rgba(var(--theme-color-rgb), 0.08);
+
+    position: relative;
+}
+
+.ticket-list-container::before {
+    content: '';
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    border-radius: inherit;
+
+    background:
+        radial-gradient(circle at 0 0, rgba(var(--theme-color-rgb), 0.16), transparent 34%),
+        radial-gradient(circle at 100% 100%, rgba(var(--theme-color-rgb), 0.12), transparent 30%),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 28%, transparent 72%, rgba(var(--theme-color-rgb), 0.1));
+
+    opacity: 0.72;
 }
 
 .ticket-sidebar {
-    width: 320px;
-
-    border-right: 1px solid var(--border-color);
+    width: clamp(340px, 26vw, 420px);
 
     display: flex;
 
     flex-direction: column;
 
-    background-color: var(--bg-secondary);
+    gap: 12px;
+
+    position: relative;
+
+    z-index: 1;
+}
+
+.ticket-sidebar,
+.ticket-content {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.02)),
+        var(--bg-secondary);
+
+    border: 1px solid rgba(255, 255, 255, 0.13);
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 0 0 1px rgba(var(--theme-color-rgb), 0.04) inset,
+        0 14px 36px rgba(0, 0, 0, 0.08);
 }
 
 .ticket-header {
-    padding: 1rem;
+    padding: 20px;
 
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+        rgba(var(--theme-color-rgb), 0.025);
 
     .search-box {
         position: relative;
 
-        margin-bottom: 1rem;
+        margin-bottom: 20px;
 
         input {
             width: 100%;
 
-            height: 40px;
+            height: 48px;
 
-            padding: 0 1rem 0 2.5rem;
+            padding: 0 1rem 0 2.75rem;
 
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.13);
 
-            border-radius: 8px;
+            border-radius: 12px;
 
-            background-color: var(--bg-secondary);
+            background-color: rgba(255, 255, 255, 0.025);
 
             color: var(--text-color);
 
@@ -1483,14 +1565,16 @@ onUnmounted(() => {
 
             transition: all 0.3s ease;
 
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 0 0 1px rgba(var(--theme-color-rgb), 0.04) inset;
 
             &:focus {
                 outline: none;
 
-                border-color: rgba(var(--theme-color-rgb), 0.5);
+                border-color: rgba(var(--theme-color-rgb), 0.55);
 
-                box-shadow: 0 2px 12px rgba(var(--theme-color-rgb), 0.1);
+                box-shadow:
+                    0 0 0 3px rgba(var(--theme-color-rgb), 0.1),
+                    0 0 24px rgba(var(--theme-color-rgb), 0.12);
             }
 
             &::placeholder {
@@ -1522,7 +1606,7 @@ onUnmounted(() => {
     .new-ticket-btn {
         width: 100%;
 
-        height: 40px;
+        height: 48px;
 
         display: flex;
 
@@ -1532,13 +1616,13 @@ onUnmounted(() => {
 
         gap: 8px;
 
-        padding: 0 16px;
+        padding: 0 18px;
 
-        border-radius: 8px;
+        border-radius: 999px;
 
         font-size: 14px;
 
-        font-weight: 500;
+        font-weight: 600;
 
         cursor: pointer;
 
@@ -1546,28 +1630,36 @@ onUnmounted(() => {
 
         color: white;
 
-        background-color: rgba(var(--theme-color-rgb), 0.85);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 32%),
+            linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.98), rgba(var(--theme-color-rgb), 0.72));
 
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(10px);
 
-        -webkit-backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(10px);
 
-        border: 1px solid rgba(var(--theme-color-rgb), 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.24);
 
-        box-shadow: 0 8px 20px rgba(var(--theme-color-rgb), 0.25);
+        box-shadow:
+            0 12px 28px rgba(var(--theme-color-rgb), 0.24),
+            0 0 0 1px rgba(var(--theme-color-rgb), 0.22) inset;
 
         &:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
 
-            box-shadow: 0 10px 25px rgba(var(--theme-color-rgb), 0.35);
+            box-shadow:
+                0 16px 36px rgba(var(--theme-color-rgb), 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2) inset;
 
-            background-color: rgba(var(--theme-color-rgb), 0.95);
+            filter: saturate(1.08);
         }
 
         &:active {
             transform: translateY(0);
 
-            box-shadow: 0 5px 15px rgba(var(--theme-color-rgb), 0.3);
+            box-shadow:
+                0 8px 18px rgba(var(--theme-color-rgb), 0.26),
+                0 0 0 1px rgba(var(--theme-color-rgb), 0.2) inset;
         }
     }
 }
@@ -1577,28 +1669,28 @@ onUnmounted(() => {
 
     overflow-y: auto;
 
-    padding: 0.5rem;
+    padding: 18px 20px 22px;
 }
 
 .ticket-item {
-    padding: 1rem;
+    padding: 18px;
 
-    border-radius: 8px;
+    border-radius: 18px;
 
     cursor: pointer;
 
     transition: all 0.3s ease;
 
-    margin-bottom: 0.5rem;
+    margin-bottom: 10px;
 
     position: relative;
 
     &:hover {
-        background-color: rgba(var(--theme-color-rgb), 0.05);
+        background-color: rgba(var(--theme-color-rgb), 0.07);
     }
 
     &.active {
-        background-color: rgba(var(--theme-color-rgb), 0.1);
+        background-color: rgba(var(--theme-color-rgb), 0.12);
     }
 }
 
@@ -1606,9 +1698,9 @@ onUnmounted(() => {
     .ticket-subject {
         margin: 0;
 
-        font-size: 0.95rem;
+        font-size: 1.05rem;
 
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
 
         color: var(--text-color);
     }
@@ -1619,7 +1711,7 @@ onUnmounted(() => {
         align-items: center;
 
         .ticket-time {
-            font-size: 0.8rem;
+            font-size: 0.86rem;
 
             color: var(--text-muted);
 
@@ -1642,11 +1734,11 @@ onUnmounted(() => {
 
     justify-content: center;
 
-    padding: 0.25rem 0.5rem;
+    padding: 0.3rem 0.62rem;
 
-    border-radius: 4px;
+    border-radius: 6px;
 
-    font-size: 0.75rem;
+    font-size: 0.8rem;
 
     font-weight: 500;
 }
@@ -1688,13 +1780,15 @@ onUnmounted(() => {
 
     flex-direction: column;
 
-    background-color: var(--card-bg);
+    position: relative;
+
+    z-index: 1;
 }
 
 .ticket-detail-header {
-    padding: 1rem;
+    padding: 24px 28px;
 
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
     display: flex;
 
@@ -1702,13 +1796,33 @@ onUnmounted(() => {
 
     align-items: center;
 
+    gap: 18px;
+
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.018)),
+        rgba(var(--theme-color-rgb), 0.025);
+
     .ticket-subject-info {
+        min-width: 0;
+
         h2 {
             margin: 0;
 
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.55rem;
 
-            font-size: 1.2rem;
+            font-size: 1.35rem;
+
+            line-height: 1.35;
+
+            letter-spacing: 0.01em;
+
+            color: var(--text-color);
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
+
+            white-space: nowrap;
         }
 
         .ticket-detail-meta {
@@ -1716,14 +1830,18 @@ onUnmounted(() => {
 
             align-items: center;
 
-            gap: 0.5rem;
+            flex-wrap: wrap;
 
-            font-size: 0.85rem;
+            gap: 0.55rem;
+
+            font-size: 0.9rem;
 
             color: var(--text-muted);
 
             .ticket-time {
-                margin-left: 0.5rem;
+                margin-left: 0.25rem;
+
+                opacity: 0.82;
             }
         }
     }
@@ -1734,24 +1852,56 @@ onUnmounted(() => {
 
             align-items: center;
 
+            justify-content: center;
+
             gap: 0.5rem;
 
-            padding: 0.5rem 0.75rem;
+            min-width: 104px;
 
-            border-radius: 6px;
+            height: 40px;
 
-            background-color: rgba(244, 67, 54, 0.1);
+            box-sizing: border-box;
 
-            color: #f44336;
+            padding: 0 1rem;
 
-            border: none;
+            border-radius: 999px;
+
+            background:
+                linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 32%),
+                linear-gradient(135deg, rgba(244, 67, 54, 0.95), rgba(244, 67, 54, 0.68));
+
+            color: var(--close-ticket-text-color, white);
+
+            border: 1px solid rgba(255, 255, 255, 0.22);
 
             cursor: pointer;
 
             transition: all 0.3s ease;
 
-            &:hover {
-                background-color: rgba(244, 67, 54, 0.2);
+            font-weight: 600;
+
+            box-shadow:
+                0 12px 26px rgba(244, 67, 54, 0.22),
+                0 0 0 1px rgba(244, 67, 54, 0.16) inset;
+
+            &:hover:not(:disabled) {
+                transform: translateY(-1px);
+
+                box-shadow:
+                    0 16px 34px rgba(244, 67, 54, 0.28),
+                    0 0 0 1px rgba(255, 255, 255, 0.18) inset;
+
+                filter: saturate(1.08);
+            }
+
+            &:active:not(:disabled) {
+                transform: translateY(0);
+            }
+
+            &:disabled {
+                opacity: 0.62;
+
+                cursor: not-allowed;
             }
         }
     }
@@ -1762,25 +1912,24 @@ onUnmounted(() => {
 
     overflow-y: auto;
 
-    padding: 1.5rem;
+    padding: 32px 36px;
 
-    background-color: var(--bg-secondary);
+    background:
+        radial-gradient(circle at 50% 0, rgba(var(--theme-color-rgb), 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.01)),
+        var(--bg-secondary);
 
     display: flex;
 
     flex-direction: column;
-
-    // 移除系统暗色覆盖
-    // @media (prefers-color-scheme: dark) {
-    //   background-color: rgba(20, 25, 30, 0.7);
-    //   background-image: linear-gradient(to bottom, rgba(30,35,40,.4), rgba(15,20,25,.4));
-    // }
 }
 
 // 仅在 EZ 主题为暗色时生效
 :global(body.dark-theme) .ticket-detail-content {
-  background-color: rgba(20, 25, 30, 0.7);
-  background-image: linear-gradient(to bottom, rgba(30,35,40,.4), rgba(15,20,25,.4));
+  background-color: rgba(20, 25, 30, 0.72);
+  background-image:
+    radial-gradient(circle at 50% 0, rgba(var(--theme-color-rgb), 0.08), transparent 42%),
+    linear-gradient(to bottom, rgba(30,35,40,.42), rgba(15,20,25,.42));
 }
 
 .ticket-messages {
@@ -1788,11 +1937,11 @@ onUnmounted(() => {
 
     flex-direction: column;
 
-    gap: 0.5rem;
+    gap: 1.25rem;
 
     flex: 1;
 
-    padding-bottom: 1rem;
+    padding: 0 4px 1.75rem;
 
     .message-date-separator {
         display: flex;
@@ -1835,7 +1984,7 @@ onUnmounted(() => {
 .message-item {
     display: flex;
 
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.6rem;
 
     align-items: flex-end;
 
@@ -1845,16 +1994,7 @@ onUnmounted(() => {
         justify-content: flex-end;
 
         .message-content {
-            margin-left: 10%;
-
-            background-color: rgba(var(--theme-color-rgb), 0.08);
-
-            border-radius: 18px 18px 4px 18px;
-
-            // @media (prefers-color-scheme: dark) {
-            //   background-color: rgba(var(--theme-color-rgb), 0.15);
-            //   border: 1px solid rgba(var(--theme-color-rgb), 0.2);
-            // }
+            margin-left: 12%;
 
             .message-sender {
                 color: rgba(var(--theme-color-rgb), 0.9);
@@ -1874,16 +2014,7 @@ onUnmounted(() => {
         justify-content: flex-start;
 
         .message-content {
-            margin-right: 10%;
-
-            background-color: rgba(var(--theme-color-rgb), 0.08);
-
-            border-radius: 18px 18px 18px 4px;
-
-            // @media (prefers-color-scheme: dark) {
-            //   background-color: rgba(var(--theme-color-rgb), 0.15);
-            //   border: 1px solid rgba(var(--theme-color-rgb), 0.2);
-            // }
+            margin-right: 12%;
 
             .message-sender {
                 color: rgba(var(--theme-color-rgb), 0.9);
@@ -1966,19 +2097,11 @@ onUnmounted(() => {
     }
 
     .message-content {
-        max-width: 85%;
+        max-width: min(82%, 860px);
 
-        padding: 0.85rem 1.1rem;
-
-        border-radius: 18px;
-
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        padding: 0.35rem 0;
 
         position: relative;
-
-        // @media (prefers-color-scheme: dark) {
-        //   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        // }
 
         .message-header {
             display: flex;
@@ -2005,15 +2128,31 @@ onUnmounted(() => {
         }
 
         .message-text {
-            font-size: 0.97rem;
+            font-size: 1rem;
 
-            line-height: 1.5;
+            line-height: 1.72;
 
             white-space: pre-wrap;
 
             word-break: break-word;
 
             color: var(--text-color);
+
+            :deep(p) {
+                margin: 0 0 0.45rem;
+            }
+
+            :deep(p:last-child) {
+                margin-bottom: 0;
+            }
+
+            :deep(hr) {
+                margin: 0.8rem 0;
+
+                border: 0;
+
+                border-top: 1px solid rgba(255, 255, 255, 0.14);
+            }
         }
     }
 
@@ -2030,36 +2169,29 @@ onUnmounted(() => {
     }
 }
 
-// 按应用主题启用深色
-:global(body.dark-theme) .message-item.user-message .message-content,
-:global(body.dark-theme) .message-item.admin-message .message-content {
-  background-color: rgba(var(--theme-color-rgb), 0.15);
-  border: 1px solid rgba(var(--theme-color-rgb), 0.2);
-}
-:global(body.dark-theme) .message-item .message-content {
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-:global(body.dark-theme) .message-item .message-avatar.user-avatar {
+:global(body.dark-theme) .ticket-message-row .message-avatar.user-avatar {
   background-color: rgba(74, 122, 226, 0.85);
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
-:global(body.dark-theme) .message-item .message-avatar.admin-avatar {
+:global(body.dark-theme) .ticket-message-row .message-avatar.admin-avatar {
   background-color: rgba(216, 73, 73, 0.85);
   box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
 .reply-container {
-    padding: 1.25rem;
+    padding: 22px 26px;
 
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 
     display: flex;
 
-    gap: 1rem;
+    gap: 16px;
 
     align-items: flex-start;
 
-    background-color: var(--card-bg);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
+        rgba(var(--theme-color-rgb), 0.025);
 
     // @media (prefers-color-scheme: dark) {
     //   background-color: rgba(25, 30, 35, 0.8);
@@ -2068,36 +2200,42 @@ onUnmounted(() => {
     textarea {
         flex: 1;
 
-        padding: 1rem 1.25rem;
+        padding: 1.05rem 1.15rem;
 
-        border: 1px solid var(--border-color);
+        border: 1px solid rgba(255, 255, 255, 0.13);
 
-        border-radius: 18px;
+        border-radius: 16px;
 
         resize: none;
 
-        background-color: var(--bg-secondary);
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018)),
+            var(--bg-secondary);
 
         color: var(--text-color);
 
         font-size: 1rem;
 
-        line-height: 1.5;
+        line-height: 1.65;
 
         transition: all 0.3s ease;
 
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        box-shadow:
+            0 0 0 1px rgba(var(--theme-color-rgb), 0.04) inset,
+            0 8px 22px rgba(0, 0, 0, 0.04);
 
-        min-height: 90px;
+        min-height: 112px;
 
         &:focus {
             outline: none;
 
-            border-color: var(--theme-color);
+            border-color: rgba(var(--theme-color-rgb), 0.55);
 
-            box-shadow: 0 4px 12px rgba(var(--theme-color-rgb), 0.1);
+            box-shadow:
+                0 0 0 3px rgba(var(--theme-color-rgb), 0.1),
+                0 10px 26px rgba(var(--theme-color-rgb), 0.1);
 
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         &::placeholder {
@@ -2121,17 +2259,19 @@ onUnmounted(() => {
 
         gap: 0.5rem;
 
-        padding: 0 1.5rem;
+        padding: 0 1.25rem;
 
-        height: 40px;
+        height: 44px;
 
-        border-radius: 8px;
+        border-radius: 999px;
 
-        background-color: rgba(var(--theme-color-rgb), 0.85);
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 32%),
+            linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.96), rgba(var(--theme-color-rgb), 0.7));
 
         color: white;
 
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.24);
 
         cursor: pointer;
 
@@ -2139,34 +2279,40 @@ onUnmounted(() => {
 
         white-space: nowrap;
 
-        font-weight: 500;
+        font-weight: 600;
 
-        box-shadow: 0 8px 20px rgba(var(--theme-color-rgb), 0.25);
+        box-shadow:
+            0 12px 26px rgba(var(--theme-color-rgb), 0.24),
+            0 0 0 1px rgba(var(--theme-color-rgb), 0.2) inset;
 
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(10px);
 
-        -webkit-backdrop-filter: blur(8px);
-
-        border: 1px solid rgba(var(--theme-color-rgb), 0.3);
+        -webkit-backdrop-filter: blur(10px);
 
         &:hover:not(:disabled) {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
 
-            box-shadow: 0 10px 25px rgba(var(--theme-color-rgb), 0.35);
+            box-shadow:
+                0 16px 34px rgba(var(--theme-color-rgb), 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.18) inset;
 
-            background-color: rgba(var(--theme-color-rgb), 0.95);
+            filter: saturate(1.08);
         }
 
         &:active:not(:disabled) {
             transform: translateY(0);
 
-            box-shadow: 0 5px 15px rgba(var(--theme-color-rgb), 0.3);
+            box-shadow:
+                0 8px 18px rgba(var(--theme-color-rgb), 0.26),
+                0 0 0 1px rgba(var(--theme-color-rgb), 0.18) inset;
         }
 
         &:disabled {
-            opacity: 0.6;
+            opacity: 0.58;
 
             cursor: not-allowed;
+
+            filter: grayscale(0.1);
         }
 
         .loader {
@@ -2215,13 +2361,21 @@ onUnmounted(() => {
 
     height: 100%;
 
-    min-height: 200px;
+    min-height: 360px;
+
+    gap: 16px;
+
+    padding: 2.5rem 2rem;
+
+    background:
+        radial-gradient(circle at 50% 38%, rgba(var(--theme-color-rgb), 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
 
     .no-selection-icon,
     .no-messages-icon {
-        margin-bottom: 1.2rem;
+        margin-bottom: 0.4rem;
 
-        opacity: 0.6;
+        opacity: 0.55;
 
         color: var(--text-muted);
 
@@ -2231,11 +2385,13 @@ onUnmounted(() => {
     }
 
     p {
-        font-size: 1rem;
+        font-size: 1.1rem;
+
+        line-height: 1.6;
 
         text-align: center;
 
-        margin-top: 0.8rem;
+        margin: 0;
     }
 }
 
@@ -2252,10 +2408,16 @@ onUnmounted(() => {
 
     color: var(--text-muted);
 
-    padding: 2rem;
+    padding: 2.5rem 2rem;
+
+    gap: 14px;
+
+    background:
+        radial-gradient(circle at 50% 40%, rgba(var(--theme-color-rgb), 0.1), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
 
     .empty-icon {
-        margin-bottom: 1rem;
+        margin-bottom: 0;
 
         opacity: 0.5;
     }
@@ -2263,7 +2425,11 @@ onUnmounted(() => {
     p {
         font-size: 1rem;
 
+        line-height: 1.6;
+
         text-align: center;
+
+        margin: 0;
     }
 }
 
@@ -2684,6 +2850,20 @@ onUnmounted(() => {
         flex-direction: column;
 
         height: calc(100vh - 120px);
+
+        padding: 18px;
+    }
+
+    .ticket-list-container {
+        min-height: 0;
+
+        height: 100%;
+
+        border-radius: 18px;
+
+        gap: 10px;
+
+        padding: 10px;
     }
 
     .ticket-sidebar {
@@ -2693,11 +2873,19 @@ onUnmounted(() => {
 
         border-right: none;
 
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 0;
+
+        border-radius: 14px;
     }
 
     .ticket-content {
         height: 60%;
+
+        border-radius: 14px;
+    }
+
+    .ticket-detail-content {
+        padding: 20px;
     }
 
     .reply-container {
@@ -2718,12 +2906,18 @@ onUnmounted(() => {
 
     justify-content: center;
 
-    padding: 2rem;
+    padding: 2.5rem 2rem;
 
     height: 100%;
 
+    color: var(--text-muted);
+
+    background:
+        radial-gradient(circle at 50% 40%, rgba(var(--theme-color-rgb), 0.08), transparent 36%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+
     p {
-        margin-top: 1rem;
+        margin: 1rem 0 0;
 
         color: var(--text-muted);
 
@@ -2925,8 +3119,11 @@ onUnmounted(() => {
 .dashboard-card,
 .ticket-list-container {
     background-color: var(--card-background);
-    border: 1px solid var(--card-border-color, var(--border-color));
-    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 0 0 1px rgba(var(--theme-color-rgb), 0.1) inset,
+        0 24px 70px rgba(0, 0, 0, 0.2),
+        0 0 42px rgba(var(--theme-color-rgb), 0.08);
 }
 
 .dashboard-card:hover {
@@ -2936,33 +3133,63 @@ onUnmounted(() => {
 
 .ticket-list-container {
     overflow: hidden;
+    border-radius: 22px;
+    isolation: isolate;
+    gap: 14px;
+    padding: 14px;
+    background-color: var(--card-hover-background, rgba(var(--theme-color-rgb), 0.035));
 }
 
 .ticket-sidebar {
-    background-color: var(--card-background);
-    border-right: 1px solid var(--card-border-color, var(--border-color));
+    background: transparent;
+    border-right: 0;
+    border-radius: 18px;
+    overflow: hidden;
+    gap: 14px;
 }
 
 .ticket-content {
     background-color: var(--card-background);
+    border: 1px solid var(--card-border-color, var(--border-color));
+    border-radius: 18px;
+    overflow: hidden;
 }
 
 .ticket-header,
 .ticket-detail-header,
 .reply-container {
+    background: var(--card-background);
     border-color: var(--card-border-color, var(--border-color));
 }
 
-.ticket-item {
-    background-color: var(--card-background);
+.ticket-header,
+.empty-state {
+    background: var(--card-background);
     border: 1px solid var(--card-border-color, var(--border-color));
-    box-shadow: none;
+    border-radius: 18px;
+}
+
+.ticket-header {
+    border-bottom-color: var(--card-border-color, var(--border-color));
+}
+
+.empty-state {
+    min-height: 0;
+}
+
+.ticket-item {
+    background-color: rgba(255, 255, 255, 0.018);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 0 0 1px rgba(var(--theme-color-rgb), 0.035) inset;
 }
 
 .ticket-item:hover,
 .ticket-item.active {
-    border-color: var(--card-hover-border-color, var(--theme-color));
+    border-color: rgba(var(--theme-color-rgb), 0.42);
     background-color: var(--card-hover-background, rgba(var(--theme-color-rgb), 0.08));
+    box-shadow:
+        0 0 0 1px rgba(var(--theme-color-rgb), 0.12) inset,
+        0 10px 28px rgba(var(--theme-color-rgb), 0.08);
     transform: none;
 }
 
@@ -2972,18 +3199,60 @@ onUnmounted(() => {
 .modal-body .form-group textarea,
 .modal-content,
 .screen-size-notice .notice-content {
-    background-color: var(--card-background);
+    background-color: var(--input-bg, rgba(255, 255, 255, 0.025));
     border-color: var(--card-border-color, var(--border-color));
-    box-shadow: none;
+    box-shadow: 0 0 0 1px rgba(var(--theme-color-rgb), 0.04) inset;
 }
 
 .ticket-header .search-box input:focus,
 .reply-container textarea:focus,
 .modal-body .form-group input:focus,
 .modal-body .form-group textarea:focus {
-    border-color: var(--card-hover-border-color, var(--theme-color));
-    box-shadow: none;
+    border-color: rgba(var(--theme-color-rgb), 0.55);
+    box-shadow:
+        0 0 0 3px rgba(var(--theme-color-rgb), 0.1),
+        0 0 24px rgba(var(--theme-color-rgb), 0.12);
     transform: none;
+}
+
+:global(body:not(.dark-theme)) .reply-container {
+    color: #111827 !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-top-color: rgba(17, 24, 39, 0.1) !important;
+}
+
+:global(body:not(.dark-theme)) .reply-container textarea {
+    color: #111827 !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(17, 24, 39, 0.22) !important;
+    box-shadow:
+        0 0 0 1px rgba(17, 24, 39, 0.08) inset,
+        0 10px 24px rgba(17, 24, 39, 0.08) !important;
+    caret-color: #111827 !important;
+}
+
+:global(body:not(.dark-theme)) .reply-container textarea::placeholder {
+    color: rgba(17, 24, 39, 0.48) !important;
+}
+
+:global(body:not(.dark-theme)) .reply-container .send-reply-btn,
+:global(body:not(.dark-theme)) .reply-container .send-reply-btn span,
+:global(body:not(.dark-theme)) .reply-container .send-reply-btn svg {
+    color: #111827 !important;
+    stroke: currentColor !important;
+}
+
+:global(body:not(.dark-theme)) .ticket-actions {
+    --close-ticket-text-color: #111827;
+}
+
+:global(body:not(.dark-theme)) .ticket-actions .close-ticket-btn {
+    color: #111827 !important;
+}
+
+:global(body:not(.dark-theme)) .ticket-actions .close-ticket-btn .close-ticket-text,
+:global(body:not(.dark-theme)) .ticket-actions .close-ticket-btn span {
+    color: #111827 !important;
 }
 
 .new-ticket-btn,
@@ -2991,16 +3260,27 @@ onUnmounted(() => {
 .modal-footer button,
 .screen-size-notice .switch-btn,
 .close-ticket-btn {
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    box-shadow:
+        0 12px 26px rgba(var(--theme-color-rgb), 0.18),
+        0 0 0 1px rgba(var(--theme-color-rgb), 0.14) inset;
+}
+
+:global(body:not(.dark-theme)) .ticket-actions .close-ticket-btn {
+    border: 1px solid rgba(244, 67, 54, 0.28) !important;
+    outline: none !important;
+    outline-offset: 0 !important;
+    box-shadow:
+        0 12px 26px rgba(244, 67, 54, 0.18),
+        0 0 0 1px rgba(244, 67, 54, 0.12) inset !important;
 }
 
 .new-ticket-btn:hover,
 .send-reply-btn:hover,
 .modal-footer button:hover,
 .screen-size-notice .switch-btn:hover {
-    box-shadow: none;
+    box-shadow:
+        0 16px 34px rgba(var(--theme-color-rgb), 0.24),
+        0 0 0 1px rgba(255, 255, 255, 0.14) inset;
 }
 
 .modal-overlay,
@@ -3012,7 +3292,7 @@ onUnmounted(() => {
 
 .message-content,
 .message-avatar {
-    box-shadow: none;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
 }
 
 .message-item {
@@ -3023,7 +3303,7 @@ onUnmounted(() => {
 }
 
 .message-content {
-    border: 1px solid var(--card-border-color, var(--border-color));
+    border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .message-text {
@@ -3160,7 +3440,7 @@ onUnmounted(() => {
 
 .ticket-detail-content {
     min-height: 0;
-    padding: 24px;
+    padding: 32px 36px;
     background-color: var(--card-background);
 }
 
@@ -3170,42 +3450,85 @@ onUnmounted(() => {
     gap: 18px;
 }
 
-.message-item {
-    margin-bottom: 0;
-    padding: 0;
+.ticket-message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    max-width: min(920px, 88%);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
 }
 
-.message-item.user-message .message-content,
-.message-item.admin-message .message-content {
+.ticket-message-row.user-message {
+    align-self: flex-end;
+    justify-content: flex-end;
+}
+
+.ticket-message-row.admin-message {
+    align-self: flex-start;
+    justify-content: flex-start;
+}
+
+.ticket-message-main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: min(780px, calc(100% - 48px));
+}
+
+.ticket-message-row.user-message .ticket-message-main {
+    align-items: flex-end;
+}
+
+.ticket-message-row .message-content {
+    width: max-content;
+    max-width: 100%;
+    padding: 16px 20px;
+    border-radius: 16px;
     background-color: var(--card-hover-background, rgba(var(--theme-color-rgb), 0.08));
-    border-color: var(--card-border-color, var(--border-color));
+    border: 1px solid var(--card-border-color, var(--border-color));
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.12);
 }
 
-.message-item .message-content {
-    max-width: min(520px, 70%);
-    padding: 12px 16px;
-    border-radius: 12px;
+.ticket-message-row.user-message .message-content {
+    border-radius: 16px 16px 6px 16px;
 }
 
-.message-item.user-message .message-content {
-    border-radius: 12px 12px 4px 12px;
+.ticket-message-row.admin-message .message-content {
+    border-radius: 16px 16px 16px 6px;
 }
 
-.message-item.admin-message .message-content {
-    border-radius: 12px 12px 12px 4px;
+.ticket-message-row .message-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
 }
 
-.message-item .message-avatar {
-    width: 32px;
-    height: 32px;
+.ticket-message-row .message-avatar.user-avatar {
+    background-color: rgba(91, 138, 245, 0.85);
 }
 
-.message-item .message-avatar::before {
+.ticket-message-row .message-avatar.admin-avatar {
+    background-color: rgba(245, 91, 91, 0.85);
+}
+
+.ticket-message-row .message-avatar::before {
     display: none;
 }
 
-.message-item .message-time-floating {
-    bottom: -18px;
+.ticket-message-row .message-time-floating {
+    margin-top: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    opacity: 0.8;
 }
 
 .ticket-closed-notice {

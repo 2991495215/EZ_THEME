@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="register-view-container">
 
@@ -770,7 +770,7 @@ export default {
 
 
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref('/images/logo.png');
 
     const handleLogoError = () => {
 

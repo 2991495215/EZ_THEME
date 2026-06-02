@@ -1,7 +1,7 @@
-﻿<template>
+<template>
   <div class="dashboard-container">
     <div class="dashboard-inner">
-      <AppCard class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
+      <AppCard v-if="false" class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.welcome') }}</h2>
         </div>
@@ -101,7 +101,7 @@
       <transition name="fade">
         <div v-if="showNoticeDetails" class="notice-modal-overlay" @click="closeNoticeModal">
           <transition name="popup-slide">
-            <div v-if="showNoticeDetails" class="notice-modal" :style="noticeModalStyle" @click.stop>
+            <div v-if="showNoticeDetails" class="notice-modal" :class="noticeModalThemeClass" :style="noticeModalStyle" @click.stop>
               <div class="notice-modal-header">
                 <h2 class="popup-title">{{ notices.data[currentNoticeIndex].title }}</h2>
                 <button class="popup-close-btn" @click="closeNoticeModal">
@@ -170,7 +170,7 @@
               </div>
             </div>
             <div class="subscription-actions">
-              <button v-if="showImportSubscription" class="btn-outline" :class="{
+              <button v-if="showImportSubscription" class="btn-outline import-subscription-btn" :class="{
                 'btn-active': showImportCard,
                 'btn-highlight-btnbgcolor': DASHBOARD_CONFIG.importButtonHighlightBtnbgcolor
               }" @click="toggleImportCard">
@@ -217,8 +217,9 @@
       </AppCard>
 
       <!-- 订阅导入卡片 -->
-      <transition name="slide-fade">
-        <AppCard v-if="showImportCard && userPlan.subscribeUrl" class="dashboard-card import-card" hoverable no-padding>
+      <transition name="import-card-transition">
+        <div v-if="showImportCard && userPlan.subscribeUrl" class="import-card-shell">
+          <AppCard class="dashboard-card import-card" hoverable no-padding>
           <div class="card-header">
             <h2 class="card-title">{{ $t('dashboard.importSubscription') }}</h2>
             <button class="close-btn" @click="showImportCard = false">
@@ -261,7 +262,8 @@
             </div>
 
             <!-- iOS平台选项 -->
-            <div v-if="activePlatform === 'ios'" class="platform-section">
+            <transition name="platform-section-transition" mode="out-in">
+              <div v-if="activePlatform === 'ios'" key="ios" class="platform-section">
               <div class="platform-title">iOS</div>
               <div v-if="hasIOSClients" class="platform-options">
                 <div v-if="clientConfig.showShadowrocket" class="platform-option"
@@ -300,7 +302,7 @@
             </div>
 
             <!-- Android平台选项 -->
-            <div v-if="activePlatform === 'android'" class="platform-section">
+            <div v-else-if="activePlatform === 'android'" key="android" class="platform-section">
               <div class="platform-title">Android</div>
               <div v-if="hasAndroidClients" class="platform-options">
                 <div v-if="clientConfig.showFlClashAndroid" class="platform-option" @click="importToClient('flclash')">
@@ -346,7 +348,7 @@
             </div>
 
             <!-- Windows平台选项 -->
-            <div v-if="activePlatform === 'windows'" class="platform-section">
+            <div v-else-if="activePlatform === 'windows'" key="windows" class="platform-section">
               <div class="platform-title">Windows</div>
               <div v-if="hasWindowsClients" class="platform-options">
                 <div v-if="clientConfig.showFlClashWindows" class="platform-option" @click="importToClient('flclash')">
@@ -382,7 +384,7 @@
             </div>
 
             <!-- MacOS平台选项 -->
-            <div v-if="activePlatform === 'macos'" class="platform-section">
+            <div v-else-if="activePlatform === 'macos'" key="macos" class="platform-section">
               <div class="platform-title">MacOS</div>
               <div v-if="hasMacOSClients" class="platform-options">
                 <div v-if="clientConfig.showFlClashMac" class="platform-option" @click="importToClient('flclash')">
@@ -429,8 +431,10 @@
                 <p>{{ $t('dashboard.noClientsAvailable') }}</p>
               </div>
             </div>
+            </transition>
           </div>
-        </AppCard>
+          </AppCard>
+        </div>
       </transition>
 
       <!-- QR码模态窗口 -->
@@ -554,14 +558,15 @@
 
           <AppCard class="stats-card doc-card"
                :class="{'card-animate': !loading.userStats}"
-               @click="openDocumentation"
-               style="animation-delay: 0.8s" variant="stats" hoverable no-padding>
+               style="animation-delay: 0.8s"
+               variant="stats" hoverable no-padding
+               @click="openDocumentation">
             <div class="stats-icon">
               <IconFileText :size="32"/>
             </div>
             <div class="stats-info">
-              <div class="stats-value">{{ $t('dashboard.viewHelp') }}</div>
-              <div class="stats-label">{{ $t('dashboard.documentation') }}</div>
+              <div class="stats-value">查看帮助</div>
+              <div class="stats-label">使用文档</div>
             </div>
             <div class="chevron-icon">
               <IconChevronRight :size="20"/>
@@ -570,7 +575,7 @@
         </template>
       </div>
 
-      <!-- 官方客户端下载区域 -->
+      <!--
       <AppCard class="dashboard-card download-card" :class="{'card-animate': !loading.userInfo}"
            v-if="clientConfig.showDownloadCard" style="animation-delay: 0.9s" hoverable no-padding>
         <div class="card-header">
@@ -622,6 +627,87 @@
           </div>
         </div>
       </AppCard>
+      -->
+
+      <AppCard class="dashboard-card ip-check-card" :class="{'card-animate': !loading.userStats}" style="animation-delay: 0.95s" hoverable no-padding>
+        <div class="card-header ip-check-header">
+          <div>
+            <h2 class="card-title">当前出口检测</h2>
+            <div class="ip-check-subtitle">实时查看当前 IP、归属地与风险状态</div>
+          </div>
+          <a
+              class="ip-check-action"
+              href="https://ip.net.coffee/ip/"
+              target="_blank"
+              rel="noopener noreferrer"
+          >
+            查看评分
+            <IconChevronRight :size="16"/>
+          </a>
+        </div>
+        <div class="card-body ip-check-body">
+          <div class="ip-check-copy">
+            <div class="ip-check-title">确认你的代理出口是否生效</div>
+            <div class="ip-check-desc">切换节点后快速确认出口位置、ASN 归属和风险画像。</div>
+          </div>
+          <div class="ip-card-display" @click="playIpCardEffect">
+            <span
+                v-for="popup in ipCardPopups"
+                :key="popup.id"
+                class="ip-card-popup"
+                :style="{ left: `${popup.x}%`, top: `${popup.y}%` }"
+            >{{ popup.text }}</span>
+            <img
+                class="ip-card-image"
+                :src="ipCardImageSrc"
+                alt="当前出口 IP 信息"
+                loading="lazy"
+            />
+          </div>
+        </div>
+      </AppCard>
+
+      <section v-if="!loading.userInfo && !loading.userStats" class="dashboard-card client-guide-section card-animate" style="animation-delay: 1s">
+        <div class="client-guide-tabs" aria-label="选择系统" role="tablist">
+          <button
+              v-for="platform in clientGuidePlatforms"
+              :key="platform.id"
+              class="client-guide-tab"
+              :class="{'active': activeClientGuidePlatform === platform.id}"
+              type="button"
+              role="tab"
+              :aria-selected="activeClientGuidePlatform === platform.id"
+              @click="activeClientGuidePlatform = platform.id"
+          >
+            <component :is="platform.icon" :size="platform.iconSize"/>
+            <span>{{ platform.label }}</span>
+          </button>
+        </div>
+
+        <transition name="client-list-switch" mode="out-in">
+          <div class="client-download-list" :key="activeClientGuidePlatform">
+            <button
+                v-for="client in clientGuideCards"
+                :key="client.name"
+                class="client-download-item"
+                type="button"
+                @click="openClientGuideDownload(client)"
+            >
+              <span class="client-download-info">
+                <span class="client-guide-icon-wrap">
+                  <img v-if="client.icon" :src="client.icon" :alt="client.name" class="client-guide-icon"/>
+                  <component v-else :is="client.fallbackIcon" :size="32" class="client-guide-icon-fallback"/>
+                </span>
+                <span class="client-download-name">{{ client.name }}</span>
+              </span>
+              <span class="client-download-action">
+                <IconDownload :size="18"/>
+                <span>下载客户端</span>
+              </span>
+            </button>
+          </div>
+        </transition>
+      </section>
     </div>
     <!-- 弹窗组件 -->
     <CommonDialog
@@ -717,6 +803,7 @@ import {
   IconCopy,
   IconCrosshair,
   IconDeviceDesktop,
+  IconDownload,
   IconEye,
   IconEyeOff,
   IconFileText,
@@ -743,10 +830,13 @@ import {
 } from '@tabler/icons-vue';
 import CommonDialog from '@/components/popup/CommonDialog.vue';
 import AppCard from '@/components/common/AppCard.vue';
+import {useTheme} from '@/composables/useTheme';
+import {usePerformanceMode} from '@/composables/usePerformanceMode';
 import {getNotices, getSubscribe, getUserConfig, getUserInfo, getUserStats, setNextPeriod} from '@/api/dashboard';
 import {useToast} from '@/composables/useToast';
 import {submitOrder} from '@/api/shop';
 import MarkdownIt from 'markdown-it';
+import { sanitizeHtml } from '@/utils/sanitize';
 import shadowrocketIconImg from '@/assets/images/client-img-ios/shadowrocket.png';
 import surgeIconImg from '@/assets/images/client-img-ios/Surge.png';
 import stashIconImg from '@/assets/images/client-img-ios/stash.png';
@@ -860,12 +950,45 @@ export default {
     IconAlertTriangle,
     IconX,
     IconCalendarPlus,
+    IconDownload,
     AppCard,
     CommonDialog
   },
   setup() {
     const {t, locale} = useI18n();
     const router = useRouter();
+    const {theme} = useTheme();
+    const {isPerformanceMode} = usePerformanceMode();
+    const noticeModalThemeClass = computed(() => ({
+      'notice-modal--dark': theme.value === 'dark'
+    }));
+    const ipCardImageSrc = computed(() => {
+      const style = theme.value === 'dark' ? 'aurora' : 'snowy';
+      const sticker = theme.value === 'dark' ? 'rainbow' : 'ghost';
+      return `https://card.net.coffee/v1/card.svg?style=${style}&sticker=${sticker}&w=480`;
+    });
+    const ipCardPopups = ref([]);
+    let ipCardPopupId = 0;
+    const playIpCardEffect = () => {
+      if (isPerformanceMode.value) return;
+
+      const popups = ['👍', '✨', '🚀', '👌', '💫'];
+      const text = popups[ipCardPopupId % popups.length];
+      ipCardPopups.value = [
+        ...ipCardPopups.value,
+        {
+          id: ++ipCardPopupId,
+          text,
+          x: 50 + (Math.random() - 0.5) * 22,
+          y: 50 + (Math.random() - 0.5) * 18
+        }
+      ];
+
+      const currentId = ipCardPopupId;
+      setTimeout(() => {
+        ipCardPopups.value = ipCardPopups.value.filter(popup => popup.id !== currentId);
+      }, 950);
+    };
     const clientConfig = reactive(CLIENT_CONFIG);
     const notices = ref([]);
     const autoRotateNotices = ref(true);
@@ -985,6 +1108,125 @@ export default {
         userPlan.value.expireDate = t('dashboard.permanent');
       }
     });
+
+    const clientGuidePlatforms = [
+      {id: 'android', label: '安卓手机', icon: 'IconBrandAndroid', iconSize: 24},
+      {id: 'ios', label: '苹果手机', icon: 'IconBrandApple', iconSize: 21},
+      {id: 'windows', label: 'Win电脑', icon: 'IconBrandWindows', iconSize: 18},
+      {id: 'macos', label: 'Mac电脑', icon: 'IconBrandApple', iconSize: 21}
+    ];
+
+    const activeClientGuidePlatform = ref('windows');
+
+    const clientGuideData = {
+      windows: [
+        {
+          name: 'FlClash',
+          icon: flclashIconImg,
+          fallbackIcon: 'IconDeviceDesktop',
+          downloadUrl: 'https://github.com/chen08209/FlClash/releases/latest'
+        },
+        {
+          name: 'Clash Verge',
+          icon: clashvergeIconImg,
+          fallbackIcon: 'IconDeviceDesktop',
+          downloadUrl: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest'
+        },
+        {
+          name: 'v2rayN',
+          icon: v2rayNGIconImg,
+          fallbackIcon: 'IconDeviceDesktop',
+          downloadUrl: 'https://github.com/2dust/v2rayN/releases/latest'
+        },
+        {
+          name: 'sing-box',
+          icon: singboxWindowsIconImg,
+          fallbackIcon: 'IconDeviceDesktop',
+          downloadUrl: 'https://github.com/SagerNet/sing-box/releases/latest'
+        }
+      ],
+      android: [
+        {
+          name: 'FlClash',
+          icon: flclashIconImg,
+          fallbackIcon: 'IconBrandAndroid',
+          downloadUrl: 'https://github.com/chen08209/FlClash/releases/latest'
+        },
+        {
+          name: 'Clash Meta',
+          icon: clashMetaAndroidIconImg,
+          fallbackIcon: 'IconBrandAndroid',
+          downloadUrl: 'https://github.com/MetaCubeX/ClashMetaForAndroid/releases/latest'
+        },
+        {
+          name: 'v2rayNG',
+          icon: v2rayNGIconImg,
+          fallbackIcon: 'IconBrandAndroid',
+          downloadUrl: 'https://github.com/2dust/v2rayNG/releases/latest'
+        },
+        {
+          name: 'NekoBox',
+          icon: nekoboxIconImg,
+          fallbackIcon: 'IconBrandAndroid',
+          downloadUrl: 'https://github.com/MatsuriDayo/NekoBoxForAndroid/releases/latest'
+        },
+        {
+          name: 'sing-box',
+          icon: singboxAndroidIconImg,
+          fallbackIcon: 'IconBrandAndroid',
+          downloadUrl: 'https://github.com/SagerNet/sing-box/releases/latest'
+        }
+      ],
+      ios: [
+        {
+          name: 'Shadowrocket',
+          icon: shadowrocketIconImg,
+          fallbackIcon: 'IconBrandApple',
+          downloadUrl: 'https://apps.apple.com/us/app/shadowrocket/id932747118'
+        },
+        {
+          name: 'sing-box',
+          icon: singboxIconImg,
+          fallbackIcon: 'IconBrandApple',
+          downloadUrl: 'https://apps.apple.com/us/app/sing-box/id6451272673'
+        }
+      ],
+      macos: [
+        {
+          name: 'FlClash',
+          icon: flclashIconImg,
+          fallbackIcon: 'IconBrandFinder',
+          downloadUrl: 'https://github.com/chen08209/FlClash/releases/latest'
+        },
+        {
+          name: 'Clash Verge',
+          icon: clashvergeIconImg,
+          fallbackIcon: 'IconBrandFinder',
+          downloadUrl: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest'
+        },
+        {
+          name: 'sing-box',
+          icon: singboxMacIconImg,
+          fallbackIcon: 'IconBrandFinder',
+          downloadUrl: 'https://github.com/SagerNet/sing-box/releases/latest'
+        }
+      ]
+    };
+
+    const clientGuideCards = computed(() => clientGuideData[activeClientGuidePlatform.value] || []);
+
+    const openClientGuideLink = (url) => {
+      if (!url) return;
+      if (url.startsWith('/docs')) {
+        router.push(url);
+        return;
+      }
+      window.open(url, '_blank');
+    };
+
+    const openClientGuideDownload = (client) => {
+      openClientGuideLink(client.downloadUrl);
+    };
 
     const openDocumentation = () => {
       router.push('/docs');
@@ -1618,7 +1860,7 @@ export default {
                 block: 'center'
               });
             }
-          }, 100);
+          }, 260);
         });
       }
     };
@@ -1702,9 +1944,9 @@ export default {
           }
         });
 
-        return tempDiv.innerHTML;
+        return sanitizeHtml(tempDiv.innerHTML);
       } else {
-        return md.render(content);
+        return sanitizeHtml(md.render(content));
       }
     });
 
@@ -1834,6 +2076,10 @@ export default {
       showNoticeDetails,
       checkForPopupNotices,
       noticeModalStyle,
+      noticeModalThemeClass,
+      ipCardImageSrc,
+      ipCardPopups,
+      playIpCardEffect,
       openResetTrafficModal,
       popupConfig,
       handlePopupClose,
@@ -1892,6 +2138,10 @@ export default {
       DASHBOARD_CONFIG,
       allowNewPeriod,
       showImportSubscription,
+      clientGuidePlatforms,
+      activeClientGuidePlatform,
+      clientGuideCards,
+      openClientGuideDownload,
     };
   }
 };
@@ -1925,15 +2175,17 @@ export default {
 
   .dashboard-card {
     background-color: var(--card-background);
-    border-radius: 12px;
-    box-shadow: none;
+    border-radius: 30px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
     padding: 20px;
     margin-bottom: 24px;
     border: 1px solid var(--card-border-color);
-    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
 
-    &:hover {
-      box-shadow: none;
+    &.app-card--hoverable:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 42px rgba(var(--theme-color-rgb), 0.12);
       border-color: var(--card-hover-border-color);
     }
 
@@ -1960,25 +2212,44 @@ export default {
     margin-bottom: 24px;
 
     .subscription-info {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+      padding: 4px;
+      overflow: visible;
 
       .info-item {
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+        padding: 16px 18px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.1), rgba(var(--theme-color-rgb), 0.035));
+        border: 1px solid rgba(var(--theme-color-rgb), 0.16);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
 
         .info-label {
           font-size: 13px;
-          color: var(--secondary-text-color);
-          margin-bottom: 5px;
+          font-weight: 700;
+          color: rgba(var(--text-color-rgb), 0.78);
+          margin-bottom: 8px;
+          line-height: 1.35;
+          white-space: nowrap;
+          letter-spacing: 0.01em;
         }
 
         .info-value {
-          font-size: 16px;
-          font-weight: 600;
+          min-width: 0;
+          font-size: 20px;
+          line-height: 1.32;
+          font-weight: 800;
           color: var(--text-color);
+          letter-spacing: 0.01em;
+          text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
+          word-break: break-word;
         }
       }
     }
@@ -2044,6 +2315,199 @@ export default {
     }
   }
 
+  :global(.dark-theme) .subscription-card {
+    .subscription-info {
+      .info-item {
+        background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.18), rgba(255, 255, 255, 0.055));
+        border-color: rgba(var(--theme-color-rgb), 0.28);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+
+        .info-label {
+          color: rgba(255, 255, 255, 0.82);
+        }
+
+        .info-value {
+          color: rgba(255, 255, 255, 0.98);
+          text-shadow: 0 0 16px rgba(var(--theme-color-rgb), 0.18);
+        }
+      }
+    }
+  }
+
+  .ip-check-card {
+    position: relative;
+    padding: 16px;
+    margin-bottom: 18px;
+    background:
+      radial-gradient(circle at 12% 20%, rgba(var(--theme-color-rgb), 0.16), transparent 34%),
+      radial-gradient(circle at 88% 24%, rgba(34, 211, 238, 0.14), transparent 32%),
+      var(--card-background);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 46%, transparent 68%);
+      pointer-events: none;
+    }
+
+    .ip-check-header,
+    .ip-check-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ip-check-header {
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .ip-check-subtitle {
+      margin-top: 4px;
+      color: var(--secondary-text-color);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ip-check-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex: 0 0 auto;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: var(--theme-color);
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      background: rgba(var(--theme-color-rgb), 0.1);
+      border: 1px solid rgba(var(--theme-color-rgb), 0.16);
+      transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        background: rgba(var(--theme-color-rgb), 0.16);
+        border-color: rgba(var(--theme-color-rgb), 0.28);
+      }
+    }
+
+    .ip-check-body {
+      display: grid;
+      grid-template-columns: minmax(240px, 340px) minmax(320px, 480px);
+      align-items: center;
+      justify-content: space-between;
+      gap: 34px;
+      padding: 0 36px;
+    }
+
+    .ip-check-copy {
+      padding: 14px 16px;
+      border-radius: 20px;
+      background: rgba(var(--theme-color-rgb), 0.08);
+      border: 1px solid rgba(var(--theme-color-rgb), 0.12);
+    }
+
+    .ip-check-title {
+      color: var(--text-color);
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+
+    .ip-check-desc {
+      color: var(--secondary-text-color);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .ip-card-display {
+      position: relative;
+      min-width: 0;
+      margin: 0;
+      border-radius: 18px;
+      line-height: 0;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s ease, filter 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px) scale(1.01);
+        filter: saturate(1.08);
+      }
+    }
+
+    .ip-card-popup {
+      position: absolute;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(var(--theme-color-rgb), 0.16);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16), 0 0 22px rgba(var(--theme-color-rgb), 0.22);
+      font-size: 24px;
+      line-height: 1;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: ipCardPopup 0.95s cubic-bezier(0.22, 0.9, 0.32, 1) forwards;
+      backdrop-filter: blur(10px);
+    }
+
+    .ip-card-image {
+      display: block;
+      width: 100%;
+      max-width: 480px;
+      margin: 0;
+      border-radius: 18px;
+    }
+  }
+
+  :global(.dark-theme) .ip-check-card {
+    background:
+      radial-gradient(circle at 12% 20%, rgba(var(--theme-color-rgb), 0.24), transparent 34%),
+      radial-gradient(circle at 88% 24%, rgba(34, 211, 238, 0.16), transparent 32%),
+      var(--card-background);
+
+    .ip-check-copy {
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ip-card-popup {
+      background: rgba(15, 23, 42, 0.82);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28), 0 0 24px rgba(var(--theme-color-rgb), 0.2);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .ip-check-card {
+      .ip-check-header {
+        flex-direction: column;
+      }
+
+      .ip-check-action {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .ip-check-body {
+        grid-template-columns: 1fr;
+        padding: 0;
+      }
+
+      .ip-card-image {
+        max-width: 100%;
+        margin: 0 auto;
+      }
+    }
+  }
+
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -2061,13 +2525,13 @@ export default {
     .stats-card {
       position: relative;
       background-color: var(--card-background);
-      border-radius: 16px;
-      box-shadow: none;
+      border-radius: 30px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
       display: flex;
       align-items: center;
       gap: 16px;
       padding: 18px;
-      transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+      transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
       overflow: hidden;
       border: 1px solid var(--card-border-color);
 
@@ -2089,7 +2553,7 @@ export default {
         width: 100%;
         background-color: rgba(var(--theme-color-rgb), 0.12);
         transition: none;
-        border-radius: 0 0 16px 16px;
+        border-radius: 0 0 30px 30px;
         height: 0;
 
         &.animate-water {
@@ -2129,7 +2593,11 @@ export default {
 
       &:hover {
         border-color: var(--card-hover-border-color);
-        box-shadow: none;
+        box-shadow: 0 18px 42px rgba(var(--theme-color-rgb), 0.12);
+      }
+
+      &.app-card--hoverable:hover {
+        transform: translateY(-2px);
       }
 
       .stats-icon {
@@ -2139,7 +2607,7 @@ export default {
         width: 60px;
         height: 60px;
         background-color: rgba(var(--theme-color-rgb), 0.1);
-        border-radius: 12px;
+        border-radius: 22px;
         margin-right: 15px;
         color: var(--theme-color);
       }
@@ -2179,15 +2647,12 @@ export default {
   .download-card {
     .download-options {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 16px;
 
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      @media (min-width: 992px) {
-        grid-template-columns: repeat(6, 1fr);
+      @media (max-width: 576px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
       }
 
       .download-option {
@@ -2254,6 +2719,286 @@ export default {
   }
 
 
+  .client-guide-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .client-guide-tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 4px;
+    border-radius: 24px;
+    background-color: rgba(var(--theme-color-rgb), 0.04);
+    border: 1px solid rgba(var(--theme-color-rgb), 0.08);
+  }
+
+  .client-guide-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    background: transparent;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.28s ease, background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
+    white-space: nowrap;
+  }
+
+  .client-guide-tab svg {
+    transition: transform 0.28s ease, opacity 0.28s ease;
+  }
+
+  .client-guide-tab.active {
+    background: var(--card-background);
+    border-color: var(--card-border-color);
+    color: var(--theme-color);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  .client-guide-tab.active svg {
+    transform: scale(1.08);
+  }
+
+  @media (max-width: 576px) {
+    .client-guide-section {
+      gap: 14px;
+    }
+
+    .client-guide-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 4px;
+      border-radius: 22px;
+    }
+
+    .client-guide-tab {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 18px;
+      font-size: 13px;
+    }
+
+    .client-guide-tab.active {
+      border-color: var(--card-border-color);
+      background-color: var(--card-background);
+    }
+  }
+
+  .client-guide-tab:hover {
+    background-color: rgba(var(--theme-color-rgb), 0.1);
+    color: var(--text-color);
+    transform: translateY(-1px);
+  }
+
+  .client-download-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+
+  .client-list-switch-enter-active,
+  .client-list-switch-leave-active {
+    transition: opacity 0.24s ease, transform 0.24s ease, filter 0.24s ease;
+    will-change: opacity, transform, filter;
+  }
+
+  .client-list-switch-enter-from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+    filter: blur(4px);
+  }
+
+  .client-list-switch-leave-to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+    filter: blur(4px);
+  }
+
+  .client-list-switch-enter-active .client-download-item {
+    animation: clientDownloadItemIn 0.28s ease both;
+  }
+
+  .client-list-switch-enter-active .client-download-item:nth-child(2) {
+    animation-delay: 0.04s;
+  }
+
+  .client-list-switch-enter-active .client-download-item:nth-child(3) {
+    animation-delay: 0.08s;
+  }
+
+  .client-list-switch-enter-active .client-download-item:nth-child(4) {
+    animation-delay: 0.12s;
+  }
+
+  @keyframes clientDownloadItemIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .client-download-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 72px;
+    padding: 12px 14px;
+    border: 1px solid rgba(148, 163, 184, 0.24);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-color);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+    cursor: pointer;
+    transition: border-color 0.28s ease, background-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
+  }
+
+  .client-download-item:hover {
+    border-color: rgba(148, 163, 184, 0.34);
+    background-color: rgba(255, 255, 255, 0.62);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .client-download-info,
+  .client-download-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .client-download-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .client-download-name {
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+    word-break: normal;
+  }
+
+  .client-download-action {
+    position: relative;
+    isolation: isolate;
+    flex-shrink: 0;
+    min-height: 38px;
+    min-width: 112px;
+    justify-content: center;
+    padding: 0 14px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.26);
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.36);
+    backdrop-filter: blur(16px) saturate(1.05);
+    -webkit-backdrop-filter: blur(16px) saturate(1.05);
+    overflow: hidden;
+    transition: color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease, background-color 0.28s ease;
+  }
+
+  .client-download-action::before {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 18px 18px 32px rgba(255, 255, 255, 0.18), inset -14px -14px 28px rgba(15, 23, 42, 0.06);
+    pointer-events: none;
+  }
+
+  .client-download-action::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    width: 46px;
+    height: 46px;
+    right: -18px;
+    bottom: -20px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.28);
+    filter: blur(10px);
+    pointer-events: none;
+  }
+
+  .client-download-item:hover .client-download-action {
+    border-color: rgba(255, 255, 255, 0.56);
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.24);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.44);
+    transform: translateY(-1px);
+  }
+
+  .client-download-item:active .client-download-action {
+    transform: translateY(0);
+  }
+
+  .client-guide-icon-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.16), rgba(var(--theme-color-rgb), 0.05));
+    border: 1px solid rgba(var(--theme-color-rgb), 0.12);
+    overflow: hidden;
+  }
+
+  .client-guide-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 12px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  }
+
+  .client-guide-icon-fallback {
+    color: var(--theme-color);
+  }
+
+  @media (max-width: 576px) {
+    .client-download-list {
+      grid-template-columns: 1fr;
+    }
+
+    .client-download-item {
+      min-height: 66px;
+      padding: 10px;
+    }
+
+    .client-download-action {
+      min-width: auto;
+      padding: 0 10px;
+    }
+  }
+
   .notice-card {
     margin-bottom: 24px;
 
@@ -2271,8 +3016,9 @@ export default {
     .notice-item {
       position: relative;
       padding: 16px;
-      border-radius: 8px;
+      border-radius: 22px;
       background-color: rgba(var(--theme-color-rgb), 0.05);
+      overflow: hidden;
 
       .notice-title {
         font-size: 16px;
@@ -2304,7 +3050,7 @@ export default {
             justify-content: center;
             gap: 4px;
             padding: 6px 10px;
-            border-radius: 6px;
+            border-radius: 18px;
             font-size: 13px;
             background-color: rgba(var(--theme-color-rgb), 0.1);
             color: var(--theme-color);
@@ -2388,14 +3134,19 @@ export default {
       display: flex;
       align-items: center;
       padding: 15px;
-      border-radius: 10px;
-      background-color: rgba(var(--theme-color-rgb), 0.05);
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.1), rgba(var(--card-background-rgb), 0.2));
+      border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 28px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(24px) saturate(155%);
+      -webkit-backdrop-filter: blur(24px) saturate(155%);
       cursor: pointer;
       transition: all 0.3s ease;
+      overflow: hidden;
 
       &:hover {
-        background-color: rgba(var(--theme-color-rgb), 0.1);
-        transform: translateY(-2px);
+        background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.14), rgba(var(--card-background-rgb), 0.28));
+        border-color: rgba(var(--theme-color-rgb), 0.28);
       }
 
       .pending-icon {
@@ -2404,7 +3155,7 @@ export default {
         justify-content: center;
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: 18px;
         background-color: rgba(var(--theme-color-rgb), 0.15);
         color: var(--theme-color);
         margin-right: 15px;
@@ -2453,6 +3204,25 @@ export default {
   }
 }
 
+@keyframes ipCardPopup {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -36%) scale(0.72) rotate(-8deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -56%) scale(1.08) rotate(4deg);
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-50%, -98%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -142%) scale(0.92) rotate(8deg);
+  }
+}
+
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
@@ -2464,16 +3234,17 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 999px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: color 0.28s ease, background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
 
   .btn-icon {
-    margin-right: 4px;
+    margin-right: 2px;
+    transition: color 0.28s ease, opacity 0.28s ease, transform 0.28s ease;
   }
 }
 
@@ -2489,15 +3260,85 @@ export default {
 }
 
 .btn-outline {
-  background-color: transparent;
+  background-color: rgba(var(--theme-color-rgb), 0.045);
   color: var(--text-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--card-border-color, var(--border-color));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
   &:hover {
-    border-color: var(--theme-color);
+    border-color: rgba(var(--theme-color-rgb), 0.36);
     color: var(--theme-color);
-    background-color: rgba(var(--theme-color-rgb), 0.05);
+    background-color: rgba(var(--theme-color-rgb), 0.09);
     transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(var(--theme-color-rgb), 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  &.btn-active {
+    color: var(--theme-color);
+    border-color: rgba(var(--theme-color-rgb), 0.5);
+    background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.18), rgba(var(--theme-color-rgb), 0.08));
+    box-shadow: 0 10px 26px rgba(var(--theme-color-rgb), 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+
+  &.btn-active .btn-icon {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+
+  &.import-subscription-btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    transform-origin: center;
+  }
+
+  &.import-subscription-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.16), transparent 38%), linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.16), rgba(var(--theme-color-rgb), 0.04));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &.import-subscription-btn::after {
+    content: '';
+    position: absolute;
+    top: -60%;
+    bottom: -60%;
+    left: -42%;
+    width: 34%;
+    z-index: -1;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+    transform: translateX(-160%) rotate(18deg);
+    transition: transform 0.45s ease;
+  }
+
+  &.import-subscription-btn:hover {
+    transform: translateY(-2px) scale(1.015);
+  }
+
+  &.import-subscription-btn:hover::before,
+  &.import-subscription-btn.btn-active::before {
+    opacity: 1;
+  }
+
+  &.import-subscription-btn:hover::after,
+  &.import-subscription-btn.btn-active::after {
+    transform: translateX(430%) rotate(18deg);
+  }
+
+  &.import-subscription-btn.btn-active {
+    transform: translateY(1px) scale(0.99);
+    border-color: rgba(var(--theme-color-rgb), 0.62);
+    background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.26), rgba(var(--theme-color-rgb), 0.1));
+    box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), 0.18), inset 0 2px 8px rgba(var(--theme-color-rgb), 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  &.import-subscription-btn.btn-active .btn-icon {
+    transform: rotate(90deg) scale(1.08);
   }
 
 
@@ -2584,21 +3425,40 @@ export default {
     padding-bottom: 80px;
   }
 
+  :global(.dark-theme) .subscription-card {
+    .subscription-info {
+      .info-item {
+        background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.18), rgba(255, 255, 255, 0.055));
+        border-color: rgba(var(--theme-color-rgb), 0.28);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.22);
+
+        .info-label {
+          color: rgba(255, 255, 255, 0.82);
+        }
+
+        .info-value {
+          color: rgba(255, 255, 255, 0.98);
+          text-shadow: 0 0 16px rgba(var(--theme-color-rgb), 0.18);
+        }
+      }
+    }
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
 
   .subscription-card .subscription-info {
-    flex-direction: column;
-    gap: 15px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 2px;
   }
 
   .subscription-card .info-item {
     width: 100%;
-    padding: 0;
+    padding: 14px 16px;
     border-right: none;
-    border-bottom: 1px solid var(--border-light-color);
-    padding-bottom: 15px;
+    border-bottom: none;
   }
 
   .subscription-card .info-item:last-child {
@@ -2692,6 +3552,62 @@ export default {
 }
 
 
+.dashboard-card.doc-card {
+  cursor: pointer;
+
+  .doc-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .doc-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background-color: rgba(92, 124, 250, 0.15);
+    color: #5c7cfa;
+  }
+
+  .doc-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .doc-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--theme-color);
+    margin-bottom: 6px;
+  }
+
+  .doc-card-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--secondary-text-color);
+  }
+
+  .chevron-icon {
+    color: var(--theme-color);
+    opacity: 0.5;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    background-color: rgba(var(--theme-color-rgb), 0.08);
+    transform: translateY(-3px);
+
+    .chevron-icon {
+      transform: translateX(3px);
+      opacity: 1;
+    }
+  }
+}
+
 .stats-card.doc-card {
   cursor: pointer;
   transition: all 0.3s ease;
@@ -2740,32 +3656,49 @@ export default {
 }
 
 
-.btn-active {
-  background-color: rgba(var(--theme-color-rgb), 0.1);
-  color: var(--theme-color);
-  border-color: var(--theme-color);
+.import-card-shell {
+  display: grid;
+  grid-template-rows: 1fr;
+  margin-bottom: 24px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  transform-origin: top center;
+  will-change: grid-template-rows, opacity, transform, filter;
 }
 
-
 .import-card {
-  margin-bottom: 24px;
+  min-height: 0;
   overflow: hidden;
   will-change: transform, opacity;
   transform-origin: top center;
-  contain: content;
 }
 
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  will-change: opacity, transform;
-  backface-visibility: hidden;
+.import-card-transition-enter-active {
+  transition: grid-template-rows 0.36s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.32s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1), filter 0.32s ease;
 }
 
-.slide-fade-enter-from,
-.slide-fade-leave-to {
+.import-card-transition-leave-active {
+  transition: grid-template-rows 0.26s ease, opacity 0.22s ease, transform 0.26s ease, filter 0.22s ease;
+}
+
+.import-card-transition-enter-from,
+.import-card-transition-leave-to {
+  grid-template-rows: 0fr;
+  margin-bottom: 0;
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-14px) scale(0.985);
+  filter: blur(4px);
+}
+
+.import-card-transition-enter-active .import-card,
+.import-card-transition-leave-active .import-card {
+  pointer-events: none;
+}
+
+.import-card-transition-enter-from .import-card,
+.import-card-transition-leave-to .import-card {
+  opacity: 0;
 }
 
 .close-btn {
@@ -2922,7 +3855,95 @@ export default {
     }
   }
 }
+.platform-section-transition-enter-active {
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), filter 0.28s ease;
+}
 
+.platform-section-transition-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease;
+}
+
+.platform-section-transition-enter-from {
+  opacity: 0;
+  transform: translateY(12px) scale(0.99);
+  filter: blur(3px);
+}
+
+.platform-section-transition-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.99);
+  filter: blur(3px);
+}
+
+.import-card-transition-enter-active .import-action,
+.import-card-transition-enter-active .platform-selector,
+.import-card-transition-enter-active .platform-section {
+  animation: import-content-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.import-card-transition-enter-active .qrcode-action {
+  animation-delay: 0.04s;
+}
+
+.import-card-transition-enter-active .platform-selector {
+  animation-delay: 0.08s;
+}
+
+.import-card-transition-enter-active .platform-section {
+  animation-delay: 0.12s;
+}
+
+.platform-section-transition-enter-active .platform-option {
+  animation: platform-option-rise 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(2) {
+  animation-delay: 0.025s;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(3) {
+  animation-delay: 0.05s;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(4) {
+  animation-delay: 0.075s;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(5) {
+  animation-delay: 0.1s;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(6) {
+  animation-delay: 0.125s;
+}
+
+.platform-section-transition-enter-active .platform-option:nth-child(7) {
+  animation-delay: 0.15s;
+}
+
+@keyframes import-content-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes platform-option-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 .qrcode-modal-overlay {
   position: fixed;
@@ -3063,41 +4084,53 @@ export default {
 .platform-selector {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin: 0 auto 20px;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 8px 14px;
+  border: 1px solid var(--card-border-color, var(--border-color));
+  border-radius: 999px;
+  background-color: rgba(var(--theme-color-rgb), 0.035);
 
   .platform-button {
     display: flex;
     align-items: center;
-    gap: 6px;
-    background-color: rgba(var(--theme-color-rgb), 0.05);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
+    gap: 7px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
     padding: 8px 16px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
-    color: var(--text-color);
+    transition: color 0.28s ease, background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease, transform 0.28s ease;
+    color: var(--secondary-text-color);
 
     &:hover {
-      background-color: rgba(var(--theme-color-rgb), 0.1);
+      background-color: rgba(var(--theme-color-rgb), 0.08);
       transform: translateY(-1px);
       border-color: rgba(var(--theme-color-rgb), 0.2);
+      color: var(--text-color);
     }
 
     &.active {
-      background-color: rgba(var(--theme-color-rgb), 0.15);
+      background: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.2), rgba(var(--theme-color-rgb), 0.1));
       color: var(--theme-color);
-      border-color: var(--theme-color);
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(var(--theme-color-rgb), 0.2);
+      border-color: rgba(var(--theme-color-rgb), 0.42);
+      box-shadow: 0 8px 24px rgba(var(--theme-color-rgb), 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
     svg {
-      color: var(--theme-color);
-      opacity: 0.8;
+      color: currentColor;
+      opacity: 0.82;
+      transition: color 0.28s ease, opacity 0.28s ease, transform 0.28s ease;
+    }
+
+    &.active svg {
+      opacity: 1;
+      transform: scale(1.08);
     }
   }
 }
@@ -3448,21 +4481,34 @@ export default {
 }
 
 .notice-modal {
-  width: 100%;
-  max-width: 500px;
-  background-color: rgba(var(--card-background-rgb, 255, 255, 255), 1);
+  width: min(92vw, 760px);
+  max-width: 760px;
+  background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(var(--theme-color-rgb), 0.15);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
+  max-height: 88vh;
   animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-  @media (prefers-color-scheme: dark) {
-    background-color: rgba(var(--card-background-rgb, 30, 30, 30), 1);
-  }
+.notice-modal.notice-modal--dark {
+  background: #1f2937;
+}
+
+.notice-modal.notice-modal--dark .notice-modal-header,
+.notice-modal.notice-modal--dark .notice-modal-content,
+.notice-modal.notice-modal--dark .notice-modal-footer {
+  background: #1f2937;
+}
+
+.notice-modal.notice-modal--dark .popup-title,
+.notice-modal.notice-modal--dark .notice-content,
+.notice-modal.notice-modal--dark .notice-content :deep(p),
+.notice-modal.notice-modal--dark .notice-content :deep(li) {
+  color: #ffffff;
 }
 
 .notice-modal-header {
@@ -3471,7 +4517,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
-  background-color: rgba(var(--theme-color-rgb), 0.03);
+  background: #ffffff;
 
   .popup-title {
     margin: 0;
@@ -3494,7 +4540,7 @@ export default {
     transition: all 0.3s ease;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(255, 255, 255, 0.12);
       color: var(--text-color);
       transform: rotate(90deg);
     }
@@ -3505,7 +4551,7 @@ export default {
   padding: 20px;
   overflow-y: auto;
   flex: 1;
-  background: linear-gradient(to bottom, rgba(var(--theme-color-rgb), 0.02), transparent);
+  background: #ffffff;
 
   .notice-content {
     font-size: 14px;
@@ -3640,6 +4686,7 @@ export default {
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
+  background: #ffffff;
 
   .popup-action-btn {
     padding: 8px 20px;
@@ -3896,6 +4943,7 @@ export default {
 }
 
 
+
 </style>
 
 <!-- 全局样式，不受scoped限制 -->
@@ -3998,11 +5046,69 @@ a.eztheme-btn {
 
 .stats-card.balance-card.clickable:hover {
   background-color: rgba(var(--theme-color-rgb), 0.08);
-  transform: translateY(-3px);
+  transform: none !important;
 }
 
 .stats-card.balance-card .stats-value {
   color: var(--theme-color);
 }
+
+.dashboard-card,
+.stats-card {
+  border-radius: 30px !important;
+  overflow: hidden !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.dashboard-card:hover,
+.stats-card:hover,
+.app-card--hoverable:hover,
+.client-guide-section:hover,
+.client-guide-tab:hover,
+.client-download-item:hover,
+.pending-item:hover,
+.eztheme-btn:hover,
+.eztheme-btn:active,
+.eztheme-btn:focus,
+.eztheme-btn:visited {
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.card-body,
+.card-header,
+.notice-item,
+.pending-item,
+.download-option,
+.client-item,
+.import-card,
+.guide-step,
+.app-item,
+.platform-tab,
+.qr-code-container {
+  border-radius: 22px !important;
+}
+
+.pending-icon,
+.stats-icon,
+.option-icon,
+.client-icon,
+.guide-icon,
+.btn-notice,
+.eztheme-btn,
+.btn-outline,
+.action-button {
+  border-radius: 18px !important;
+}
+
+.water-container,
+.water-progress {
+  border-radius: inherit !important;
+}
+
 </style>
+
 

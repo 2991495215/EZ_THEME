@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="trafficlog-container">
 
@@ -10,7 +10,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -198,9 +198,9 @@
 
                   <td>{{ formatTraffic(item.u + item.d) }}</td>
 
-                  <td>{{ item.server_rate }}x</td>
+                  <td>{{ getServerRate(item) }}x</td>
 
-                  <td>{{ formatTraffic((item.u + item.d) * parseFloat(item.server_rate)) }}</td>
+                  <td>{{ formatTraffic((item.u + item.d) * getServerRate(item)) }}</td>
 
                 </tr>
 
@@ -265,6 +265,8 @@ const error = ref(false);
 const chartRef = ref(null);
 
 let chartInstance = null;
+
+let chartInitFrame = null;
 
 const showOriginalData = ref(false); // false: 显示倍率后, true: 显示实际
 
@@ -339,9 +341,48 @@ const fetchTrafficData = async () => {
 
 const toggleDataView = (showOriginal) => {
   showOriginalData.value = showOriginal;
-  initChart();
+  scheduleInitChart();
 };
 
+const getServerRate = item => {
+  const rate = parseFloat(item?.server_rate);
+
+  return Number.isFinite(rate) && rate > 0 ? rate : 1;
+};
+
+const hasChartSize = () => {
+  if (!chartRef.value) {
+    return false;
+  }
+
+  const { width, height } = chartRef.value.getBoundingClientRect();
+
+  return width > 0 && height > 0;
+};
+
+const scheduleInitChart = (retryCount = 0) => {
+  if (chartInitFrame) {
+    cancelAnimationFrame(chartInitFrame);
+  }
+
+  chartInitFrame = requestAnimationFrame(() => {
+    chartInitFrame = null;
+
+    if (!chartRef.value || trafficData.value.length === 0) {
+      return;
+    }
+
+    if (!hasChartSize()) {
+      if (retryCount < 8) {
+        scheduleInitChart(retryCount + 1);
+      }
+
+      return;
+    }
+
+    initChart();
+  });
+};
 
 const initChart = () => {
 
@@ -353,8 +394,7 @@ const initChart = () => {
 
   
 
-  if (!chartRef.value || trafficData.value.length === 0) return;
-
+  if (!chartRef.value || trafficData.value.length === 0 || !hasChartSize()) return;
   
 
   chartInstance = init(chartRef.value);
@@ -391,8 +431,9 @@ const initChart = () => {
         dailyTraffic[recordDate].u += item.u;
         dailyTraffic[recordDate].d += item.d;
       } else {
-        dailyTraffic[recordDate].u += item.u * parseFloat(item.server_rate);
-        dailyTraffic[recordDate].d += item.d * parseFloat(item.server_rate);
+        const serverRate = getServerRate(item);
+        dailyTraffic[recordDate].u += item.u * serverRate;
+        dailyTraffic[recordDate].d += item.d * serverRate;
       }
     });
     sortedData = Object.values(dailyTraffic).slice(0, 30);
@@ -673,9 +714,13 @@ const initChart = () => {
 
 const handleResize = () => {
 
-  if (chartInstance) {
+  if (chartInstance && hasChartSize()) {
 
     chartInstance.resize();
+
+  } else {
+
+    scheduleInitChart();
 
   }
 
@@ -693,7 +738,7 @@ watch(trafficData, () => {
 
     nextTick(() => {
 
-      initChart();
+      scheduleInitChart();
 
     });
 
@@ -731,7 +776,7 @@ const setupThemeObserver = () => {
 
         if (chartInstance && chartRef.value) {
 
-          initChart();
+          scheduleInitChart();
 
         }
 
@@ -773,6 +818,14 @@ onMounted(() => {
 
 
 onUnmounted(() => {
+
+  if (chartInitFrame) {
+
+    cancelAnimationFrame(chartInitFrame);
+
+    chartInitFrame = null;
+
+  }
 
   if (chartInstance) {
 

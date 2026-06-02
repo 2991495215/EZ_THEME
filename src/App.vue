@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
@@ -44,7 +44,7 @@
         <keep-alive :include="cachedRoutes" :max="5">
           <component 
             :is="Component" 
-            :key="route.path"
+            :key="route.matched[0]?.path || route.path"
             :is-active="true"
           />
         </keep-alive>
@@ -128,6 +128,7 @@ export default {
     const route = useRoute();
     const store = useStore();
     const { applyTheme } = useTheme();
+    let timeThemeTimer = null;
     const siteConfig = ref(SITE_CONFIG);
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
     
@@ -225,7 +226,12 @@ export default {
     onMounted(() => {
       window.addEventListener('languageChanged', onLanguageChanged);
       
+      store.dispatch('syncThemeByTime');
       applyTheme(store.getters.currentTheme);
+      timeThemeTimer = window.setInterval(() => {
+        store.dispatch('syncThemeByTime');
+        applyTheme(store.getters.currentTheme);
+      }, 60000);
       
       checkAuthAndReloadMessages();
       
@@ -248,6 +254,9 @@ export default {
     onUnmounted(() => {
       window.removeEventListener('languageChanged', onLanguageChanged);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (timeThemeTimer) {
+        window.clearInterval(timeThemeTimer);
+      }
     });
     
     return {
@@ -290,32 +299,36 @@ export default {
   left: 25px;
   font-size: 20px;  
   font-weight: 700;
-  color: var(--theme-color);
+  color: var(--text-color);
   z-index: 110;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: none;
   letter-spacing: -0.5px;
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.26);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
   padding: 6px 14px;
-  border-radius: 10px;  
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;  
+  box-shadow: 0 16px 38px rgba(31, 28, 22, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.56);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 10px;
+  overflow: hidden;
   
   .site-logo-img {
     height: 24px;
     width: 24px;
-    border-radius: 6px;
+    border-radius: 50%;
     object-fit: cover;
   }
 }
 
 
 .dark-theme .site-logo {
+  color: var(--theme-color);
   background-color: rgba(30, 30, 30, 0.7);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 
@@ -324,6 +337,7 @@ export default {
   top: 20px;
   right: 25px;
   display: flex;
+  align-items: center;
   gap: 12px;
   z-index: 110;
   
@@ -331,8 +345,9 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
     border-radius: 50%;
     background-color: rgba(var(--theme-color-rgb), 0.1);
     border: 1px solid rgba(var(--theme-color-rgb), 0.3);
@@ -354,12 +369,13 @@ export default {
     left: 20px;
     font-size: 20px;  
     padding: 5px 10px;
-    border-radius: 8px;
+    border-radius: 999px;
   }
   
   .top-toolbar {
     top: 12px;  
     right: 20px;
+    align-items: center;
     gap: 10px;
   }
   

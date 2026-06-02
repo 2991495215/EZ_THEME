@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <button 
     class="theme-toggle" 
     :class="{ 'theme-toggle-dark': isDarkTheme }" 
@@ -44,12 +44,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
   border-radius: 50%;
   background-color: var(--card-background);
   border: 1px solid var(--border-color);

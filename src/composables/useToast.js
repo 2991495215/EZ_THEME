@@ -1,4 +1,4 @@
-﻿
+
 import { ref } from 'vue';
 
 const toasts = ref([]);
@@ -10,9 +10,9 @@ const toastTimes = {};
 
 const TOAST_DURATION = 3000;
 
-export function useToast() {
-  const showToast = (message, type = 'info') => {
-    const finalDuration = TOAST_DURATION;
+export function useToast() {
+  const showToast = (message, type = 'info', duration = TOAST_DURATION) => {
+    const finalDuration = duration;
     
     const id = toastId++;
     
@@ -129,20 +129,20 @@ export function useToast() {
     toasts.value = [];
   };
   
-  showToast.success = (message) => {
-    return showToast(message, 'success');
-  };
-  
-  showToast.error = (message) => {
-    return showToast(message, 'error');
-  };
-  
-  showToast.warning = (message) => {
-    return showToast(message, 'warning');
-  };
-  
-  showToast.info = (message) => {
-    return showToast(message, 'info');
+  showToast.success = (message, duration = TOAST_DURATION) => {
+    return showToast(message, 'success', duration);
+  };
+  
+  showToast.error = (message, duration = TOAST_DURATION) => {
+    return showToast(message, 'error', duration);
+  };
+  
+  showToast.warning = (message, duration = TOAST_DURATION) => {
+    return showToast(message, 'warning', duration);
+  };
+  
+  showToast.info = (message, duration = TOAST_DURATION) => {
+    return showToast(message, 'info', duration);
   };
   
   return {

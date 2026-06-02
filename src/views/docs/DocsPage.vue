@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="docs-container">
 
@@ -11,7 +11,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -547,6 +547,7 @@ onMounted(() => {
 .docs-header {
 
   margin-bottom: 2rem;
+  text-align: center;
 
   
 
@@ -576,7 +577,8 @@ onMounted(() => {
 
 .search-wrapper {
 
-  margin: 0 0 1.5rem;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
 
 }
 
@@ -591,10 +593,11 @@ onMounted(() => {
   align-items: center;
 
   width: 100%;
-  min-height: 46px;
+  min-height: 50px;
   border: 1px solid var(--card-border-color, var(--border-color));
-  border-radius: 12px;
+  border-radius: 999px;
   background-color: var(--card-background);
+  overflow: hidden;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 
   &:focus-within {
@@ -627,10 +630,10 @@ onMounted(() => {
 
     width: 100%;
 
-    height: 44px;
-    padding: 0 2.75rem;
+    height: 48px;
+    padding: 0 2.85rem;
 
-    border-radius: 11px;
+    border-radius: 999px;
 
     border: 0;
 
@@ -723,12 +726,15 @@ onMounted(() => {
   width: 100%;
 
   margin: 0 auto;
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem);
 
 }
 
 
 
 .doc-category {
+
+  padding: 0.25rem 0.5rem 1rem;
 
   .category-title {
 
@@ -738,9 +744,9 @@ onMounted(() => {
 
     margin-bottom: 1.25rem;
 
-    padding-bottom: 0.75rem;
+    padding: 0 0.25rem 0.75rem 0.9rem;
 
-    border-bottom: 1px solid rgba(var(--theme-color-rgb), 0.1);
+    border-bottom: 1px solid rgba(var(--theme-color-rgb), 0.08);
 
     color: var(--text-color);
 
@@ -768,19 +774,19 @@ onMounted(() => {
 
   align-items: center;
 
-  padding: 1rem 1.25rem;
+  padding: 1.35rem 1.45rem;
 
-  border-radius: 12px;
+  border-radius: 16px;
 
-  background-color: var(--card-background);
+  background-color: rgba(var(--card-background-rgb), 0.32);
 
   cursor: pointer;
 
-  transition: all 0.25s ease;
+  transition: transform 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
 
   box-shadow: none;
 
-  border: 1px solid var(--card-border-color, var(--border-color));
+  border: 1px solid rgba(var(--text-color-rgb), 0.08);
 
   
 
@@ -790,7 +796,8 @@ onMounted(() => {
 
     box-shadow: none;
 
-    border-color: var(--card-hover-border-color, rgba(var(--theme-color-rgb), 0.3));
+    background-color: var(--card-hover-background, var(--card-background));
+    border-color: rgba(var(--theme-color-rgb), 0.28);
 
   }
 

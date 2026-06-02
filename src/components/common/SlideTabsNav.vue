@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="slide-tabs-container">
 
@@ -26,11 +26,11 @@
 
             </div>
 
-            <span class="nav-text">{{ $t(`menu.${item.i18nKey}`) }}</span>
+            <span class="nav-text">{{ translateMenuItem(item.i18nKey) }}</span>
 
-            <span v-if="item.name === 'Invite' && showInviteBadge" class="badge-dot">{{ $t('menu.commission') }}</span>
+            <span v-if="item.name === 'Invite' && showInviteBadge" class="badge-dot">{{ translateMenuItem('commission') }}</span>
 
-            <span v-if="item.name === 'Shop' && showShopBadge" class="badge-dot">{{ $t('menu.hotSale') }}</span>
+            <span v-if="item.name === 'Shop' && showShopBadge" class="badge-dot">{{ translateMenuItem('hotSale') }}</span>
 
           </router-link>
 
@@ -57,6 +57,8 @@
 import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed, reactive, onUnmounted } from 'vue';
 
 import { useRoute, useRouter } from 'vue-router';
+
+import { useI18n } from 'vue-i18n';
 
 import { INVITE_CONFIG, SHOP_CONFIG, NAVIGATION_CONFIG } from '@/utils/baseConfig';
 
@@ -95,6 +97,31 @@ export default {
     const route = useRoute();
 
     const router = useRouter();
+
+    const { t } = useI18n();
+
+    const menuFallbacks = {
+      dashboard: '仪表盘',
+      shop: '商店',
+      invite: '邀请',
+      docs: '文档',
+      tickets: '工单',
+      orders: '订单',
+      nodes: '节点',
+      wallet: '钱包',
+      traffic: '流量',
+      profile: '我的',
+      more: '更多',
+      commission: '佣金',
+      hotSale: '热卖'
+    };
+
+    const translateMenuItem = key => {
+      const translationKey = `menu.${key}`;
+      const translated = t(translationKey);
+
+      return translated === translationKey ? menuFallbacks[key] || key : translated;
+    };
 
     const tabsNav = ref(null);
 
@@ -343,14 +370,15 @@ export default {
           if (navItemElements.length > 0 && index >= 0 && index < navItemElements.length) {
 
             const activeItem = navItemElements[index];
-
             const { offsetWidth, offsetLeft } = activeItem;
-
+            const indicatorInset = 1;
+            const indicatorWidth = Math.max(offsetWidth - indicatorInset * 2, 0);
+            const indicatorOffset = offsetLeft + indicatorInset;
             
 
             if (animate) {
 
-              sliderState.transition = 'all 0.6s cubic-bezier(0.25, 0.1, 0.25, 1)';
+              sliderState.transition = 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), width 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.24s ease';
 
             } else {
 
@@ -360,9 +388,9 @@ export default {
 
             
 
-            sliderState.width = offsetWidth;
+            sliderState.width = indicatorWidth;
 
-            sliderState.transform = `translateX(${offsetLeft}px)`;
+            sliderState.transform = `translate3d(${indicatorOffset}px, 0, 0)`;
 
             
 
@@ -542,16 +570,17 @@ export default {
           const activeItem = navItemElements[activeIndex];
 
           const { offsetWidth, offsetLeft } = activeItem;
-
+          const indicatorInset = 1;
+          const indicatorWidth = Math.max(offsetWidth - indicatorInset * 2, 0);
+          const indicatorOffset = offsetLeft + indicatorInset;
           
 
           const currentTransform = sliderState.transform;
 
-          const expectedTransform = `translateX(${offsetLeft}px)`;
-
+          const expectedTransform = `translate3d(${indicatorOffset}px, 0, 0)`;
           
 
-          if (currentTransform !== expectedTransform || sliderState.width !== offsetWidth) {
+          if (currentTransform !== expectedTransform || sliderState.width !== indicatorWidth) {
 
             updateSliderPosition(activeIndex, true);
 
@@ -911,6 +940,8 @@ export default {
 
       route,
 
+      translateMenuItem,
+
       showInviteBadge,
 
       showShopBadge
@@ -967,23 +998,45 @@ function debounce(fn, delay) {
 
   .slide-tabs-wrapper {
 
-    background: rgba(var(--card-background-rgb), 0.7);
+    background: rgba(var(--card-background-rgb), 0.72);
 
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(16px) saturate(1.08);
 
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(16px) saturate(1.08);
 
-    border-radius: 30px;
+    border-radius: 999px;
 
-    padding: 5px;
+    padding: 6px;
 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(15, 23, 42, 0.08);
 
-    border: 1px solid var(--border-color);
-
-    display: inline-block;
+    border: 1px solid rgba(var(--theme-color-rgb), 0.18);
 
     overflow: hidden;
+
+    isolation: isolate;
+
+    transform: translateZ(0);
+
+    &::before {
+
+      content: '';
+
+      position: absolute;
+
+      inset: 0;
+
+      border-radius: inherit;
+
+      background-image: none;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      z-index: -1;
+
+    }
 
   }
 
@@ -1019,9 +1072,9 @@ function debounce(fn, delay) {
 
     .nav-item {
 
-      padding: 6px 16px;
+      padding: 7px 17px;
 
-      border-radius: 26px;
+      border-radius: 999px;
 
       font-weight: 500;
 
@@ -1063,9 +1116,9 @@ function debounce(fn, delay) {
 
         color: white;
 
-        border-radius: 10px;
+        border-radius: 999px;
 
-        padding: 1px 5px;
+        padding: 1px 6px;
 
         font-size: 8px;
 
@@ -1183,19 +1236,21 @@ function debounce(fn, delay) {
 
       height: 100%;
 
-      background-color: rgba(var(--theme-color-rgb), 0.1);
+      background: rgba(var(--theme-color-rgb), 0.16);
 
-      border-radius: 26px;
+      border-radius: 999px;
 
       z-index: 1;
 
-      box-shadow: 0 4px 15px rgba(var(--theme-color-rgb), 0.1);
-
-      border: 1px solid var(--theme-color);
+      box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.22);
 
       will-change: transform, width, opacity;
 
-      transition-property: transform, width, opacity;  
+      transition-property: transform, width, opacity;
+
+      transform: translateZ(0);
+
+      backface-visibility: hidden;
 
     }
 
@@ -1339,9 +1394,9 @@ function debounce(fn, delay) {
 
       display: block;
 
-      border-radius: 20px;
+      border-radius: 999px;
 
-      padding: 3px;
+      padding: 4px;
 
     }
 
@@ -1381,7 +1436,7 @@ function debounce(fn, delay) {
 
     .slide-tabs-wrapper {
 
-      border-radius: 18px;
+      border-radius: 999px;
 
     }
 

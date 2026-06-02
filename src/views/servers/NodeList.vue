@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="nodes-container">
 
@@ -12,7 +12,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -316,6 +316,7 @@ onMounted(() => {
 
 .nodes-container {
 
+  position: relative;
   padding: 1.25rem;
 
   padding-bottom: calc(1.25rem + 64px); 
@@ -443,6 +444,32 @@ onMounted(() => {
   width: 100%;
 
   margin: 0 auto;
+
+  padding: 16px;
+
+  border: 1px solid var(--card-border-color, var(--border-color));
+
+  border-radius: 22px;
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(var(--card-background-rgb), 0.28), rgba(var(--card-background-rgb), 0.12));
+
+  backdrop-filter: blur(18px) saturate(140%);
+
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+
+  box-sizing: border-box;
+
+}
+
+
+
+body.dark-theme .nodes-content {
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(22, 29, 50, 0.72), rgba(12, 17, 32, 0.48));
 
 }
 
@@ -684,9 +711,9 @@ onMounted(() => {
 
 
 
-.nodes-loading, 
+.nodes-loading,
 
-.nodes-error, 
+.nodes-error,
 
 .nodes-empty {
 
@@ -701,6 +728,10 @@ onMounted(() => {
   padding: 3rem 1rem;
 
   text-align: center;
+
+  border-radius: 28px;
+
+  overflow: hidden;
 
   
 
@@ -857,7 +888,6 @@ onMounted(() => {
 .nodes-empty {
   background-color: var(--card-background);
   border: 1px solid var(--card-border-color, var(--border-color));
-  border-radius: 12px;
   box-shadow: none;
 }
 
@@ -1060,6 +1090,8 @@ onMounted(() => {
 /* Final node card composition. Keep this block last to neutralize older layout rules above. */
 .nodes-container .node-items {
   gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .nodes-container .node-item {
@@ -1071,7 +1103,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: stretch !important;
   gap: 22px;
-  border-radius: 12px;
+  border-radius: 18px;
   background-color: var(--card-background);
 }
 

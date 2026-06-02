@@ -1,16 +1,23 @@
-﻿
 
 
-export function cleanupResources(timers = {}, listeners = {}) {
-  Object.keys(timers).forEach(key => {
-    if (timers[key]) {
-      if (timers[key]._repeat) { 
-        clearInterval(timers[key]);
-      } else { 
-        clearTimeout(timers[key]);
-      }
-      timers[key] = null;
-    }
+
+export function cleanupResources(timers = {}, listeners = {}) {
+  Object.keys(timers).forEach(key => {
+    const timer = timers[key];
+    if (timer) {
+      if (typeof timer === 'object' && 'id' in timer) {
+        if (timer.isInterval) {
+          clearInterval(timer.id);
+        } else {
+          clearTimeout(timer.id);
+        }
+      } else if (timer._repeat) {
+        clearInterval(timer);
+      } else {
+        clearTimeout(timer);
+      }
+      timers[key] = null;
+    }
   });
   
   Object.keys(listeners).forEach(key => {
@@ -89,23 +96,33 @@ export function registerEventListener(listeners, name, element, event, callback,
 }
 
 
-export function createTimer(timers, name, callback, delay, isInterval = false) {
-  if (timers[name]) {
-    if (timers[name]._repeat) { 
-      clearInterval(timers[name]);
-    } else { 
-      clearTimeout(timers[name]);
-    }
-    timers[name] = null;
-  }
-  
-  const timer = isInterval 
-    ? setInterval(callback, delay)
-    : setTimeout(callback, delay);
-  
-  timers[name] = timer;
-  
-  return timer;
+export function createTimer(timers, name, callback, delay, isInterval = false) {
+  if (timers[name]) {
+    const existingTimer = timers[name];
+    if (typeof existingTimer === 'object' && 'id' in existingTimer) {
+      if (existingTimer.isInterval) {
+        clearInterval(existingTimer.id);
+      } else {
+        clearTimeout(existingTimer.id);
+      }
+    } else if (existingTimer._repeat) {
+      clearInterval(existingTimer);
+    } else {
+      clearTimeout(existingTimer);
+    }
+    timers[name] = null;
+  }
+  
+  const timer = isInterval 
+    ? setInterval(callback, delay)
+    : setTimeout(callback, delay);
+  
+  timers[name] = {
+    id: timer,
+    isInterval
+  };
+  
+  return timer;
 }
 
 export default {

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="more-container">
 
@@ -12,7 +12,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -34,32 +34,6 @@
 
       <div class="stats-grid">
         
-        <div v-if="shouldShowInviteCard" class="stats-card" @click="$router.push('/invite')">
-
-          <div class="stats-icon">
-
-            <IconUserPlus :size="32" />
-
-          </div>
-
-          <div class="stats-info">
-
-            <div class="stats-value">{{ $t('invite.title') }}</div>
-
-            <div class="stats-label">{{ $t('more.inviteDescription') }}</div>
-
-          </div>
-
-          <div class="chevron-icon">
-
-            <IconChevronRight :size="20" />
-
-          </div>
-
-        </div>
-
-
-
         <div v-if="shouldShowDocsCard" class="stats-card" @click="$router.push('/docs')">
 
           <div class="stats-icon">
@@ -218,6 +192,30 @@
 
         
 
+        <div v-if="shouldShowInviteCard" class="stats-card" @click="$router.push('/invite')">
+
+          <div class="stats-icon">
+
+            <IconUserPlus :size="32" />
+
+          </div>
+
+          <div class="stats-info">
+
+            <div class="stats-value">{{ $t('invite.title') }}</div>
+
+            <div class="stats-label">{{ $t('more.inviteDescription') }}</div>
+
+          </div>
+
+          <div class="chevron-icon">
+
+            <IconChevronRight :size="20" />
+
+          </div>
+
+        </div>
+
         <div v-if="shouldShowProfileCard" class="stats-card" @click="$router.push('/profile')">
 
           <div class="stats-icon">
@@ -264,7 +262,7 @@
 
               <!-- 使用v-html渲染自定义SVG图标 -->
 
-              <div v-if="card.svgIcon" class="custom-svg-icon" v-html="card.svgIcon"></div>
+              <div v-if="card.svgIcon" class="custom-svg-icon" v-html="sanitizeSvg(card.svgIcon)"></div>
 
               <!-- 保留对旧版配置的兼容，如果有icon属性就使用动态组件 -->
 
@@ -358,6 +356,7 @@ import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 
 import { TRAFFICLOG_CONFIG, isXiaoV2board, MORE_PAGE_CONFIG, NAVIGATION_CONFIG } from '@/utils/baseConfig';
 
+import { sanitizeSvg } from '@/utils/sanitize';
 
 
 const { t } = useI18n();

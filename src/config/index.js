@@ -6,7 +6,7 @@
 
 export const config  = {
     // 面板类型配置 - 请选择您使用的面板类型
-    PANEL_TYPE: 'Xiao-V2board', // 可选值: 'V2board', 'Xiao-V2board' 或 'Xboard'
+    PANEL_TYPE: 'Xboard', // 可选值: 'V2board', 'Xiao-V2board' 或 'Xboard'
     // 说明:
     // 1. V2board: 标准V2board面板，使用默认请求格式
     // 2. Xiao-V2board: Xiao修改版面板，使用特殊格式的请求参数
@@ -29,9 +29,7 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'https://skhsn6q4pnv95.ezdemo.xyz/api/v1',
-            'https://skhsn6q4pnv95.ezdemo.xyz/api/v1',
-            'https://gy1v06omopzc8.ezdemo.xyz/api/v1'
+            'https://sub.trent30.com/api/v1'
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -66,10 +64,10 @@ export const config  = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: 'EZ THEME',
-        siteDescription: 'EZ UI',
+        siteName: '锌元素',
+        siteDescription: '锌元素',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} EZ THEME. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} 锌元素. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,
@@ -98,7 +96,7 @@ export const config  = {
         defaultLanguage: 'zh-CN',
 
         // 默认主题 ('light' 或 'dark')
-        defaultTheme: 'light',
+        defaultTheme: 'dark',
 
         // 主题色 (16进制颜色值)
         primaryColor: '#355cc2',
@@ -205,7 +203,7 @@ export const config  = {
         // 商店弹窗配置
         popup: {
             // 是否启用弹窗
-            enabled: true,
+            enabled: false,
 
             // 弹窗标题
             title: "用户须知",
@@ -222,7 +220,7 @@ export const config  = {
     },
     ORDER_CONFIG: {
         // 下单前二次确认
-        confirmOrder: true,
+        confirmOrder: false,
         // 下单前二次确认内容
         confirmOrderContent: "<p><strong style='color: red'>无法提供相关教程和使用说明。</strong></p><p><strong style='color: red'>不会使用请勿购买，没有退款政策</strong></p>",
 
@@ -276,17 +274,17 @@ export const config  = {
         showAndroid: true,
         showMacOS: true,
         showWindows: true,
-        showLinux: true,
-        showOpenWrt: true,
+        showLinux: false,
+        showOpenWrt: false,
 
         // 客户端下载链接  //可以改成文档链接直接在新标签页打开
         clientLinks: {
-            ios: 'https://apps.apple.com/app/xxx',
-            android: 'https://play.google.com/store/apps/xxx',
-            macos: 'https://github.com/xxx/releases/latest',
-            windows: 'https://github.com/xxx/releases/latest',
-            linux: 'https://github.com/xxx/releases/latest',
-            openwrt: 'https://github.com/xxx/releases/latest'
+            ios: '/#/docs',
+            android: '/#/docs',
+            macos: '/#/docs',
+            windows: '/#/docs',
+            linux: '/#/docs',
+            openwrt: '/#/docs'
         },
 
         // 订阅导入客户端显示控制 部分面板不支持SingBox导入请您注意检查
@@ -489,7 +487,7 @@ export const config  = {
         // 弹窗配置
         popup: {
             // 是否启用弹窗
-            enabled: true,
+            enabled: false,
             // 弹窗标题
             title: "工单须知",
             // 弹窗内容 (支持HTML)
@@ -572,14 +570,14 @@ export const config  = {
     NAVIGATION_CONFIG: {
         // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 'wallet' 只有 xiao-v2board 支持 非 xiao-v2board 面板请勿设置为 wallet
-        // 默认值为 'invite'
-        thirdNavItem: 'invite',
+        // 默认值为 'docs'
+        thirdNavItem: 'nodes',
 
         // 可选：第四个导航项（插入在“更多”之前）。为空字符串或未设置则不插入
         // 可选值同上: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
-        // 默认值为 'docs'
-        // 注意：如果第三个导航项设置为 'invite'，则第四个导航项不能设置为 'invite'
-        fourthNavItem: 'docs',
+        // 留空则只显示：首页、商店、教程、更多
+        // 注意：如果第三个导航项设置为某一项，第四个导航项不能重复设置为同一项
+        fourthNavItem: '',
     },
 
     // More页面自定义卡片配置

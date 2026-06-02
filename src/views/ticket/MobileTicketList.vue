@@ -1,4 +1,4 @@
-﻿<!-- 移动端工单页面 -->
+<!-- 移动端工单页面 -->
 
 <template>
     <div class="mobile-ticket-container">
@@ -209,7 +209,7 @@
 
                                 <div
                                     class="message-text"
-                                    v-html="md.render(message.message)"
+                                    v-html="sanitizeHtml(md.render(message.message))"
                                 ></div>
                             </div>
                         </div>
@@ -470,6 +470,7 @@
         <!-- 工单弹窗 -->
 
         <TicketPopup
+            v-if="!isLargeScreen"
             :show-popup="showTicketPopup"
             :title="ticketPopupCfg.title"
             :content="ticketPopupCfg.content"
@@ -488,6 +489,8 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import MarkdownIt from 'markdown-it';
+
+import { sanitizeHtml } from '@/utils/sanitize';
 
 const md = new MarkdownIt({ linkify: true, breaks: true });
 
@@ -575,7 +578,17 @@ const showTicketPopup = ref(false);
 const ticketPopupCfg = TICKET_CONFIG?.popup || {};
 
 const checkScreenSize = () => {
+    const wasLargeScreen = isLargeScreen.value;
+
     isLargeScreen.value = window.innerWidth >= 905;
+
+    if (isLargeScreen.value) {
+        showTicketPopup.value = false;
+        clearRefreshInterval();
+    } else if (wasLargeScreen) {
+        fetchTickets();
+        checkTicketPopup();
+    }
 };
 
 const switchToDesktopView = () => {
@@ -587,9 +600,10 @@ onMounted(() => {
 
     window.addEventListener('resize', checkScreenSize);
 
-    fetchTickets();
-
-    checkTicketPopup();
+    if (!isLargeScreen.value) {
+        fetchTickets();
+        checkTicketPopup();
+    }
 });
 
 onUnmounted(() => {
@@ -991,8 +1005,6 @@ const handleTicketPopupClose = () => {
     showTicketPopup.value = false;
 };
 
-fetchTickets();
-
 // 上传相关
 const uploadedImages = ref([]);
 const uploadingImages = ref(false);
@@ -1057,47 +1069,49 @@ const onDropImage = async (e) => {
 };
 
 const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
     uploadingImages.value = true;
 
-    for (const file of files) {
-        if (file.size > 5 * 1024 * 1024) {
-            showToast('图片不能超过 5MB', 'error');
-            continue;
-        }
-
-        try {
-            // 转成 base64
-            const base64 = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-
-            const formData = new FormData();
-            formData.append('image', base64);
-
-            const res = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await res.json();
-            if (result.success && result.data && result.data.url) {
-                uploadedImages.value.push(result.data.url);
-                newTicket.value.message += `\n![image](${result.data.url})`;
-            } else {
-                showToast(result.error?.message || '图片上传失败', 'error');
+    try {
+        for (const file of files) {
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('图片不能超过 5MB', 'error');
+                continue;
             }
-        } catch (err) {
-            console.error(err);
-            showToast('图片上传异常', 'error');
-        }
-    }
 
-    uploadingImages.value = false;
+            try {
+                const base64 = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result.split(',')[1]);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+
+                const formData = new FormData();
+                formData.append('image', base64);
+
+                const res = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await res.json();
+                if (result.success && result.data && result.data.url) {
+                    uploadedImages.value.push(result.data.url);
+                    newTicket.value.message += `\n![image](${result.data.url})`;
+                } else {
+                    showToast(result.error?.message || '图片上传失败', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('图片上传异常', 'error');
+            }
+        }
+    } finally {
+        uploadingImages.value = false;
+        if (imageInput.value) imageInput.value.value = '';
+    }
 };
 
 // ========= 回复区上传图片 =========

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="language-selector">
 
@@ -40,7 +40,7 @@
 
         <transition name="flag-fade" mode="out-in">
 
-          <span :key="currentLanguage" class="flag-container" v-html="getCurrentLanguageFlag()"></span>
+          <span :key="currentLanguage" class="flag-container" v-html="sanitizeHtml(getCurrentLanguageFlag())"></span>
 
         </transition>
 
@@ -68,7 +68,7 @@
 
         >
 
-          <span class="flag-icon" v-html="lang.flag"></span>
+          <span class="flag-icon" v-html="sanitizeHtml(lang.flag)"></span>
 
           <span class="lang-name">{{ lang.name }}</span>
 
@@ -91,6 +91,8 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { setLanguage } from '@/i18n';
+
+import { sanitizeHtml } from '@/utils/sanitize';
 
 
 import vnFlag from '@/assets/i18N/VN.svg';
@@ -326,6 +328,7 @@ export default {
       dropdown,
 
       getCurrentLanguageFlag,
+      sanitizeHtml,
       vnFlag,
       cnFlag,
       gbFlag,
@@ -348,11 +351,12 @@ export default {
 <style lang="scss" scoped>
 
 .language-selector {
-
   position: relative;
-
-  display: inline-block;
-
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
 }
 
 
@@ -395,9 +399,13 @@ export default {
 
   justify-content: center;
 
+  flex: 0 0 40px;
+
   width: 40px;
 
   height: 40px;
+
+  box-sizing: border-box;
 
   border-radius: 50%;
 

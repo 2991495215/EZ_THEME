@@ -1,4 +1,4 @@
-﻿import {SITE_CONFIG} from '../../utils/baseConfig';
+import {SITE_CONFIG} from '../../utils/baseConfig';
 
 export default {
     common: {
@@ -35,7 +35,7 @@ export default {
         language: '语言',
         noData: '暂无数据',
         confirm: '确认',
-        dashboard: '仪表盘',
+        dashboard: '首页',
         profile: '个人资料',
         settings: '设置',
         help: '帮助',
@@ -206,7 +206,7 @@ export default {
         resetTrafficWarning: '重置仅影响已使用流量，不会延长套餐有效期',
         ticketSupport: '工单支持',
         viewHelp: '查看帮助',
-        documentation: '使用文档',
+        documentation: '使用教程',
         pendingItems: '待处理事项',
         pendingOrders: '待支付订单',
         pendingTickets: '待回复工单',
@@ -242,10 +242,10 @@ export default {
         macos: 'MacOS'
     },
     menu: {
-        dashboard: '仪表盘',
+        dashboard: '首页',
         shop: '商店',
         invite: '邀请',
-        docs: '文档',
+        docs: '教程',
         tickets: '工单',
         orders: '订单',
         nodes: '节点',
@@ -469,8 +469,8 @@ export default {
     },
     contextMenu: {
         refresh: '刷新页面',
-        back: '返回上一页',
-        forward: '前进下一页',
+        back: '后退到上一页',
+        forward: '前进到下一页',
         copy: '复制',
         paste: '粘贴'
     },
@@ -605,7 +605,7 @@ export default {
         cancel_order: '取消订单',
         check_payment: '检测支付状态',
         activate: '激活',
-        continue_to_dashboard: '前往仪表盘',
+        continue_to_dashboard: '前往首页',
         confirm_cancel: '确定要取消此订单吗？',
         cancel_success: '订单已取消',
         cancel_failed: '取消订单失败',
@@ -622,7 +622,7 @@ export default {
         confirm_cancel_title: '确认取消订单',
         confirm_cancel_desc: '取消订单后将无法恢复，是否确认取消？',
         payment_return_description: '支付完成后将自动返回',
-        return_to_dashboard: '返回仪表盘',
+        return_to_dashboard: '返回首页',
         order_expired: '订单已过期',
         create_new_order: '创建新订单',
         handling_fee: '手续费',
@@ -782,26 +782,26 @@ export default {
         }
     },
     docs: {
-        title: '文档中心',
-        searchPlaceholder: '搜索文档...',
+        title: '教程中心',
+        searchPlaceholder: '搜索教程...',
         noAccessPrompt: '您目前没有有效的套餐，购买套餐后即可查看该区域的内容',
-        loading: '正在加载文档...',
+        loading: '正在加载教程...',
         retry: '重试',
         clearSearch: '清除搜索',
-        backToList: '返回文档列表',
+        backToList: '返回教程列表',
         lastUpdated: '最后更新',
-        noDocuments: '暂无文档',
-        noSearchResults: '未找到相关文档',
-        fetchError: '获取文档失败',
+        noDocuments: '暂无教程',
+        noSearchResults: '未找到相关教程',
+        fetchError: '获取教程失败',
         unknownError: '发生未知错误',
-        docNotFound: '文档不存在',
-        invalidDocId: '无效的文档ID',
-        contentFormatError: '文档内容格式错误，无法正常显示',
-        languageHint: '当前语言 {currentLang} 暂无文档，请尝试切换到其他语言',
+        docNotFound: '教程不存在',
+        invalidDocId: '无效的教程ID',
+        contentFormatError: '教程内容格式错误，无法正常显示',
+        languageHint: '当前语言 {currentLang} 暂无教程，请尝试切换到其他语言',
         networkError: '网络错误',
         welcome: {
-            title: '文档中心',
-            description: '查找并阅读有关使用和配置的详细文档。'
+            title: '教程中心',
+            description: '查找并阅读有关使用和配置的详细教程。'
         }
     },
     browserRestricted: {
