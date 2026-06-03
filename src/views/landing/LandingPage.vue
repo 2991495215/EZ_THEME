@@ -336,8 +336,8 @@ export default {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-size: 320% 320%, 300% 300%, 310% 310%, 100% 100%;
-    animation: landingAurora 22s ease-in-out infinite alternate;
+    background-size: 260% 260%, 250% 250%, 260% 260%, 100% 100%;
+    animation: landingAurora 16s ease-in-out infinite alternate;
     transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
     will-change: opacity, background-position;
@@ -345,10 +345,10 @@ export default {
 
   &::before {
     background:
-      radial-gradient(circle at 16% 12%, rgba(96, 165, 250, 0.52), transparent 32%),
-      radial-gradient(circle at 88% 28%, rgba(196, 181, 253, 0.48), transparent 30%),
-      radial-gradient(circle at 48% 94%, rgba(45, 212, 191, 0.4), transparent 34%),
-      linear-gradient(135deg, #4f8df7 0%, #7c6df2 48%, #23b6ad 100%);
+      radial-gradient(circle at 16% 12%, rgba(147, 197, 253, 0.28), transparent 34%),
+      radial-gradient(circle at 88% 28%, rgba(196, 181, 253, 0.24), transparent 32%),
+      radial-gradient(circle at 48% 94%, rgba(94, 234, 212, 0.22), transparent 36%),
+      linear-gradient(135deg, #7fb1f4 0%, #9791e7 50%, #63c8c2 100%);
     opacity: 1;
   }
 
@@ -410,9 +410,9 @@ export default {
 
     border-radius: 50%;
 
-    filter: blur(76px) saturate(1.05) brightness(1);
-    opacity: 0.55; 
-    animation: orbTravel 14s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    filter: blur(46px) saturate(0.92) brightness(1);
+    opacity: 0.5; 
+    animation: orbTravel 9s infinite cubic-bezier(0.42, 0, 0.58, 1);
 
     transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -442,17 +442,17 @@ export default {
 
   .circle-1 {
 
-    width: 34vw;
+    width: 26vw;
 
-    height: 34vw;
+    height: 26vw;
 
-    background: rgba(59, 130, 246, 0.54);
+    background: rgba(96, 165, 250, 0.42);
 
     top: -8%;
 
     left: -4%;
 
-    animation-duration: 10.8s;
+    animation-duration: 7.8s;
     animation-name: blueOrbTravel;
 
     
@@ -469,17 +469,17 @@ export default {
 
   .circle-2 {
 
-    width: 32vw;
+    width: 25vw;
 
-    height: 32vw;
+    height: 25vw;
 
-    background: rgba(168, 85, 247, 0.5);
+    background: rgba(167, 139, 250, 0.38);
 
     top: 8%;
 
     right: -5%;
 
-    animation-duration: 11.8s;
+    animation-duration: 8.6s;
     animation-name: purpleOrbTravel;
     animation-delay: -3s;
 
@@ -497,17 +497,17 @@ export default {
 
   .circle-3 {
 
-    width: 34vw;
+    width: 27vw;
 
-    height: 34vw;
+    height: 27vw;
 
-    background: rgba(45, 212, 191, 0.48);
+    background: rgba(45, 212, 191, 0.36);
 
     bottom: -8%;
 
     left: 30%;
 
-    animation-duration: 12.6s;
+    animation-duration: 9.2s;
     animation-name: cyanOrbTravel;
     animation-delay: -6s;
 
