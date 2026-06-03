@@ -353,7 +353,20 @@ const DEFAULT_CLIENT_CONFIG = {
         macos: 'https://github.com/xxx/releases/latest',     // MacOS客户端下载链接
         windows: 'https://github.com/xxx/releases/latest', // Windows客户端下载链接
         linux: 'https://github.com/xxx/releases/latest',     // Linux客户端下载链接
-        openwrt: 'https://github.com/xxx/releases/latest'  // OpenWrt客户端下载链接
+        openwrt: 'https://github.com/xxx/releases/latest',  // OpenWrt客户端下载链接
+        shadowrocket: 'https://apps.apple.com/app/shadowrocket/id932747118',
+        flclashAndroid: 'https://github.com/chen08209/FlClash/releases/latest',
+        v2rayNG: 'https://github.com/2dust/v2rayNG/releases/latest',
+        clashMetaAndroid: 'https://github.com/MetaCubeX/ClashMetaForAndroid/releases/latest',
+        nekobox: 'https://github.com/MatsuriDayo/NekoBoxForAndroid/releases/latest',
+        singboxAndroid: 'https://github.com/SagerNet/sing-box/releases/latest',
+        flclashWindows: 'https://github.com/chen08209/FlClash/releases/latest',
+        clashVergeWindows: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest',
+        nekoray: 'https://github.com/MatsuriDayo/nekoray/releases/latest',
+        singboxWindows: 'https://github.com/SagerNet/sing-box/releases/latest',
+        flclashMac: 'https://github.com/chen08209/FlClash/releases/latest',
+        clashVergeMac: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest',
+        singboxMac: 'https://github.com/SagerNet/sing-box/releases/latest'
     },
 
     // ===========================================================
@@ -361,41 +374,24 @@ const DEFAULT_CLIENT_CONFIG = {
     // 订阅导入客户端显示控制
     // iOS平台客户端
     showShadowrocket: true,   // Shadowrocket
-    showSurge: true,          // Surge
-    showStash: true,          // Stash
-    showQuantumultX: true,    // QuantumultX
-    showHiddifyIOS: true,     // Hiddify for IOS
-    showSingboxIOS: true,     // SingBox for iOS
-    showLoon: true,           // Loon
 
     // Android平台客户端
     showFlClashAndroid: true,   // FlClash for Android
     showV2rayNG: true,          // V2rayNG
-    showClashAndroid: true,     // Clash for Android
-    showSurfboard: true,        // Surfboard
     showClashMetaAndroid: true, // Clash Meta for Android
     showNekobox: true,          // Nekobox
     showSingboxAndroid: true,   // SingBox for Android
-    showHiddifyAndroid: true,   // Hiddify for Android
 
     // Windows平台客户端
     showFlClashWindows: true,   // FlClash for Windows
     showClashVergeWindows: true,// ClashVerge for Windows
-    showClashWindows: true,     // Clash for Windows
     showNekoray: true,          // Nekoray
     showSingboxWindows: true,   // SingBox for Windows
-    showHiddifyWindows: true,   // Hiddify for Windows
 
     // MacOS平台客户端
     showFlClashMac: true,       // FlClash for Mac
     showClashVergeMac: true,    // ClashVerge for Mac
-    showClashX: true,           // ClashX
-    showClashMetaX: true,       // ClashX Meta
-    showSurgeMac: true,         // Surge for Mac
-    showStashMac: true,         // Stash for Mac
-    showQuantumultXMac: true,   // QuantumultX for Mac
-    showSingboxMac: true,       // SingBox for Mac
-    showHiddifyMac: true        // Hiddify for Mac
+    showSingboxMac: true        // SingBox for Mac
 };
 
 export const CLIENT_CONFIG = mergeDeep(DEFAULT_CLIENT_CONFIG, getConfig('CLIENT_CONFIG'));

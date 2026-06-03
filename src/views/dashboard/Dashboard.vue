@@ -269,30 +269,6 @@
                   <img :src="shadowrocketIcon" class="client-icon" alt="Shadowrocket"/>
                   <span>Shadowrocket</span>
                 </div>
-                <div v-if="clientConfig.showSurge" class="platform-option" @click="importToClient('surge')">
-                  <img :src="surgeIcon" class="client-icon" alt="Surge"/>
-                  <span>Surge</span>
-                </div>
-                <div v-if="clientConfig.showStash" class="platform-option" @click="importToClient('stash')">
-                  <img :src="stashIcon" class="client-icon" alt="Stash"/>
-                  <span>Stash</span>
-                </div>
-                <div v-if="clientConfig.showQuantumultX" class="platform-option" @click="importToClient('quantumultx')">
-                  <img :src="quantumultIcon" class="client-icon" alt="Quantumult X"/>
-                  <span>Quantumult X</span>
-                </div>
-                <div v-if="clientConfig.showHiddifyIOS" class="platform-option" @click="importToClient('hiddify-ios')">
-                  <img :src="hiddifyMacIcon" class="client-icon" alt="Hiddify"/>
-                  <span>Hiddify</span>
-                </div>
-                <div v-if="clientConfig.showSingboxIOS" class="platform-option" @click="importToClient('singbox-ios')">
-                  <img :src="singboxIcon" class="client-icon" alt="Singbox"/>
-                  <span>Singbox</span>
-                </div>
-                <div v-if="clientConfig.showLoon" class="platform-option" @click="importToClient('loon')">
-                  <img :src="loonIcon" class="client-icon" alt="Loon"/>
-                  <span>Loon</span>
-                </div>
               </div>
               <div v-else class="no-clients-message">
                 <p>{{ $t('dashboard.noClientsAvailable') }}</p>
@@ -311,15 +287,6 @@
                   <img :src="v2rayNGIcon" class="client-icon" alt="V2rayNG"/>
                   <span>V2rayNG</span>
                 </div>
-                <div v-if="clientConfig.showClashAndroid" class="platform-option"
-                     @click="importToClient('clash-android')">
-                  <img :src="clashAndroidIcon" class="client-icon" alt="Clash"/>
-                  <span>Clash</span>
-                </div>
-                <div v-if="clientConfig.showSurfboard" class="platform-option" @click="importToClient('surfboard')">
-                  <img :src="surfboardIcon" class="client-icon" alt="Surfboard"/>
-                  <span>Surfboard</span>
-                </div>
                 <div v-if="clientConfig.showClashMetaAndroid" class="platform-option"
                      @click="importToClient('clash-meta-android')">
                   <img :src="clashMetaAndroidIcon" class="client-icon" alt="Clash Meta"/>
@@ -333,11 +300,6 @@
                      @click="importToClient('singbox-android')">
                   <img :src="singboxAndroidIcon" class="client-icon" alt="Singbox"/>
                   <span>Singbox</span>
-                </div>
-                <div v-if="clientConfig.showHiddifyAndroid" class="platform-option"
-                     @click="importToClient('hiddify-android')">
-                  <img :src="hiddifyAndroidIcon" class="client-icon" alt="Hiddify"/>
-                  <span>Hiddify</span>
                 </div>
               </div>
               <div v-else class="no-clients-message">
@@ -357,10 +319,6 @@
                   <img :src="clashvergeIcon" class="client-icon" alt="ClashVerge"/>
                   <span>ClashVerge</span>
                 </div>
-                <div v-if="clientConfig.showClashWindows" class="platform-option" @click="importToClient('clash')">
-                  <img :src="clashWindowsIcon" class="client-icon" alt="Clash"/>
-                  <span>Clash</span>
-                </div>
                 <div v-if="clientConfig.showNekoray" class="platform-option" @click="importToClient('nekoray')">
                   <img :src="nekorayIcon" class="client-icon" alt="Nekoray"/>
                   <span>Nekoray</span>
@@ -369,11 +327,6 @@
                      @click="importToClient('singbox-windows')">
                   <img :src="singboxWindowsIcon" class="client-icon" alt="Singbox"/>
                   <span>Singbox</span>
-                </div>
-                <div v-if="clientConfig.showHiddifyWindows" class="platform-option"
-                     @click="importToClient('hiddify-windows')">
-                  <img :src="hiddifyWindowsIcon" class="client-icon" alt="Hiddify"/>
-                  <span>Hiddify</span>
                 </div>
               </div>
               <div v-else class="no-clients-message">
@@ -393,36 +346,10 @@
                   <img :src="clashvergeIcon" class="client-icon" alt="ClashVerge"/>
                   <span>ClashVerge</span>
                 </div>
-                <div v-if="clientConfig.showClashX" class="platform-option" @click="importToClient('clashx')">
-                  <img :src="clashXIcon" class="client-icon" alt="ClashX"/>
-                  <span>ClashX</span>
-                </div>
-                <div v-if="clientConfig.showClashMetaX" class="platform-option" @click="importToClient('clashx-meta')">
-                  <img :src="clashMetaXIcon" class="client-icon" alt="ClashX Meta"/>
-                  <span>ClashX Meta</span>
-                </div>
-                <div v-if="clientConfig.showSurgeMac" class="platform-option" @click="importToClient('surge-mac')">
-                  <img :src="surgeMacIcon" class="client-icon" alt="Surge"/>
-                  <span>Surge</span>
-                </div>
-                <div v-if="clientConfig.showStashMac" class="platform-option" @click="importToClient('stash-mac')">
-                  <img :src="stashMacIcon" class="client-icon" alt="Stash"/>
-                  <span>Stash</span>
-                </div>
-                <div v-if="clientConfig.showQuantumultXMac" class="platform-option"
-                     @click="importToClient('quantumultx-mac')">
-                  <img :src="quantumultXMacIcon" class="client-icon" alt="Quantumult X"/>
-                  <span>Quantumult X</span>
-                </div>
                 <div v-if="clientConfig.showSingboxMac" class="platform-option"
                      @click="importToClient('singbox-macos')">
                   <img :src="singboxMacIcon" class="client-icon" alt="Singbox"/>
                   <span>Singbox</span>
-                </div>
-                <div v-if="clientConfig.showHiddifyMac" class="platform-option"
-                     @click="importToClient('hiddify-macos')">
-                  <img :src="hiddifyMacIcon" class="client-icon" alt="Hiddify"/>
-                  <span>Hiddify</span>
                 </div>
               </div>
               <div v-else class="no-clients-message">
@@ -1274,45 +1201,27 @@ export default {
       return !isNaN(days) && days > 0 && days <= DASHBOARD_CONFIG.expiringThreshold;
     });
 
-    const hasIOSClients = computed(() => {
-      return clientConfig.showShadowrocket ||
-          clientConfig.showSurge ||
-          clientConfig.showStash ||
-          clientConfig.showQuantumultX ||
-          clientConfig.showHiddifyIOS ||
-          clientConfig.showSingboxIOS ||
-          clientConfig.showLoon;
-    });
+    const hasIOSClients = computed(() => clientConfig.showShadowrocket);
 
     const hasAndroidClients = computed(() => {
-      return clientConfig.showV2rayNG ||
-          clientConfig.showClashAndroid ||
-          clientConfig.showSurfboard ||
+      return clientConfig.showFlClashAndroid ||
+          clientConfig.showV2rayNG ||
           clientConfig.showClashMetaAndroid ||
           clientConfig.showNekobox ||
-          clientConfig.showSingboxAndroid ||
-          clientConfig.showHiddifyAndroid;
+          clientConfig.showSingboxAndroid;
     });
 
     const hasWindowsClients = computed(() => {
-      return clientConfig.showClashWindows ||
-          clientConfig.showFlClashWindows ||
+      return clientConfig.showFlClashWindows ||
           clientConfig.showClashVergeWindows ||
           clientConfig.showNekoray ||
-          clientConfig.showSingboxWindows ||
-          clientConfig.showHiddifyWindows;
+          clientConfig.showSingboxWindows;
     });
 
     const hasMacOSClients = computed(() => {
-      return clientConfig.showClashX ||
-          clientConfig.showFlClashMac ||
+      return clientConfig.showFlClashMac ||
           clientConfig.showClashVergeMac ||
-          clientConfig.showClashMetaX ||
-          clientConfig.showSurgeMac ||
-          clientConfig.showStashMac ||
-          clientConfig.showQuantumultXMac ||
-          clientConfig.showSingboxMac ||
-          clientConfig.showHiddifyMac;
+          clientConfig.showSingboxMac;
     });
 
     const isExpired = computed(() => {
