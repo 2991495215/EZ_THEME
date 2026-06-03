@@ -153,6 +153,7 @@ export const SECURITY_CONFIG = mergeDeep(DEFAULT_SECURITY_CONFIG, getConfig('SEC
 
 // 授权的前端域名列表
 const DEFAULT_AUTHORIZED_DOMAINS = [
+    'sub0.zinc.mom',
     'sub.trent30.com',
     'localhost',
     '127.0.0.1',
