@@ -1,4 +1,4 @@
-﻿
+
 import axios from 'axios';
 import { API_BASE_URL, getApiBaseUrl, isXiaoV2board, isXboard, CUSTOM_HEADERS_CONFIG } from '@/utils/baseConfig';
 import { mapApiPath } from './utils/pathMapper';
@@ -49,12 +49,28 @@ const clearExpiredAuthState = () => {
   });
 };
 
+const publicAuthPaths = [
+  '/passport/auth/login',
+  '/passport/auth/register',
+  '/passport/auth/forget',
+  '/passport/auth/token2Login',
+  '/passport/comm/sendEmailVerify',
+  '/guest/comm/config'
+];
+
+const shouldAttachAuth = (url) => {
+  if (!url) return true;
+
+  const rawUrl = String(url);
+  return !publicAuthPaths.some(path => rawUrl === path || rawUrl.startsWith(`${path}?`));
+};
+
 request.interceptors.request.use(
   async config => {
+      const originalUrl = config.url;
       config.baseURL = getApiBaseUrl();
     
     if (window.EZ_CONFIG && window.EZ_CONFIG.API_MIDDLEWARE_ENABLED) {
-      const originalUrl = config.url;
       
       const path = originalUrl.startsWith("http") ? mapApiPath(config.url) : `${window.EZ_CONFIG.API_MIDDLEWARE_PATH}/${btoa(getEncrypUrl(config.url))}`
       
@@ -85,7 +101,7 @@ request.interceptors.request.use(
       config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
     
-    const authData = await readAuthData();
+    const authData = shouldAttachAuth(originalUrl) ? await readAuthData() : '';
     
     if (authData) {
       config.headers['Authorization'] = authData;

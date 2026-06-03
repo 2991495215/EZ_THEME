@@ -205,6 +205,9 @@ const DEFAULT_SITE_CONFIG = {
     // 是否显示标题中的网站Logo (true=显示, false=隐藏)
     showLogo: true,
 
+    // 网站Logo路径
+    logoPath: '/images/txz.png',
+
     // Landing页面多语言标语
     landingText: {
         'zh-CN': '探索全球网络无限可能',
@@ -266,7 +269,7 @@ const DEFAULT_PAYMENT_CONFIG = {
     autoCheckMaxTimes: 30,
 
     // 是否对Safari浏览器使用支付弹窗模式，而不是直接跳转 (true=使用弹窗, false=直接跳转)
-    useSafariPaymentModal: true,
+    useSafariPaymentModal: false,
 
     // 是否自动选择第一个支付方式 (true=自动选择, false=需要用户手动选择)
     autoSelectFirstMethod: true
@@ -297,7 +300,7 @@ const DEFAULT_TICKET_CONFIG = {
     includeUserInfoInTicket: true,
     // 弹窗配置
     popup: {
-        enabled: true,
+        enabled: false,
         title: '工单须知',
         content: '<p>请您准确描述您的问题，再提交工单，以便我们更快帮助您。</p>',
         cooldownHours: 24,
@@ -461,7 +464,7 @@ export const SHOP_CONFIG = mergeDeep(DEFAULT_SHOP_CONFIG, getConfig('SHOP_CONFIG
  */
 const DEFAULT_ORDER_CONFIG = {
     // 是否启用二次确认
-    confirmOrder: true,
+    confirmOrder: false,
     // 二次确认内容
     confirmOrderContent: "<p>您确定要购买该套餐吗？</p>",
 };

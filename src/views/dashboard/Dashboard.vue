@@ -1,7 +1,7 @@
-﻿<template>
+<template>
   <div class="dashboard-container">
     <div class="dashboard-inner">
-      <AppCard class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
+      <AppCard v-if="false" class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.welcome') }}</h2>
         </div>
@@ -570,9 +570,9 @@
         </template>
       </div>
 
-      <!-- 官方客户端下载区域 -->
+      <!-- 官方客户端下载区域（已隐藏） -->
       <AppCard class="dashboard-card download-card" :class="{'card-animate': !loading.userInfo}"
-           v-if="clientConfig.showDownloadCard" style="animation-delay: 0.9s" hoverable no-padding>
+           v-if="false" style="animation-delay: 0.9s" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.officialClients') }}</h2>
         </div>
@@ -622,6 +622,72 @@
           </div>
         </div>
       </AppCard>
+
+      <AppCard class="dashboard-card ip-check-card" :class="{'card-animate': !loading.userInfo}"
+           style="animation-delay: 0.95s" hoverable no-padding>
+        <div class="card-header ip-check-header">
+          <div>
+            <h2 class="card-title">当前出口检测</h2>
+            <div class="ip-check-subtitle">实时查看当前 IP、归属地与风险状态</div>
+          </div>
+          <a class="ip-check-action" href="https://ip.net.coffee/ip/" target="_blank" rel="noopener noreferrer">
+            查看评分
+            <IconChevronRight :size="16"/>
+          </a>
+        </div>
+        <div class="card-body ip-check-body">
+          <div class="ip-check-copy">
+            <div class="ip-check-title">确认你的代理出口是否生效</div>
+            <div class="ip-check-desc">切换节点后快速确认出口位置、ASN 归属和风险画像。</div>
+          </div>
+          <div class="ip-card-display">
+            <img
+                class="ip-card-image"
+                src="https://card.net.coffee/v1/card.svg?style=aurora&sticker=rainbow&w=480"
+                alt="当前出口 IP 信息"
+                loading="lazy"
+            />
+          </div>
+        </div>
+      </AppCard>
+
+      <section class="dashboard-card client-guide-section" :class="{'card-animate': !loading.userInfo}" style="animation-delay: 1s">
+        <div class="client-guide-tabs" aria-label="选择系统" role="tablist">
+          <button
+              v-for="guidePlatform in clientGuidePlatforms"
+              :key="guidePlatform.id"
+              class="client-guide-tab"
+              :class="{ active: activeClientGuidePlatform === guidePlatform.id }"
+              type="button"
+              role="tab"
+              :aria-selected="activeClientGuidePlatform === guidePlatform.id"
+              @click="activeClientGuidePlatform = guidePlatform.id"
+          >
+            <component :is="guidePlatform.icon" :size="guidePlatform.iconSize"/>
+            <span>{{ guidePlatform.label }}</span>
+          </button>
+        </div>
+        <div class="client-download-list">
+          <button
+              v-for="client in activeClientGuideClients"
+              :key="client.name"
+              class="client-download-item"
+              type="button"
+              @click="downloadClient(client.platform)"
+          >
+            <span class="client-download-info">
+              <span class="client-guide-icon-wrap">
+                <img :src="client.icon" :alt="client.name" class="client-guide-icon"/>
+              </span>
+              <span class="client-download-name">{{ client.name }}</span>
+            </span>
+            <span class="client-download-action">
+              <IconDownload :size="18"/>
+              <span>下载客户端</span>
+            </span>
+          </button>
+        </div>
+      </section>
     </div>
     <!-- 弹窗组件 -->
     <CommonDialog
@@ -717,6 +783,7 @@ import {
   IconCopy,
   IconCrosshair,
   IconDeviceDesktop,
+  IconDownload,
   IconEye,
   IconEyeOff,
   IconFileText,
@@ -855,6 +922,7 @@ export default {
     IconShoppingBag,
     IconHelpCircle,
     IconCoins,
+    IconDownload,
     IconEye,
     IconRefresh,
     IconAlertTriangle,
@@ -939,6 +1007,43 @@ export default {
     ];
 
     const activePlatform = ref(detectUserPlatform());
+    const activeClientGuidePlatform = ref(detectUserPlatform());
+
+    const clientGuidePlatforms = [
+      {id: 'android', label: '安卓手机', icon: 'IconBrandAndroid', iconSize: 24},
+      {id: 'ios', label: '苹果手机', icon: 'IconBrandApple', iconSize: 21},
+      {id: 'windows', label: 'Win电脑', icon: 'IconBrandWindows', iconSize: 18},
+      {id: 'macos', label: 'Mac电脑', icon: 'IconBrandApple', iconSize: 21}
+    ];
+
+    const clientGuideGroups = computed(() => ({
+      android: [
+        {name: 'FlClash', icon: flclashIcon, platform: 'android'},
+        {name: 'v2rayNG', icon: v2rayNGIcon, platform: 'android'},
+        {name: 'Clash', icon: clashAndroidIcon, platform: 'android'},
+        {name: 'Surfboard', icon: surfboardIcon, platform: 'android'}
+      ],
+      ios: [
+        {name: 'Shadowrocket', icon: shadowrocketIcon, platform: 'ios'},
+        {name: 'Surge', icon: surgeIcon, platform: 'ios'},
+        {name: 'Stash', icon: stashIcon, platform: 'ios'},
+        {name: 'Quantumult X', icon: quantumultIcon, platform: 'ios'}
+      ],
+      windows: [
+        {name: 'FlClash', icon: flclashIcon, platform: 'windows'},
+        {name: 'Clash Verge', icon: clashvergeIcon, platform: 'windows'},
+        {name: 'v2rayN', icon: v2rayNGIcon, platform: 'windows'},
+        {name: 'sing-box', icon: singboxWindowsIcon, platform: 'windows'}
+      ],
+      macos: [
+        {name: 'FlClash', icon: flclashIcon, platform: 'macos'},
+        {name: 'Clash Verge', icon: clashvergeIcon, platform: 'macos'},
+        {name: 'Stash', icon: stashMacIcon, platform: 'macos'},
+        {name: 'sing-box', icon: singboxMacIcon, platform: 'macos'}
+      ]
+    }));
+
+    const activeClientGuideClients = computed(() => clientGuideGroups.value[activeClientGuidePlatform.value] || []);
 
     function detectUserPlatform() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -1826,6 +1931,9 @@ export default {
       copySubscription,
       platforms,
       activePlatform,
+      clientGuidePlatforms,
+      activeClientGuidePlatform,
+      activeClientGuideClients,
       qrCodeUrl,
       qrCodeLoading,
       qrCodeLoaded,
@@ -2249,6 +2357,208 @@ export default {
           font-size: 14px;
           font-weight: 500;
         }
+      }
+    }
+  }
+  .client-guide-section {
+    .client-guide-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .client-guide-tab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: 1px solid var(--card-border-color);
+      border-radius: 10px;
+      background-color: var(--card-background);
+      color: var(--secondary-text-color);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+
+      &.active,
+      &:hover {
+        border-color: var(--theme-color);
+        background-color: rgba(var(--theme-color-rgb), 0.08);
+        color: var(--theme-color);
+      }
+    }
+
+    .client-download-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .client-download-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 58px;
+      padding: 12px 14px;
+      border: 1px solid var(--card-border-color);
+      border-radius: 10px;
+      background-color: rgba(var(--theme-color-rgb), 0.03);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+
+      &:hover {
+        border-color: var(--card-hover-border-color);
+        background-color: rgba(var(--theme-color-rgb), 0.06);
+      }
+    }
+
+    .client-download-info,
+    .client-download-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .client-guide-icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      border-radius: 8px;
+      background-color: rgba(var(--theme-color-rgb), 0.08);
+    }
+
+    .client-guide-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .client-download-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .client-download-action {
+      flex-shrink: 0;
+      color: var(--theme-color);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .client-guide-tabs,
+      .client-download-list {
+        grid-template-columns: 1fr;
+      }
+
+      .client-download-item {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .ip-check-card {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    background:
+      radial-gradient(circle at top left, rgba(var(--theme-color-rgb), 0.14), transparent 34%),
+      linear-gradient(135deg, var(--card-background), rgba(var(--theme-color-rgb), 0.04));
+
+    .ip-check-header {
+      gap: 16px;
+      padding: 20px 22px 0;
+      margin-bottom: 0;
+    }
+
+    .ip-check-subtitle {
+      margin-top: 6px;
+      color: var(--secondary-text-color);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ip-check-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background-color: rgba(var(--theme-color-rgb), 0.1);
+      color: var(--theme-color);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+
+      &:hover {
+        transform: translateX(2px);
+        background-color: rgba(var(--theme-color-rgb), 0.16);
+      }
+    }
+
+    .ip-check-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+      align-items: center;
+      gap: 24px;
+      padding: 18px 22px 22px;
+    }
+
+    .ip-check-title {
+      margin-bottom: 8px;
+      color: var(--text-color);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .ip-check-desc {
+      color: var(--secondary-text-color);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .ip-card-display {
+      display: flex;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .ip-card-image {
+      display: block;
+      width: min(100%, 420px);
+      border-radius: 16px;
+      border: 1px solid rgba(var(--theme-color-rgb), 0.12);
+      background-color: rgba(var(--theme-color-rgb), 0.04);
+    }
+
+    @media (max-width: 768px) {
+      .ip-check-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .ip-check-body {
+        grid-template-columns: 1fr;
+      }
+
+      .ip-card-display {
+        justify-content: center;
       }
     }
   }

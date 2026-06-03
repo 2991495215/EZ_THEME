@@ -6,7 +6,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -26,7 +26,7 @@
 
       <!-- 套餐统计卡片组 -->
 
-      <div class="stats-grid" v-if="SHOP_CONFIG.showPlanFeatureCards">
+      <div class="stats-grid" v-if="false">
 
         <div class="stats-card animate-card">
 

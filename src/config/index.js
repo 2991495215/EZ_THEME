@@ -6,7 +6,7 @@
 
 export const config  = {
     // 面板类型配置 - 请选择您使用的面板类型
-    PANEL_TYPE: 'Xiao-V2board', // 可选值: 'V2board', 'Xiao-V2board' 或 'Xboard'
+    PANEL_TYPE: 'Xboard', // 可选值: 'V2board', 'Xiao-V2board' 或 'Xboard'
     // 说明:
     // 1. V2board: 标准V2board面板，使用默认请求格式
     // 2. Xiao-V2board: Xiao修改版面板，使用特殊格式的请求参数
@@ -29,9 +29,7 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'https://skhsn6q4pnv95.ezdemo.xyz/api/v1',
-            'https://skhsn6q4pnv95.ezdemo.xyz/api/v1',
-            'https://gy1v06omopzc8.ezdemo.xyz/api/v1'
+            'https://vpn.trent30.com/api/v1'
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -66,13 +64,16 @@ export const config  = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: 'EZ THEME',
-        siteDescription: 'EZ UI',
+        siteName: '锌元素',
+        siteDescription: '哈喽',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} EZ THEME. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} 锌元素. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,
+
+        // 网站Logo路径
+        logoPath: '/images/txz.png',
 
         // Landing页面多语言标语
         landingText: {
@@ -205,7 +206,7 @@ export const config  = {
         // 商店弹窗配置
         popup: {
             // 是否启用弹窗
-            enabled: true,
+            enabled: false,
 
             // 弹窗标题
             title: "用户须知",
@@ -222,7 +223,7 @@ export const config  = {
     },
     ORDER_CONFIG: {
         // 下单前二次确认
-        confirmOrder: true,
+        confirmOrder: false,
         // 下单前二次确认内容
         confirmOrderContent: "<p><strong style='color: red'>无法提供相关教程和使用说明。</strong></p><p><strong style='color: red'>不会使用请勿购买，没有退款政策</strong></p>",
 
@@ -419,7 +420,7 @@ export const config  = {
         autoCheckMaxTimes: 60, // 默认60次
 
         // 是否对Safari浏览器使用支付弹窗模式，而不是直接跳转 (true=使用弹窗, false=直接跳转)
-        useSafariPaymentModal: true, // 默认开启
+        useSafariPaymentModal: false, // 默认开启
 
         // 是否自动选择第一个支付方式 (true=自动选择, false=需要用户手动选择)
         // 开启后，用户进入支付页面时将自动选择列表中的第一个支付方式，无需手动点击选择
@@ -462,7 +463,7 @@ export const config  = {
     // 浏览器访问限制配置
     BROWSER_RESTRICT_CONFIG: {
         // 是否启用浏览器限制功能
-        enabled: true,
+        enabled: false,
 
         // 各浏览器是否被限制访问（true=限制访问，false=允许访问）
         restrictBrowsers: {
@@ -489,7 +490,7 @@ export const config  = {
         // 弹窗配置
         popup: {
             // 是否启用弹窗
-            enabled: true,
+            enabled: false,
             // 弹窗标题
             title: "工单须知",
             // 弹窗内容 (支持HTML)
@@ -573,13 +574,13 @@ export const config  = {
         // 可选值: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 'wallet' 只有 xiao-v2board 支持 非 xiao-v2board 面板请勿设置为 wallet
         // 默认值为 'invite'
-        thirdNavItem: 'invite',
+        thirdNavItem: 'nodes',
 
         // 可选：第四个导航项（插入在“更多”之前）。为空字符串或未设置则不插入
         // 可选值同上: 'invite', 'docs', 'tickets', 'nodes', 'orders', 'traffic', 'wallet', 'profile'
         // 默认值为 'docs'
         // 注意：如果第三个导航项设置为 'invite'，则第四个导航项不能设置为 'invite'
-        fourthNavItem: 'docs',
+        fourthNavItem: '',
     },
 
     // More页面自定义卡片配置

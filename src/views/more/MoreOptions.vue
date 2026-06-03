@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="more-container">
 
@@ -12,7 +12,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 
@@ -34,32 +34,6 @@
 
       <div class="stats-grid">
         
-        <div v-if="shouldShowInviteCard" class="stats-card" @click="$router.push('/invite')">
-
-          <div class="stats-icon">
-
-            <IconUserPlus :size="32" />
-
-          </div>
-
-          <div class="stats-info">
-
-            <div class="stats-value">{{ $t('invite.title') }}</div>
-
-            <div class="stats-label">{{ $t('more.inviteDescription') }}</div>
-
-          </div>
-
-          <div class="chevron-icon">
-
-            <IconChevronRight :size="20" />
-
-          </div>
-
-        </div>
-
-
-
         <div v-if="shouldShowDocsCard" class="stats-card" @click="$router.push('/docs')">
 
           <div class="stats-icon">
@@ -177,6 +151,30 @@
             <div class="stats-value">{{ $t('trafficLog.title') }}</div>
 
             <div class="stats-label">{{ $t('trafficLog.trafficLogDesc') }}</div>
+
+          </div>
+
+          <div class="chevron-icon">
+
+            <IconChevronRight :size="20" />
+
+          </div>
+
+        </div>
+
+        <div v-if="shouldShowInviteCard" class="stats-card" @click="$router.push('/invite')">
+
+          <div class="stats-icon">
+
+            <IconUserPlus :size="32" />
+
+          </div>
+
+          <div class="stats-info">
+
+            <div class="stats-value">{{ $t('invite.title') }}</div>
+
+            <div class="stats-label">{{ $t('more.inviteDescription') }}</div>
 
           </div>
 

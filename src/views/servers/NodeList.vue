@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="nodes-container">
 
@@ -12,7 +12,7 @@
 
       <!-- 欢迎卡片 -->
 
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
 
         <div class="card-header">
 

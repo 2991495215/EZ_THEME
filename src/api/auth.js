@@ -1,4 +1,4 @@
-﻿
+
 import request from './request';
 import store from '@/store';
 import { SITE_CONFIG } from '@/utils/baseConfig';
@@ -166,6 +166,28 @@ export const handleLoginSuccess = (responseData, rememberMe) => {
 };
 
 
+const normalizeAuthResponse = (response) => {
+  let responseData = response;
+
+  if ((response && response.data) || (response && typeof response === 'object' && Object.prototype.hasOwnProperty.call(response, 'data'))) {
+    responseData = response.data;
+  }
+
+  if (responseData?.data && typeof responseData.data === 'object') {
+    responseData = responseData.data;
+  }
+
+  if (responseData?.authData && !responseData.auth_data) {
+    responseData.auth_data = responseData.authData;
+  }
+
+  if (responseData?.token && !responseData.auth_data) {
+    responseData.auth_data = responseData.token;
+  }
+
+  return responseData;
+};
+
 export const login = async (loginData) => {
   const { rememberMe, ...requestData } = loginData;
   
@@ -175,13 +197,10 @@ export const login = async (loginData) => {
     data: requestData
   });
   
-  let responseData = response;
-  if ((response && response.data) || (response && typeof response === 'object' && Object.prototype.hasOwnProperty.call(response, 'data'))) {
-    responseData = response.data;
-  }
+  const responseData = normalizeAuthResponse(response);
   
   if (!responseData || !(responseData.token || responseData.auth_data)) {
-    throw new Error('登录数据不完整');
+    throw new Error(responseData?.message || '登录数据不完整');
   }
   
   const handledResponse = handleLoginSuccess(responseData, rememberMe);

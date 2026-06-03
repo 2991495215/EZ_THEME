@@ -1,4 +1,4 @@
-﻿import {SITE_CONFIG} from '../../utils/baseConfig';
+import {SITE_CONFIG} from '../../utils/baseConfig';
 
 export default {
     common: {
@@ -242,7 +242,7 @@ export default {
         macos: 'MacOS'
     },
     menu: {
-        dashboard: '仪表盘',
+        dashboard: '首页',
         shop: '商店',
         invite: '邀请',
         docs: '文档',

@@ -1,8 +1,8 @@
-﻿<template>
+<template>
   <div class="orders-container">
     <div class="orders-inner">
       <!-- 欢迎卡片 -->
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
         <div class="card-header">
           <h2 class="card-title">{{ $t('orders.welcome.title') || '订单列表' }}</h2>
         </div>

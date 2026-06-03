@@ -38,7 +38,7 @@
 
       <div class="site-title">
 
-        <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="site-logo-img" />
+        <img v-if="siteConfig.showLogo" src="/images/txz.png" alt="Logo" class="site-logo-img" />
 
         {{ siteConfig.siteName }}
 

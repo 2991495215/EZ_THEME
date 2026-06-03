@@ -1,8 +1,8 @@
-﻿<template>
+<template>
   <div class="deposit-container">
     <div class="deposit-inner">
       <!-- 欢迎卡片 -->
-      <div class="dashboard-card welcome-card">
+      <div v-if="false" class="dashboard-card welcome-card">
         <div class="card-header">
           <h2 class="card-title">{{ $t('wallet.welcome.title') || '账户充值' }}</h2>
         </div>
