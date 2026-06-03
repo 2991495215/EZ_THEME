@@ -73,7 +73,7 @@ export const config  = {
         showLogo: true,
 
         // 网站Logo路径
-        logoPath: '/images/txz.png',
+        logoPath: '/images/txz.png?v=0.4.0',
 
         // Landing页面多语言标语
         landingText: {
@@ -287,7 +287,37 @@ export const config  = {
             macos: 'https://github.com/xxx/releases/latest',
             windows: 'https://github.com/xxx/releases/latest',
             linux: 'https://github.com/xxx/releases/latest',
-            openwrt: 'https://github.com/xxx/releases/latest'
+            openwrt: 'https://github.com/xxx/releases/latest',
+            shadowrocket: 'https://apps.apple.com/app/shadowrocket/id932747118',
+            surge: 'https://apps.apple.com/app/surge-5/id1442620678',
+            stash: 'https://apps.apple.com/app/stash-rule-based-proxy/id1596063349',
+            quantumultX: 'https://apps.apple.com/app/quantumult-x/id1443988620',
+            hiddifyIOS: 'https://apps.apple.com/app/hiddify-proxy-vpn/id6596777532',
+            singboxIOS: 'https://apps.apple.com/app/sing-box-vt/id6673731168',
+            loon: 'https://apps.apple.com/app/loon/id1373567447',
+            flclashAndroid: 'https://github.com/chen08209/FlClash/releases/latest',
+            v2rayNG: 'https://github.com/2dust/v2rayNG/releases/latest',
+            clashAndroid: 'https://github.com/Kr328/ClashForAndroid/releases/latest',
+            surfboard: 'https://play.google.com/store/apps/details?id=com.getsurfboard',
+            clashMetaAndroid: 'https://github.com/MetaCubeX/ClashMetaForAndroid/releases/latest',
+            nekobox: 'https://github.com/MatsuriDayo/NekoBoxForAndroid/releases/latest',
+            singboxAndroid: 'https://github.com/SagerNet/sing-box/releases/latest',
+            hiddifyAndroid: 'https://github.com/hiddify/hiddify-app/releases/latest',
+            flclashWindows: 'https://github.com/chen08209/FlClash/releases/latest',
+            clashVergeWindows: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest',
+            clashWindows: 'https://github.com/Fndroid/clash_for_windows_pkg/releases/latest',
+            nekoray: 'https://github.com/MatsuriDayo/nekoray/releases/latest',
+            singboxWindows: 'https://github.com/SagerNet/sing-box/releases/latest',
+            hiddifyWindows: 'https://github.com/hiddify/hiddify-app/releases/latest',
+            flclashMac: 'https://github.com/chen08209/FlClash/releases/latest',
+            clashVergeMac: 'https://github.com/clash-verge-rev/clash-verge-rev/releases/latest',
+            clashX: 'https://github.com/yichengchen/clashX/releases/latest',
+            clashMetaX: 'https://github.com/MetaCubeX/ClashX.Meta/releases/latest',
+            surgeMac: 'https://nssurge.com/',
+            stashMac: 'https://apps.apple.com/app/stash-rule-based-proxy/id1596063349',
+            quantumultXMac: 'https://apps.apple.com/app/quantumult-x/id1443988620',
+            singboxMac: 'https://github.com/SagerNet/sing-box/releases/latest',
+            hiddifyMac: 'https://github.com/hiddify/hiddify-app/releases/latest'
         },
 
         // 订阅导入客户端显示控制 部分面板不支持SingBox导入请您注意检查

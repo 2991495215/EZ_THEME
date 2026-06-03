@@ -668,12 +668,14 @@
           </button>
         </div>
         <div class="client-download-list">
-          <button
+          <a
               v-for="client in activeClientGuideClients"
               :key="client.name"
               class="client-download-item"
-              type="button"
-              @click="downloadClient(client.platform)"
+              :href="getClientDownloadUrl(client) || undefined"
+              target="_blank"
+              rel="noopener noreferrer"
+              @click.prevent="downloadClient(client)"
           >
             <span class="client-download-info">
               <span class="client-guide-icon-wrap">
@@ -685,7 +687,7 @@
               <IconDownload :size="18"/>
               <span>下载客户端</span>
             </span>
-          </button>
+          </a>
         </div>
       </section>
     </div>
@@ -1017,33 +1019,30 @@ export default {
     ];
 
     const clientGuideGroups = computed(() => ({
-      android: [
-        {name: 'FlClash', icon: flclashIcon, platform: 'android'},
-        {name: 'v2rayNG', icon: v2rayNGIcon, platform: 'android'},
-        {name: 'Clash', icon: clashAndroidIcon, platform: 'android'},
-        {name: 'Surfboard', icon: surfboardIcon, platform: 'android'}
-      ],
       ios: [
-        {name: 'Shadowrocket', icon: shadowrocketIcon, platform: 'ios'},
-        {name: 'Surge', icon: surgeIcon, platform: 'ios'},
-        {name: 'Stash', icon: stashIcon, platform: 'ios'},
-        {name: 'Quantumult X', icon: quantumultIcon, platform: 'ios'}
+        {name: 'Shadowrocket', icon: shadowrocketIcon, platform: 'ios', linkKey: 'shadowrocket', visible: clientConfig.showShadowrocket}
+      ],
+      android: [
+        {name: 'FlClash', icon: flclashIcon, platform: 'android', linkKey: 'flclashAndroid', visible: clientConfig.showFlClashAndroid},
+        {name: 'V2rayNG', icon: v2rayNGIcon, platform: 'android', linkKey: 'v2rayNG', visible: clientConfig.showV2rayNG},
+        {name: 'Clash Meta', icon: clashMetaAndroidIcon, platform: 'android', linkKey: 'clashMetaAndroid', visible: clientConfig.showClashMetaAndroid},
+        {name: 'Nekobox', icon: nekoboxIcon, platform: 'android', linkKey: 'nekobox', visible: clientConfig.showNekobox},
+        {name: 'Singbox', icon: singboxAndroidIcon, platform: 'android', linkKey: 'singboxAndroid', visible: clientConfig.showSingboxAndroid}
       ],
       windows: [
-        {name: 'FlClash', icon: flclashIcon, platform: 'windows'},
-        {name: 'Clash Verge', icon: clashvergeIcon, platform: 'windows'},
-        {name: 'v2rayN', icon: v2rayNGIcon, platform: 'windows'},
-        {name: 'sing-box', icon: singboxWindowsIcon, platform: 'windows'}
+        {name: 'FlClash', icon: flclashIcon, platform: 'windows', linkKey: 'flclashWindows', visible: clientConfig.showFlClashWindows},
+        {name: 'ClashVerge', icon: clashvergeIcon, platform: 'windows', linkKey: 'clashVergeWindows', visible: clientConfig.showClashVergeWindows},
+        {name: 'Nekoray', icon: nekorayIcon, platform: 'windows', linkKey: 'nekoray', visible: clientConfig.showNekoray},
+        {name: 'Singbox', icon: singboxWindowsIcon, platform: 'windows', linkKey: 'singboxWindows', visible: clientConfig.showSingboxWindows}
       ],
       macos: [
-        {name: 'FlClash', icon: flclashIcon, platform: 'macos'},
-        {name: 'Clash Verge', icon: clashvergeIcon, platform: 'macos'},
-        {name: 'Stash', icon: stashMacIcon, platform: 'macos'},
-        {name: 'sing-box', icon: singboxMacIcon, platform: 'macos'}
+        {name: 'FlClash', icon: flclashIcon, platform: 'macos', linkKey: 'flclashMac', visible: clientConfig.showFlClashMac},
+        {name: 'ClashVerge', icon: clashvergeIcon, platform: 'macos', linkKey: 'clashVergeMac', visible: clientConfig.showClashVergeMac},
+        {name: 'Singbox', icon: singboxMacIcon, platform: 'macos', linkKey: 'singboxMac', visible: clientConfig.showSingboxMac}
       ]
     }));
 
-    const activeClientGuideClients = computed(() => clientGuideGroups.value[activeClientGuidePlatform.value] || []);
+    const activeClientGuideClients = computed(() => (clientGuideGroups.value[activeClientGuidePlatform.value] || []).filter(client => client.visible));
 
     function detectUserPlatform() {
       const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -1095,8 +1094,16 @@ export default {
       router.push('/docs');
     };
 
-    const downloadClient = (platform) => {
-      const downloadUrl = clientConfig.clientLinks[platform];
+    const getClientDownloadUrl = (client) => {
+      if (typeof client === 'string') {
+        return clientConfig.clientLinks[client];
+      }
+
+      return clientConfig.clientLinks[client.linkKey] || clientConfig.clientLinks[client.platform];
+    };
+
+    const downloadClient = (client) => {
+      const downloadUrl = getClientDownloadUrl(client);
       if (downloadUrl) {
         window.open(downloadUrl, '_blank');
       }
@@ -1916,6 +1923,7 @@ export default {
       goToShop,
       openDocumentation,
       downloadClient,
+      getClientDownloadUrl,
       hasPendingItems,
       router,
       currentNoticeIndex,
@@ -2410,6 +2418,7 @@ export default {
       background-color: rgba(var(--theme-color-rgb), 0.03);
       color: var(--text-color);
       cursor: pointer;
+      text-decoration: none;
       transition: border-color 0.2s ease, background-color 0.2s ease;
 
       &:hover {
