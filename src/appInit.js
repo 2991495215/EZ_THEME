@@ -7,7 +7,6 @@ import App from './App.vue';
 import router from './router';
 import { pinia, useAuthStore } from './stores';
 import i18n, { reloadMessages } from './i18n';
-import { MotionPlugin } from '@vueuse/motion';
 import { useToast } from './composables/useToast';
 import initPageTitle from './utils/exposeConfig';
 import { handleUnauthorizedDomain } from './utils/domainChecker';
@@ -58,8 +57,7 @@ const initApp = async () => {
 
     app.use(pinia)
        .use(router)
-       .use(i18n)
-       .use(MotionPlugin);
+       .use(i18n);
 
     app.mount('#app');
 

@@ -47,9 +47,6 @@
 
       <div class="floating-ball ball-3"></div>
 
-      <div class="floating-ball ball-4"></div>
-
-      <div class="floating-ball ball-5"></div>
 
     </div>
 
@@ -114,13 +111,11 @@ export default {
   z-index: 1;
 
   background:
-    radial-gradient(circle at 82% 12%, rgba(79, 70, 229, 0.34), transparent 34%),
-    radial-gradient(circle at 16% 22%, rgba(37, 99, 235, 0.36), transparent 36%),
-    radial-gradient(circle at 46% 10%, rgba(212, 175, 55, 0.24), transparent 34%),
-    radial-gradient(circle at 76% 82%, rgba(20, 184, 166, 0.3), transparent 38%),
-    radial-gradient(circle at 24% 86%, rgba(168, 85, 247, 0.32), transparent 38%),
-    linear-gradient(135deg, #f8fbff 0%, #eaf3ff 42%, #f9fbff 74%, #fbf7ff 100%);
-  background-size: 230% 230%, 220% 220%, 210% 210%, 235% 235%, 225% 225%, 100% 100%;
+    radial-gradient(circle at 82% 12%, rgba(79, 70, 229, 0.16), transparent 34%),
+    radial-gradient(circle at 16% 22%, rgba(37, 99, 235, 0.18), transparent 36%),
+    radial-gradient(circle at 76% 82%, rgba(20, 184, 166, 0.14), transparent 38%),
+    linear-gradient(135deg, #f9fbff 0%, #f1f6fd 42%, #fbfcff 74%, #fbf9ff 100%);
+  background-size: 190% 190%, 185% 185%, 195% 195%, 100% 100%;
   animation: mainBoardAurora 6.8s ease-in-out infinite alternate;
 
 }
@@ -305,11 +300,11 @@ export default {
 
   border-radius: 50%;
 
-  filter: blur(52px) saturate(1.18);
+  filter: blur(54px) saturate(0.95) brightness(1);
 
-  opacity: 0.5;
+  opacity: 0.44;
 
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 
   will-change: transform;
 
@@ -325,9 +320,9 @@ export default {
 
   background: radial-gradient(circle at 30% 30%, 
 
-    rgba(59, 130, 246, 0.58),
+    rgba(59, 130, 246, 0.4),
 
-    rgba(59, 130, 246, 0.2) 70%,
+    rgba(59, 130, 246, 0.13) 70%,
 
     transparent
 
@@ -351,9 +346,9 @@ export default {
 
   background: radial-gradient(circle at 70% 70%, 
 
-    rgba(168, 85, 247, 0.68),
+    rgba(168, 85, 247, 0.36),
 
-    rgba(168, 85, 247, 0.24) 70%,
+    rgba(168, 85, 247, 0.12) 70%,
 
     transparent
 
@@ -377,9 +372,9 @@ export default {
 
   background: radial-gradient(circle at 50% 50%, 
 
-    rgba(20, 184, 166, 0.78),
+    rgba(20, 184, 166, 0.34),
 
-    rgba(20, 184, 166, 0.3) 70%,
+    rgba(20, 184, 166, 0.12) 70%,
 
     transparent
 
@@ -394,56 +389,6 @@ export default {
 }
 
 
-
-.ball-4 {
-
-  width: 420px;
-
-  height: 420px;
-
-  background: radial-gradient(circle at 40% 40%, 
-
-    rgba(168, 85, 247, 0.42),
-
-    rgba(217, 119, 6, 0.24) 70%,
-
-    transparent
-
-  );
-
-  top: 12%;
-
-  left: 42%;
-
-  animation: floatingBall2 8s infinite ease-in-out reverse;
-
-}
-
-
-
-.ball-5 {
-
-  width: 360px;
-
-  height: 360px;
-
-  background: radial-gradient(circle at 50% 45%, 
-
-    rgba(212, 175, 55, 0.48),
-
-    rgba(184, 134, 11, 0.2) 72%,
-
-    transparent
-
-  );
-
-  top: 60%;
-
-  left: 50%;
-
-  animation: floatingBall1 10s infinite ease-in-out reverse;
-
-}
 
 @media (max-width: 767px) {
 
@@ -535,29 +480,6 @@ export default {
 
   }
 
-  .ball-4 {
-
-    width: 58vw;
-
-    height: 58vw;
-
-    top: 18%;
-
-    left: 34vw;
-
-  }
-
-  .ball-5 {
-
-    width: 56vw;
-
-    height: 56vw;
-
-    top: 62%;
-
-    left: 22vw;
-
-  }
 
 }
 
@@ -600,13 +522,11 @@ export default {
 
 @keyframes mainBoardAurora {
 
-  0% { background-position: 0% 0%, 100% 18%, 48% 6%, 8% 34%, 82% 100%, 0 0; }
+  0% { background-position: 0% 0%, 100% 18%, 8% 34%, 0 0; }
 
-  35% { background-position: 78% 20%, 38% 76%, 62% 26%, 88% 8%, 22% 38%, 0 0; }
+  50% { background-position: 78% 20%, 38% 76%, 88% 8%, 0 0; }
 
-  70% { background-position: 38% 86%, 12% 42%, 22% 74%, 54% 94%, 104% 26%, 0 0; }
-
-  100% { background-position: 100% 76%, 0% 94%, 42% 18%, 42% 90%, 96% 10%, 0 0; }
+  100% { background-position: 100% 76%, 0% 94%, 42% 90%, 0 0; }
 
 }
 
@@ -630,7 +550,7 @@ export default {
 
   50% { transform: translate3d(-5%, 5%, 0) scale(1.1); opacity: 0.72; }
 
-  100% { transform: translate3d(7%, 9%, 0) scale(1.04); opacity: 0.5; }
+  100% { transform: translate3d(7%, 9%, 0) scale(1.04); opacity: 0.28; }
 
 }
 

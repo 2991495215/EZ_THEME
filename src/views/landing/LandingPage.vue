@@ -14,9 +14,6 @@
 
       <div class="bg-circle circle-3"></div>
 
-      <div class="bg-circle circle-4"></div>
-
-      <div class="bg-circle circle-5"></div>
 
       <div class="bg-grid"></div>
 
@@ -413,13 +410,13 @@ export default {
 
     border-radius: 50%;
 
-    filter: blur(76px) saturate(1.55) brightness(1.14);
-    opacity: 0.88; 
+    filter: blur(76px) saturate(1.05) brightness(1);
+    opacity: 0.55; 
     animation: orbTravel 14s infinite cubic-bezier(0.45, 0, 0.55, 1);
 
     transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 
-    mix-blend-mode: screen;
+    mix-blend-mode: normal;
 
     will-change: transform;
     
@@ -427,13 +424,14 @@ export default {
     .dark-theme & {
       opacity: 0.58;
       filter: blur(68px) saturate(1.45) brightness(1.08);
+      mix-blend-mode: screen;
     }
 
     @supports (-webkit-touch-callout: none) {
 
       filter: blur(20px);
 
-      opacity: 0.15;
+      opacity: 0.22;
 
       animation-duration: 40s; 
     }
@@ -448,13 +446,13 @@ export default {
 
     height: 34vw;
 
-    background: rgba(59, 130, 246, 0.9);
+    background: rgba(59, 130, 246, 0.54);
 
     top: -8%;
 
     left: -4%;
 
-    animation-duration: 12s;
+    animation-duration: 10.8s;
     animation-name: blueOrbTravel;
 
     
@@ -475,13 +473,13 @@ export default {
 
     height: 32vw;
 
-    background: rgba(168, 85, 247, 0.88);
+    background: rgba(168, 85, 247, 0.5);
 
     top: 8%;
 
     right: -5%;
 
-    animation-duration: 13s;
+    animation-duration: 11.8s;
     animation-name: purpleOrbTravel;
     animation-delay: -3s;
 
@@ -503,13 +501,13 @@ export default {
 
     height: 34vw;
 
-    background: rgba(45, 212, 191, 0.86);
+    background: rgba(45, 212, 191, 0.48);
 
     bottom: -8%;
 
     left: 30%;
 
-    animation-duration: 14s;
+    animation-duration: 12.6s;
     animation-name: cyanOrbTravel;
     animation-delay: -6s;
 
@@ -525,56 +523,6 @@ export default {
 
 
 
-  .circle-4 {
-
-    width: 42vw;
-
-    height: 42vw;
-
-    background: rgba(212, 175, 55, 0.78);
-
-    top: 44%;
-
-    left: -8%;
-
-    animation-duration: 26s;
-
-    animation-direction: reverse;
-
-    .dark-theme & {
-      background: rgba(184, 134, 11, 0.34);
-      animation-duration: 29s;
-    }
-
-  }
-
-
-
-  .circle-5 {
-
-    width: 34vw;
-
-    height: 34vw;
-
-    background: rgba(45, 212, 191, 0.62);
-
-    right: 18%;
-
-    bottom: 0;
-
-    animation-duration: 30s;
-
-    animation-direction: reverse;
-
-    .dark-theme & {
-      background: rgba(20, 184, 166, 0.42);
-      animation-duration: 32s;
-    }
-
-  }
-
-
-
 }
 
 
@@ -583,11 +531,11 @@ export default {
 
   0% { transform: translate3d(0, 0, 0) scale(1); }
 
-  25% { transform: translate3d(34vw, 12vh, 0) scale(1.1); }
+  20% { transform: translate3d(38vw, 16vh, 0) scale(1.12); }
 
-  50% { transform: translate3d(58vw, 42vh, 0) scale(0.95); }
+  48% { transform: translate3d(64vw, 50vh, 0) scale(0.93); }
 
-  75% { transform: translate3d(22vw, 58vh, 0) scale(1.08); }
+  74% { transform: translate3d(26vw, 66vh, 0) scale(1.09); }
 
   100% { transform: translate3d(0, 0, 0) scale(1); }
 
@@ -597,11 +545,11 @@ export default {
 
   0% { transform: translate3d(0, 0, 0) scale(1); }
 
-  24% { transform: translate3d(-32vw, 16vh, 0) scale(1.12); }
+  22% { transform: translate3d(-36vw, 18vh, 0) scale(1.14); }
 
-  52% { transform: translate3d(-62vw, 48vh, 0) scale(0.96); }
+  50% { transform: translate3d(-68vw, 52vh, 0) scale(0.94); }
 
-  76% { transform: translate3d(-24vw, 62vh, 0) scale(1.06); }
+  78% { transform: translate3d(-30vw, 68vh, 0) scale(1.1); }
 
   100% { transform: translate3d(0, 0, 0) scale(1); }
 
@@ -611,11 +559,11 @@ export default {
 
   0% { transform: translate3d(0, 0, 0) scale(1); }
 
-  28% { transform: translate3d(28vw, -26vh, 0) scale(1.08); }
+  26% { transform: translate3d(32vw, -30vh, 0) scale(1.1); }
 
-  58% { transform: translate3d(-34vw, -48vh, 0) scale(0.94); }
+  54% { transform: translate3d(-38vw, -56vh, 0) scale(0.93); }
 
-  82% { transform: translate3d(16vw, -62vh, 0) scale(1.12); }
+  82% { transform: translate3d(20vw, -70vh, 0) scale(1.14); }
 
   100% { transform: translate3d(0, 0, 0) scale(1); }
 

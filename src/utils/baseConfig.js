@@ -819,6 +819,9 @@ const DEFAULT_CUSTOMER_SERVICE_CONFIG = {
     // 客服系统嵌入模式: 'popup'=弹出式页面, 'embed'=嵌入到每个页面(仅支持Crisp)
     embedMode: 'embed',
 
+    // 是否启用后台页面预加载，默认关闭以降低首屏后CPU和网络占用
+    enableResourcePreload: false,
+
     // 图标位置配置
     iconPosition: {
         // 桌面版图标距离左下角的距离

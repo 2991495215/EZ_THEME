@@ -64,10 +64,10 @@
     <CustomerServiceIcon v-if="$route.path !== '/customer-service'" />
     
     <!-- Crisp嵌入组件（第二种客服系统方案） -->
-    <CrispEmbed v-if="customerServiceConfig.embedMode === 'embed'" />
+    <CrispEmbed v-if="shouldLoadCrispEmbed" />
     
     <!-- 资源预加载组件 -->
-    <ResourcePreloader />
+    <ResourcePreloader v-if="enableResourcePreloader" />
     
     <!-- SVG图标定义 -->
     <IconDefinitions />
@@ -75,7 +75,7 @@
 </template>
 
 <script>
-import { onMounted, onUnmounted, ref, computed, provide, watch } from 'vue';
+import { defineAsyncComponent, onMounted, onUnmounted, ref, computed, provide, watch } from 'vue';
 import { useStore } from '@/store/useLegacyStore';
 import { useTheme } from '@/composables/useTheme';
 import { useRouter, useRoute } from 'vue-router';
@@ -92,13 +92,16 @@ import UserAvatar from '@/components/common/UserAvatar.vue';
 import BackToTop from '@/components/common/BackToTop.vue';
 import CustomContextMenu from '@/components/common/CustomContextMenu.vue';
 import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
-import CrispEmbed from '@/components/common/CrispEmbed.vue';
-import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
+
+
 import { IconGift } from '@tabler/icons-vue';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import pageCache from '@/utils/pageCache';
 import { useToast } from '@/composables/useToast';
+
+const CrispEmbed = defineAsyncComponent(() => import('@/components/common/CrispEmbed.vue'));
+const ResourcePreloader = defineAsyncComponent(() => import('@/components/common/ResourcePreloader.vue'));
 
 NProgress.configure({ 
   showSpinner: true,   
@@ -133,6 +136,8 @@ export default {
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
     
     const customerServiceConfig = computed(() => CUSTOMER_SERVICE_CONFIG);
+    const shouldLoadCrispEmbed = computed(() => customerServiceConfig.value.enabled && customerServiceConfig.value.type === 'crisp' && customerServiceConfig.value.embedMode === 'embed');
+    const enableResourcePreloader = computed(() => customerServiceConfig.value.enableResourcePreload === true);
     
     router.beforeEach((to, from, next) => {
       if (to.meta.keepAlive && to.name) {
@@ -265,7 +270,9 @@ export default {
       siteConfig,
       PROFILE_CONFIG,
       cachedRoutes,
-      customerServiceConfig
+      customerServiceConfig,
+      shouldLoadCrispEmbed,
+      enableResourcePreloader
     };
   }
 };
