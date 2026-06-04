@@ -1,4 +1,4 @@
-﻿<!-- 资源预加载组件 -->
+<!-- 资源预加载组件 -->
 <template>
   <!-- 这个组件不会显示任何内容，仅用于资源预加载 -->
   <div class="resource-preloader" style="display: none;">
@@ -36,7 +36,7 @@ export default {
     const isCustomerServiceEnabled = CUSTOMER_SERVICE_CONFIG && CUSTOMER_SERVICE_CONFIG.enabled;
 
     const preloadImages = ref([
-      '/images/logo.png'
+      './images/txz.png'
     ]);
     
     const preloadQueue = ref([]);

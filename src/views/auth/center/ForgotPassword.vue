@@ -1,4 +1,4 @@
-﻿<template>
+<template>
 
   <div class="auth-container">
 
@@ -385,7 +385,7 @@ import { resetPassword, sendEmailVerify, checkLoginStatus, getWebsiteConfig } fr
 
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 
-import { CAPTCHA_CONFIG, AUTH_CONFIG } from '@/utils/baseConfig';
+import { CAPTCHA_CONFIG, SITE_CONFIG, AUTH_CONFIG } from '@/utils/baseConfig';
 
 import AuthPopup from '@/components/auth/AuthPopup.vue';
 
@@ -503,11 +503,11 @@ export default {
 
 
 
-    const logoPath = ref('./images/logo.png');
+    const logoPath = ref(SITE_CONFIG.logoPath || './images/txz.png');
 
     const handleLogoError = () => {
 
-      logoPath.value = '/images/logo.png';
+      logoPath.value = './images/txz.png';
 
     };
 

@@ -1,10 +1,10 @@
-﻿<template>
+<template>
   <div>
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
       <div class="site-logo">
-        <img v-if="siteConfig.showLogo" src="/images/txz.png" alt="Logo" class="site-logo-img" />
+        <img v-if="siteConfig.showLogo" :src="siteConfig.logoPath" alt="Logo" class="site-logo-img" />
         {{ siteConfig.siteName }}
       </div>
       

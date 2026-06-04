@@ -206,7 +206,7 @@ const DEFAULT_SITE_CONFIG = {
     showLogo: true,
 
     // 网站Logo路径
-    logoPath: '/images/txz.png',
+    logoPath: './images/txz.png',
 
     // Landing页面多语言标语
     landingText: {
