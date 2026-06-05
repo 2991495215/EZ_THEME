@@ -15,20 +15,25 @@
   position: relative;
   overflow: hidden;
   z-index: 1;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(59, 130, 246, 0.28), transparent 32%),
+    radial-gradient(circle at 88% 30%, rgba(168, 85, 247, 0.2), transparent 30%),
+    radial-gradient(circle at 46% 94%, rgba(20, 184, 166, 0.22), transparent 34%),
+    linear-gradient(135deg, #d6e8ff 0%, #dce2f6 48%, #d3f0ec 100%);
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: var(--card-background);
+  background: rgba(255, 255, 255, 0.72);
   border-radius: $border-radius-xl;
-  box-shadow: 0 10px 30px var(--shadow-color);
+  box-shadow: 0 24px 70px rgba(37, 99, 235, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.68);
   padding: 2.5rem;
   position: relative;
   z-index: 2;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(var(--theme-color-rgb), 0.1);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  border: 1px solid rgba(37, 99, 235, 0.16);
   
   @media (min-width: map.get($breakpoints, md)) {
     padding: 3rem;
@@ -120,9 +125,9 @@
 .floating-ball {
   position: absolute;
   border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.3;
-  mix-blend-mode: lighten;
+  filter: blur(42px) saturate(1.18);
+  opacity: 0.62;
+  mix-blend-mode: normal;
   
   // iOS设备完全隐藏装饰球
   @supports (-webkit-touch-callout: none) {
@@ -131,11 +136,11 @@
 }
 
 .ball-1 {
-  width: 600px;
-  height: 600px;
+  width: clamp(220px, 26vw, 360px);
+  height: clamp(220px, 26vw, 360px);
   background: radial-gradient(circle at 30% 30%, 
-    rgba(var(--theme-color-rgb), 0.4),
-    rgba(var(--theme-color-rgb), 0.1) 70%,
+    rgba(59, 130, 246, 0.58),
+    rgba(59, 130, 246, 0.16) 70%,
     transparent
   );
   top: -10%;
@@ -144,11 +149,11 @@
 }
 
 .ball-2 {
-  width: 500px;
-  height: 500px;
+  width: clamp(200px, 24vw, 330px);
+  height: clamp(200px, 24vw, 330px);
   background: radial-gradient(circle at 70% 70%, 
-    rgba(167, 71, 254, 0.35),
-    rgba(167, 71, 254, 0.08) 70%,
+    rgba(168, 85, 247, 0.5),
+    rgba(168, 85, 247, 0.14) 70%,
     transparent
   );
   top: 40%;
@@ -157,14 +162,64 @@
 }
 
 .ball-3 {
-  width: 450px;
-  height: 450px;
+  width: clamp(220px, 25vw, 350px);
+  height: clamp(220px, 25vw, 350px);
   background: radial-gradient(circle at 50% 50%, 
-    rgba(55, 222, 201, 0.3),
-    rgba(55, 222, 201, 0.05) 70%,
+    rgba(20, 184, 166, 0.52),
+    rgba(20, 184, 166, 0.14) 70%,
     transparent
   );
   bottom: -10%;
   left: 20%;
   animation: floatingBall3 35s infinite ease-in-out;
 } 
+
+body.dark-theme {
+  .auth-container {
+    background: transparent;
+  }
+
+  .auth-card {
+    background: var(--card-background);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(var(--theme-color-rgb), 0.1);
+  }
+
+  .floating-ball {
+    filter: blur(60px);
+    opacity: 0.3;
+    mix-blend-mode: lighten;
+  }
+
+  .ball-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle at 30% 30%, 
+      rgba(var(--theme-color-rgb), 0.4),
+      rgba(var(--theme-color-rgb), 0.1) 70%,
+      transparent
+    );
+  }
+
+  .ball-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle at 70% 70%, 
+      rgba(167, 71, 254, 0.35),
+      rgba(167, 71, 254, 0.08) 70%,
+      transparent
+    );
+  }
+
+  .ball-3 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle at 50% 50%, 
+      rgba(55, 222, 201, 0.3),
+      rgba(55, 222, 201, 0.05) 70%,
+      transparent
+    );
+  }
+}

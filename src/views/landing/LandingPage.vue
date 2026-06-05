@@ -345,10 +345,10 @@ export default {
 
   &::before {
     background:
-      radial-gradient(circle at 16% 12%, rgba(96, 165, 250, 0.32), transparent 30%),
-      radial-gradient(circle at 88% 28%, rgba(196, 181, 253, 0.24), transparent 28%),
-      radial-gradient(circle at 48% 94%, rgba(94, 234, 212, 0.24), transparent 32%),
-      linear-gradient(135deg, #deedff 0%, #e5e9fb 48%, #e0f5f1 100%);
+      radial-gradient(circle at 16% 12%, rgba(59, 130, 246, 0.38), transparent 30%),
+      radial-gradient(circle at 88% 28%, rgba(168, 85, 247, 0.28), transparent 28%),
+      radial-gradient(circle at 48% 94%, rgba(20, 184, 166, 0.3), transparent 32%),
+      linear-gradient(135deg, #cfe4ff 0%, #d8ddf6 48%, #cdeee8 100%);
     opacity: 1;
   }
 
@@ -410,8 +410,8 @@ export default {
 
     border-radius: 50%;
 
-    filter: blur(30px) saturate(1.05) brightness(1.02);
-    opacity: 0.5; 
+    filter: blur(38px) saturate(1.18) brightness(1.02);
+    opacity: 0.66; 
     animation: orbTravel 12s infinite cubic-bezier(0.45, 0, 0.55, 1);
 
     transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1);
@@ -442,11 +442,11 @@ export default {
 
   .circle-1 {
 
-    width: clamp(128px, 12vw, 190px);
+    width: clamp(180px, 15vw, 260px);
 
-    height: clamp(128px, 12vw, 190px);
+    height: clamp(180px, 15vw, 260px);
 
-    background: rgba(96, 165, 250, 0.46);
+    background: rgba(59, 130, 246, 0.5);
 
     top: -8%;
 
@@ -471,11 +471,11 @@ export default {
 
   .circle-2 {
 
-    width: clamp(118px, 11vw, 176px);
+    width: clamp(168px, 14vw, 240px);
 
-    height: clamp(118px, 11vw, 176px);
+    height: clamp(168px, 14vw, 240px);
 
-    background: rgba(192, 132, 252, 0.38);
+    background: rgba(168, 85, 247, 0.44);
 
     top: 8%;
 
@@ -501,11 +501,11 @@ export default {
 
   .circle-3 {
 
-    width: clamp(128px, 12vw, 190px);
+    width: clamp(180px, 15vw, 260px);
 
-    height: clamp(128px, 12vw, 190px);
+    height: clamp(180px, 15vw, 260px);
 
-    background: rgba(45, 212, 191, 0.38);
+    background: rgba(20, 184, 166, 0.46);
 
     bottom: -8%;
 
@@ -823,9 +823,9 @@ export default {
 
   border-radius: 36px;
 
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(236, 244, 255, 0.28));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(221, 235, 255, 0.18));
 
-  box-shadow: 0 28px 80px rgba(59, 130, 246, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  box-shadow: 0 28px 80px rgba(37, 99, 235, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.48);
 
   backdrop-filter: blur(26px) saturate(145%);
 
