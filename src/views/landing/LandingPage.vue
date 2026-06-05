@@ -345,10 +345,10 @@ export default {
 
   &::before {
     background:
-      radial-gradient(circle at 16% 12%, rgba(147, 197, 253, 0.16), transparent 30%),
-      radial-gradient(circle at 88% 28%, rgba(216, 180, 254, 0.12), transparent 28%),
-      radial-gradient(circle at 48% 94%, rgba(94, 234, 212, 0.12), transparent 32%),
-      linear-gradient(135deg, #fbfdff 0%, #f4f8ff 48%, #fbffff 100%);
+      radial-gradient(circle at 16% 12%, rgba(96, 165, 250, 0.32), transparent 30%),
+      radial-gradient(circle at 88% 28%, rgba(196, 181, 253, 0.24), transparent 28%),
+      radial-gradient(circle at 48% 94%, rgba(94, 234, 212, 0.24), transparent 32%),
+      linear-gradient(135deg, #deedff 0%, #e5e9fb 48%, #e0f5f1 100%);
     opacity: 1;
   }
 
@@ -823,9 +823,9 @@ export default {
 
   border-radius: 36px;
 
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.25));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.48), rgba(236, 244, 255, 0.28));
 
-  box-shadow: 0 28px 80px rgba(96, 165, 250, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.64);
+  box-shadow: 0 28px 80px rgba(59, 130, 246, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.62);
 
   backdrop-filter: blur(26px) saturate(145%);
 
@@ -1070,11 +1070,14 @@ export default {
 
   color: #05060f;
 
-  box-shadow: 0 16px 44px rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(37, 99, 235, 0.12);
+
+  box-shadow: 0 16px 44px rgba(37, 99, 235, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.92);
 
 }
 
 .dark-theme .primary-action {
+  border: none;
   box-shadow: 0 16px 44px rgba(255, 255, 255, 0.18);
 }
 
@@ -1088,11 +1091,13 @@ export default {
 
 .secondary-action {
 
-  border: 1px solid rgba(37, 99, 235, 0.18);
+  border: 1px solid rgba(37, 99, 235, 0.32);
 
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.58);
 
-  color: rgba(30, 41, 59, 0.86);
+  color: rgba(15, 23, 42, 0.9);
+
+  box-shadow: 0 12px 34px rgba(37, 99, 235, 0.12);
 
   backdrop-filter: blur(18px);
 
@@ -1104,6 +1109,7 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.88);
+  box-shadow: none;
 }
 
 .primary-action:hover,
