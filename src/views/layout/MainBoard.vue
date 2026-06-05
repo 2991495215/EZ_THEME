@@ -111,10 +111,10 @@ export default {
   z-index: 1;
 
   background:
-    radial-gradient(circle at 82% 12%, rgba(79, 70, 229, 0.16), transparent 34%),
-    radial-gradient(circle at 16% 22%, rgba(37, 99, 235, 0.18), transparent 36%),
-    radial-gradient(circle at 76% 82%, rgba(20, 184, 166, 0.14), transparent 38%),
-    linear-gradient(135deg, #f9fbff 0%, #f1f6fd 42%, #fbfcff 74%, #fbf9ff 100%);
+    radial-gradient(circle at 82% 12%, rgba(79, 70, 229, 0.24), transparent 34%),
+    radial-gradient(circle at 16% 22%, rgba(37, 99, 235, 0.28), transparent 36%),
+    radial-gradient(circle at 76% 82%, rgba(20, 184, 166, 0.22), transparent 38%),
+    linear-gradient(135deg, #d6e8ff 0%, #dce2f6 42%, #d3f0ec 74%, #e2ddf5 100%);
   background-size: 190% 190%, 185% 185%, 195% 195%, 100% 100%;
   animation: mainBoardAurora 6.8s ease-in-out infinite alternate;
 
@@ -171,15 +171,15 @@ export default {
   pointer-events: none;
 
   background:
-    linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.38) 42%, transparent 66%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.28), transparent 46%);
+    linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.2) 42%, transparent 66%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14), transparent 46%);
 
   &::before,
   &::after {
     content: '';
     position: absolute;
     inset: -18%;
-    opacity: 0.7;
+    opacity: 0.52;
     mix-blend-mode: soft-light;
     will-change: transform, opacity;
   }
@@ -187,15 +187,15 @@ export default {
   &::before {
     background:
       linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.46) 18%, transparent 34%),
-      linear-gradient(128deg, transparent 28%, rgba(96, 165, 250, 0.18) 48%, transparent 66%);
+      linear-gradient(128deg, transparent 28%, rgba(96, 165, 250, 0.24) 48%, transparent 66%);
     animation: daylightSweep 7.2s ease-in-out infinite alternate;
   }
 
   &::after {
     background:
-      radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.5), transparent 18%),
-      radial-gradient(circle at 74% 68%, rgba(255, 237, 213, 0.44), transparent 24%),
-      linear-gradient(60deg, transparent 16%, rgba(255, 255, 255, 0.22) 44%, transparent 72%);
+      radial-gradient(circle at 22% 30%, rgba(255, 255, 255, 0.28), transparent 18%),
+      radial-gradient(circle at 74% 68%, rgba(196, 181, 253, 0.22), transparent 24%),
+      linear-gradient(60deg, transparent 16%, rgba(255, 255, 255, 0.12) 44%, transparent 72%);
     animation: daylightShimmer 8.6s ease-in-out infinite alternate;
   }
 
@@ -226,7 +226,7 @@ export default {
 
   inset: -24%;
 
-  opacity: 0.46;
+  opacity: 0.38;
 
   filter: blur(28px);
 
@@ -248,7 +248,7 @@ export default {
 
   background: linear-gradient(105deg, transparent 18%, rgba(255, 255, 255, 0.46) 38%, rgba(96, 165, 250, 0.18) 52%, transparent 76%);
 
-  opacity: 0.58;
+  opacity: 0.42;
 
   animation: daylightAuroraDrift 9.5s ease-in-out infinite alternate;
 
