@@ -345,10 +345,10 @@ export default {
 
   &::before {
     background:
-      radial-gradient(circle at 16% 12%, rgba(96, 165, 250, 0.52), transparent 32%),
-      radial-gradient(circle at 88% 28%, rgba(196, 181, 253, 0.48), transparent 30%),
-      radial-gradient(circle at 48% 94%, rgba(45, 212, 191, 0.4), transparent 34%),
-      linear-gradient(135deg, #4f8df7 0%, #7c6df2 48%, #23b6ad 100%);
+      radial-gradient(circle at 16% 12%, rgba(147, 197, 253, 0.16), transparent 30%),
+      radial-gradient(circle at 88% 28%, rgba(216, 180, 254, 0.12), transparent 28%),
+      radial-gradient(circle at 48% 94%, rgba(94, 234, 212, 0.12), transparent 32%),
+      linear-gradient(135deg, #fbfdff 0%, #f4f8ff 48%, #fbffff 100%);
     opacity: 1;
   }
 
@@ -410,8 +410,8 @@ export default {
 
     border-radius: 50%;
 
-    filter: blur(68px) saturate(1.18) brightness(1.04);
-    opacity: 0.42; 
+    filter: blur(30px) saturate(1.05) brightness(1.02);
+    opacity: 0.5; 
     animation: orbTravel 12s infinite cubic-bezier(0.45, 0, 0.55, 1);
 
     transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.9s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.9s cubic-bezier(0.22, 1, 0.36, 1);
@@ -442,11 +442,11 @@ export default {
 
   .circle-1 {
 
-    width: 30vw;
+    width: clamp(128px, 12vw, 190px);
 
-    height: 30vw;
+    height: clamp(128px, 12vw, 190px);
 
-    background: rgba(59, 130, 246, 0.42);
+    background: rgba(96, 165, 250, 0.46);
 
     top: -8%;
 
@@ -458,6 +458,8 @@ export default {
     
 
     .dark-theme & {
+      width: 30vw;
+      height: 30vw;
       background: rgba(59, 130, 246, 0.62); 
       animation-name: blueOrbTravelDark;
       animation-duration: 10s;
@@ -469,11 +471,11 @@ export default {
 
   .circle-2 {
 
-    width: 28vw;
+    width: clamp(118px, 11vw, 176px);
 
-    height: 28vw;
+    height: clamp(118px, 11vw, 176px);
 
-    background: rgba(168, 85, 247, 0.38);
+    background: rgba(192, 132, 252, 0.38);
 
     top: 8%;
 
@@ -486,6 +488,8 @@ export default {
     
 
     .dark-theme & {
+      width: 28vw;
+      height: 28vw;
       background: rgba(168, 85, 247, 0.58); 
       animation-name: purpleOrbTravelDark;
       animation-duration: 11s;
@@ -497,11 +501,11 @@ export default {
 
   .circle-3 {
 
-    width: 30vw;
+    width: clamp(128px, 12vw, 190px);
 
-    height: 30vw;
+    height: clamp(128px, 12vw, 190px);
 
-    background: rgba(45, 212, 191, 0.36);
+    background: rgba(45, 212, 191, 0.38);
 
     bottom: -8%;
 
@@ -514,6 +518,8 @@ export default {
     
 
     .dark-theme & {
+      width: 30vw;
+      height: 30vw;
       background: rgba(45, 212, 191, 0.6); 
       animation-name: cyanOrbTravelDark;
       animation-duration: 12s;
@@ -813,13 +819,13 @@ export default {
 
   width: min(92vw, 980px);
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.18);
 
   border-radius: 36px;
 
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.54), rgba(255, 255, 255, 0.25));
 
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  box-shadow: 0 28px 80px rgba(96, 165, 250, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.64);
 
   backdrop-filter: blur(26px) saturate(145%);
 
@@ -829,6 +835,12 @@ export default {
 
 
 
+.dark-theme .content-container {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
 .site-title {
 
   font-size: clamp(52px, 9vw, 118px);
@@ -837,7 +849,7 @@ export default {
 
   margin-bottom: 22px;
 
-  background: linear-gradient(110deg, #ffffff 0%, rgba(255, 255, 255, 0.86) 48%, rgba(147, 197, 253, 0.56) 100%);
+  background: linear-gradient(110deg, #1f2937 0%, rgba(51, 65, 85, 0.92) 52%, rgba(37, 99, 235, 0.62) 100%);
 
   -webkit-background-clip: text;
 
@@ -859,7 +871,7 @@ export default {
 
   line-height: 0.95;
 
-  text-shadow: 0 18px 60px rgba(59, 130, 246, 0.24);
+  text-shadow: 0 18px 60px rgba(59, 130, 246, 0.16);
 
   .site-logo-img {
 
@@ -877,6 +889,13 @@ export default {
 
 }
 
+.dark-theme .site-title {
+  background: linear-gradient(110deg, #ffffff 0%, rgba(255, 255, 255, 0.86) 48%, rgba(147, 197, 253, 0.56) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 18px 60px rgba(59, 130, 246, 0.24);
+}
+
 
 
 .landing-text {
@@ -889,7 +908,7 @@ export default {
 
   margin: 0 auto 2.2rem;
 
-  color: rgba(255, 255, 255, 0.66);
+  color: rgba(51, 65, 85, 0.72);
 
   opacity: 1;
 
@@ -912,6 +931,10 @@ export default {
 
 }
 
+.dark-theme .landing-text {
+  color: rgba(255, 255, 255, 0.66);
+}
+
 .hero-badge {
 
   display: inline-flex;
@@ -924,13 +947,13 @@ export default {
 
   padding: 10px 16px;
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.22);
 
   border-radius: 999px;
 
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.42);
 
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(51, 65, 85, 0.72);
 
   font-size: 0.74rem;
 
@@ -944,6 +967,12 @@ export default {
 
   -webkit-backdrop-filter: blur(18px);
 
+}
+
+.dark-theme .hero-badge {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .badge-pulse {
@@ -1041,8 +1070,12 @@ export default {
 
   color: #05060f;
 
-  box-shadow: 0 16px 44px rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 44px rgba(59, 130, 246, 0.14);
 
+}
+
+.dark-theme .primary-action {
+  box-shadow: 0 16px 44px rgba(255, 255, 255, 0.18);
 }
 
 .primary-action svg {
@@ -1055,16 +1088,22 @@ export default {
 
 .secondary-action {
 
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(37, 99, 235, 0.18);
 
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.3);
 
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(30, 41, 59, 0.86);
 
   backdrop-filter: blur(18px);
 
   -webkit-backdrop-filter: blur(18px);
 
+}
+
+.dark-theme .secondary-action {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .primary-action:hover,
@@ -1082,10 +1121,15 @@ export default {
 
 .secondary-action:hover {
 
+  border-color: rgba(37, 99, 235, 0.28);
+
+  background: rgba(255, 255, 255, 0.52);
+
+}
+
+.dark-theme .secondary-action:hover {
   border-color: rgba(255, 255, 255, 0.28);
-
   background: rgba(255, 255, 255, 0.1);
-
 }
 
 .scroll-arrow-container {
@@ -1110,7 +1154,7 @@ export default {
 
   z-index: 10;
 
-  color: rgba(255, 255, 255, 0.42);
+  color: rgba(51, 65, 85, 0.42);
 
   transition: transform 0.3s ease, color 0.3s ease;
 
@@ -1118,10 +1162,18 @@ export default {
 
     transform: translateX(-50%) translateY(5px);
 
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(51, 65, 85, 0.7);
 
   }
 
+}
+
+.dark-theme .scroll-arrow-container {
+  color: rgba(255, 255, 255, 0.42);
+
+  &:hover {
+    color: rgba(255, 255, 255, 0.78);
+  }
 }
 
 .scroll-line {
@@ -1130,10 +1182,14 @@ export default {
 
   height: 54px;
 
-  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.48), transparent);
+  background: linear-gradient(to bottom, transparent, rgba(51, 65, 85, 0.32), transparent);
 
   animation: scrollLine 2.2s infinite ease-in-out;
 
+}
+
+.dark-theme .scroll-line {
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.48), transparent);
 }
 
 .scroll-text {
