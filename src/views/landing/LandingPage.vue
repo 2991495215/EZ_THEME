@@ -39,7 +39,7 @@
 
       <div class="site-title">
 
-        <img v-if="siteConfig.showLogo" src="/images/logo.png" alt="Logo" class="site-logo-img" />
+        <img v-if="siteConfig.showLogo" src="/images/logo.png?v=20260608" alt="Logo" class="site-logo-img" />
 
         <span>{{ siteConfig.siteName }}</span>
 

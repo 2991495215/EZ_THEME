@@ -180,9 +180,9 @@ export default {
     const { showToast } = useToast();
     const { goTo } = useNavigator()
 
-    const logoPath = ref('/images/logo.png');
+    const logoPath = ref('/images/logo.png?v=20260608');
     const handleLogoError = () => {
-      logoPath.value = '/images/logo.png';
+      logoPath.value = '/images/logo.png?v=20260608';
     };
 
     const formData = reactive({

@@ -36,7 +36,7 @@ export default {
     const isCustomerServiceEnabled = CUSTOMER_SERVICE_CONFIG && CUSTOMER_SERVICE_CONFIG.enabled;
 
     const preloadImages = ref([
-      '/images/logo.png'
+      '/images/logo.png?v=20260608'
     ]);
     
     const preloadQueue = ref([]);
