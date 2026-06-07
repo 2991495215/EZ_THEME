@@ -521,7 +521,7 @@ export default {
 
   min-width: 130px;
 
-  background: rgba(var(--card-background-rgb), 0.9);
+  background: rgba(238, 246, 255, 0.9);
 
   backdrop-filter: blur(10px);
 
@@ -531,7 +531,7 @@ export default {
 
   box-shadow: none;
 
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(37, 99, 235, 0.18);
 
   z-index: 200;
 
@@ -539,6 +539,11 @@ export default {
 
   padding: 6px;
 
+}
+
+body.dark-theme .language-dropdown {
+  background: rgba(var(--card-background-rgb), 0.9);
+  border: 1px solid var(--border-color);
 }
 
 
@@ -564,6 +569,8 @@ export default {
   gap: 12px;
 
   margin-bottom: 4px;
+
+  color: rgba(30, 41, 59, 0.88);
 
   &:last-child {
 
@@ -625,7 +632,8 @@ export default {
 
   &:hover {
 
-    background-color: rgba(var(--theme-color-rgb), 0.1);
+    background-color: rgba(var(--theme-color-rgb), 0.12);
+    color: var(--theme-color);
 
     transform: none;
 
@@ -643,6 +651,15 @@ export default {
 
   }
 
+}
+
+body.dark-theme .language-item {
+  color: var(--text-color);
+}
+
+body.dark-theme .language-item:hover {
+  background-color: rgba(var(--theme-color-rgb), 0.1);
+  color: var(--theme-color);
 }
 
 
