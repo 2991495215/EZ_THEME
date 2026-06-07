@@ -39,7 +39,7 @@
 
       <div class="site-title">
 
-        <img v-if="siteConfig.showLogo" src="/images/logo.png?v=20260608" alt="Logo" class="site-logo-img" />
+        <img v-if="siteConfig.showLogo" src="/images/logo-white.png?v=20260608" alt="Logo" class="site-logo-img" />
 
         <span>{{ siteConfig.siteName }}</span>
 
@@ -882,6 +882,8 @@ export default {
     border-radius: 24px;
 
     object-fit: cover;
+
+    background: #ffffff;
 
     box-shadow: 0 18px 60px rgba(59, 130, 246, 0.28);
 
