@@ -515,7 +515,7 @@ export default {
 
   position: absolute;
 
-  top: calc(100% + 8px);
+  top: calc(100% + 18px);
 
   right: 0;
 
@@ -529,7 +529,7 @@ export default {
 
   border-radius: 12px;
 
-  box-shadow: none;
+  box-shadow: 0 18px 48px rgba(37, 99, 235, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.62);
 
   border: 1px solid rgba(37, 99, 235, 0.18);
 
@@ -544,6 +544,7 @@ export default {
 body.dark-theme .language-dropdown {
   background: rgba(var(--card-background-rgb), 0.9);
   border: 1px solid var(--border-color);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 
