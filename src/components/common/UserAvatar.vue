@@ -311,9 +311,15 @@ export default {
 
   &:hover {
 
+    background-color: rgba(var(--theme-color-rgb), 0.1);
+
+    border-color: var(--theme-color);
+
     box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.15);
 
     transform: translateY(-2px);
+
+    color: var(--theme-color);
 
   }
 
@@ -343,6 +349,8 @@ export default {
 
     height: 100%;
 
+    color: inherit;
+
     
 
     .user-icon {
@@ -352,6 +360,16 @@ export default {
       height: 20px;
 
       color: currentColor;
+
+      stroke: currentColor;
+
+    }
+
+    :deep(svg) {
+
+      color: currentColor;
+
+      stroke: currentColor;
 
     }
 
