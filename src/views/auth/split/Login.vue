@@ -852,6 +852,18 @@ export default {
   border-color: var(--border-color, #555);
 }
 
+:global(body.dark-theme .login-view-container svg.input-icon),
+:global(body.dark-theme .login-view-container svg.input-icon path),
+:global(body.dark-theme .login-view-container .password-toggle svg),
+:global(body.dark-theme .login-view-container .password-toggle svg path),
+:global(html.dark-theme .login-view-container svg.input-icon),
+:global(html.dark-theme .login-view-container svg.input-icon path),
+:global(html.dark-theme .login-view-container .password-toggle svg),
+:global(html.dark-theme .login-view-container .password-toggle svg path) {
+  color: rgba(255, 255, 255, 0.88) !important;
+  stroke: rgba(255, 255, 255, 0.88) !important;
+}
+
 .auth-footer {
   margin-top: 24px;
 
