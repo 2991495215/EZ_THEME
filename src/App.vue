@@ -57,9 +57,6 @@
     <!-- 返回顶部按钮 -->
     <BackToTop />
     
-    <!-- 自定义鼠标右键菜单 -->
-    <CustomContextMenu />
-    
     <!-- 客服图标 -->
     <CustomerServiceIcon v-if="$route.path !== '/customer-service'" />
     
@@ -90,7 +87,6 @@ import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import UserAvatar from '@/components/common/UserAvatar.vue';
 import BackToTop from '@/components/common/BackToTop.vue';
-import CustomContextMenu from '@/components/common/CustomContextMenu.vue';
 import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
 
 
@@ -120,7 +116,6 @@ export default {
     LanguageSelector,
     UserAvatar,
     BackToTop,
-    CustomContextMenu,
     CustomerServiceIcon,
     CrispEmbed,
     ResourcePreloader,
