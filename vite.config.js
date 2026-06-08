@@ -138,7 +138,14 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      port: 5173
+      port: 5173,
+      proxy: {
+        '/api': {
+          target: env.VITE_DEV_API_TARGET || 'https://sub.trent30.com',
+          changeOrigin: true,
+          secure: false
+        }
+      }
     },
     test: {
       setupFiles: ['tests/setup/localStorage.js']

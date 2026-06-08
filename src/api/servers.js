@@ -1,11 +1,14 @@
 ﻿import request from './request';
 
 
-export function fetchServerNodes() {
-  return request({
-    url: '/user/server/fetch',
-    method: 'get'
-  }).then(response => {
+export function fetchServerNodes() {
+  return request({
+    url: '/user/server/fetch',
+    method: 'get',
+    params: {
+      _t: Date.now()
+    }
+  }).then(response => {
     if (typeof response === 'object') {
       return response;
     }

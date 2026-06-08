@@ -60,6 +60,13 @@
 
       <div v-else-if="nodes.length > 0" class="nodes-content">
 
+        <div v-if="hasOnlineCount" class="node-summary-bar" aria-live="polite">
+          <span class="node-summary-tag">
+            <IconUsers :size="16" />
+            当前在线 {{ currentOnlineCount }} 人
+          </span>
+        </div>
+
         <div class="node-items">
 
           <div v-for="node in nodes" :key="node.id" class="node-item">
@@ -137,7 +144,7 @@
 
 <script setup>
 
-import { ref, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -148,6 +155,8 @@ import {
   IconAlertTriangle,
 
   IconServer,
+
+  IconUsers,
 
   IconDotsVertical
 
@@ -184,6 +193,33 @@ const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
 
 
 const userInfo = ref(null);
+const backendOnlineTotal = ref(null);
+
+const normalizeOnlineCount = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const count = Number(value);
+  return Number.isFinite(count) && count >= 0 ? Math.floor(count) : null;
+};
+
+const getNodeOnlineCount = (node) => normalizeOnlineCount(node?.online);
+
+const hasOnlineCount = computed(() => backendOnlineTotal.value !== null || nodes.value.some(node => getNodeOnlineCount(node) !== null));
+
+const currentOnlineCount = computed(() => {
+  if (backendOnlineTotal.value !== null) {
+    return backendOnlineTotal.value;
+  }
+
+  return Math.max(
+    ...nodes.value
+      .map(node => getNodeOnlineCount(node))
+      .filter(count => count !== null),
+    0
+  );
+});
 
 
 
@@ -262,6 +298,8 @@ const fetchNodes = async () => {
     const result = await fetchServerNodes();
 
     
+
+    backendOnlineTotal.value = normalizeOnlineCount(result?.online_total);
 
     if (result && result.data) {
 
@@ -471,6 +509,39 @@ body.dark-theme .nodes-content {
     radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.18), transparent 34%),
     linear-gradient(135deg, rgba(22, 29, 50, 0.72), rgba(12, 17, 32, 0.48));
 
+}
+
+.node-summary-bar {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  margin: 0 0 -2px;
+}
+
+.node-summary-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 152, 0, 0.28);
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #c77700;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.node-summary-tag svg {
+  flex: 0 0 auto;
+}
+
+body.dark-theme .node-summary-tag {
+  border-color: rgba(255, 183, 77, 0.3);
+  background-color: rgba(255, 183, 77, 0.12);
+  color: #ffb74d;
 }
 
 
