@@ -13,14 +13,36 @@ import { handleUnauthorizedDomain } from './utils/domainChecker';
 import { getWebsiteConfig } from './api/auth';
 
 const getInitialTheme = () => {
+  try {
+    const storedTheme = localStorage.getItem('theme');
+    const storedMode = localStorage.getItem('themeMode');
+
+    if (storedMode !== 'auto' && (storedTheme === 'light' || storedTheme === 'dark')) {
+      return storedTheme;
+    }
+  } catch (error) {
+  }
+
   const hour = new Date().getHours();
   return hour >= 7 && hour < 19 ? 'light' : 'dark';
 };
 
 const applyInitialTheme = () => {
   const theme = getInitialTheme();
-  document.documentElement.classList.toggle('dark-theme', theme === 'dark');
+  const isDarkTheme = theme === 'dark';
+
+  document.documentElement.classList.toggle('dark-theme', isDarkTheme);
   document.documentElement.style.colorScheme = theme;
+
+  const applyBodyClass = () => {
+    document.body?.classList.toggle('dark-theme', isDarkTheme);
+  };
+
+  if (document.body) {
+    applyBodyClass();
+  } else {
+    document.addEventListener('DOMContentLoaded', applyBodyClass, { once: true });
+  }
 };
 
 applyInitialTheme();

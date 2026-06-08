@@ -102,7 +102,7 @@
 
           <div class="input-with-icon">
 
-            <IconLock class="input-icon" />
+            <IconKey class="input-icon" />
 
             <input
 
@@ -254,7 +254,7 @@ import LanguageSelector from '@/components/common/LanguageSelector.vue';
 
 import IconMail from '@/components/icons/IconMail.vue';
 
-import IconLock from '@/components/icons/IconLock.vue';
+import { IconKey } from '@tabler/icons-vue';
 
 import IconArrowRight from '@/components/icons/IconArrowRight.vue';
 
@@ -292,7 +292,7 @@ export default {
 
     IconMail,
 
-    IconLock,
+    IconKey,
 
     IconArrowRight,
 
@@ -1127,20 +1127,6 @@ export default {
   background-color: transparent;
   border-color: var(--border-color, #555);
 }
-
-:global(body.dark-theme .auth-container svg.input-icon),
-:global(body.dark-theme .auth-container svg.input-icon path),
-:global(body.dark-theme .auth-container .password-toggle svg),
-:global(body.dark-theme .auth-container .password-toggle svg path),
-:global(html.dark-theme .auth-container svg.input-icon),
-:global(html.dark-theme .auth-container svg.input-icon path),
-:global(html.dark-theme .auth-container .password-toggle svg),
-:global(html.dark-theme .auth-container .password-toggle svg path) {
-  color: rgba(255, 255, 255, 0.88) !important;
-  stroke: rgba(255, 255, 255, 0.88) !important;
-}
-
-
 
 .auth-footer {
 

@@ -63,7 +63,7 @@
             <div class="form-group">
               <label for="password">{{ $t('common.password') }} <span class="required">*</span></label>
               <div class="input-with-icon">
-                <IconLock class="input-icon" />
+                <IconKey class="input-icon" />
                 <input
                   :type="showPassword ? 'text' : 'password'"
                   id="password"
@@ -146,7 +146,7 @@ import { useToast } from '@/composables/useToast';
 import ThemeToggle from '@/components/common/ThemeToggle.vue';
 import LanguageSelector from '@/components/common/LanguageSelector.vue';
 import IconMail from '@/components/icons/IconMail.vue';
-import IconLock from '@/components/icons/IconLock.vue';
+import { IconKey } from '@tabler/icons-vue';
 import IconArrowRight from '@/components/icons/IconArrowRight.vue';
 import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeOff from '@/components/icons/IconEyeOff.vue';
@@ -166,7 +166,7 @@ export default {
     ThemeToggle,
     LanguageSelector,
     IconMail,
-    IconLock,
+    IconKey,
     IconArrowRight,
     IconEye,
     IconEyeOff,
@@ -850,18 +850,6 @@ export default {
 :global(html.dark-theme .checkbox-container .checkmark) {
   background-color: transparent;
   border-color: var(--border-color, #555);
-}
-
-:global(body.dark-theme .login-view-container svg.input-icon),
-:global(body.dark-theme .login-view-container svg.input-icon path),
-:global(body.dark-theme .login-view-container .password-toggle svg),
-:global(body.dark-theme .login-view-container .password-toggle svg path),
-:global(html.dark-theme .login-view-container svg.input-icon),
-:global(html.dark-theme .login-view-container svg.input-icon path),
-:global(html.dark-theme .login-view-container .password-toggle svg),
-:global(html.dark-theme .login-view-container .password-toggle svg path) {
-  color: rgba(255, 255, 255, 0.88) !important;
-  stroke: rgba(255, 255, 255, 0.88) !important;
 }
 
 .auth-footer {
