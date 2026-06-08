@@ -1078,8 +1078,23 @@ export default {
 
     .input-icon {
 
-      color: var(--secondary-text-color);
+      color: rgba(255, 255, 255, 0.62);
 
+    }
+
+    .password-toggle {
+      color: rgba(255, 255, 255, 0.62);
+
+      &:hover {
+        color: rgba(255, 255, 255, 0.86);
+      }
+    }
+
+    &:focus-within {
+      .input-icon,
+      .password-toggle {
+        color: rgba(255, 255, 255, 0.82);
+      }
     }
 
 
