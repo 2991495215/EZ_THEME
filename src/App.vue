@@ -301,17 +301,17 @@ export default {
   left: 25px;
   font-size: 20px;  
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--theme-color);
   z-index: 110;
   text-shadow: none;
   letter-spacing: -0.5px;
-  background-color: rgba(255, 255, 255, 0.26);
+  background-color: rgba(var(--theme-color-rgb), 0.08);
   backdrop-filter: blur(24px) saturate(200%);
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   padding: 6px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
   border-radius: 999px;  
-  box-shadow: 0 16px 38px rgba(31, 28, 22, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.56);
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.14), inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.08);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -329,8 +329,9 @@ export default {
 
 .dark-theme .site-logo {
   color: var(--theme-color);
-  background-color: rgba(30, 30, 30, 0.7);
-  border-color: rgba(255, 255, 255, 0.08);
+  background-color: rgba(var(--theme-color-rgb), 0.12);
+  border-color: rgba(var(--theme-color-rgb), 0.28);
+  box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.12), 0 16px 38px rgba(0, 0, 0, 0.18);
 }
 
 

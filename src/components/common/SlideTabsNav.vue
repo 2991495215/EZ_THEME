@@ -1162,7 +1162,7 @@ function debounce(fn, delay) {
 
         &.active {
 
-          background-color: rgba(var(--theme-color-rgb), 0.15);
+          background-color: rgba(var(--theme-color-rgb), 0.16);
 
         }
 
@@ -1242,7 +1242,7 @@ function debounce(fn, delay) {
 
       z-index: 1;
 
-      box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.22);
+      box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.22), 0 8px 18px rgba(var(--theme-color-rgb), 0.08);
 
       will-change: transform, width, opacity;
 
