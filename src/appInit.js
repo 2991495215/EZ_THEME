@@ -11,6 +11,7 @@ import { useToast } from './composables/useToast';
 import initPageTitle from './utils/exposeConfig';
 import { handleUnauthorizedDomain } from './utils/domainChecker';
 import { getWebsiteConfig } from './api/auth';
+import { applyThemeToDocument } from './utils/themeApplier';
 
 const getInitialTheme = () => {
   try {
@@ -29,18 +30,13 @@ const getInitialTheme = () => {
 
 const applyInitialTheme = () => {
   const theme = getInitialTheme();
-  const isDarkTheme = theme === 'dark';
-
-  document.documentElement.classList.toggle('dark-theme', isDarkTheme);
-  document.documentElement.style.colorScheme = theme;
+  applyThemeToDocument(theme);
 
   const applyBodyClass = () => {
-    document.body?.classList.toggle('dark-theme', isDarkTheme);
+    applyThemeToDocument(theme);
   };
 
-  if (document.body) {
-    applyBodyClass();
-  } else {
+  if (!document.body) {
     document.addEventListener('DOMContentLoaded', applyBodyClass, { once: true });
   }
 };

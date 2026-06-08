@@ -1,7 +1,7 @@
 import { computed } from 'vue';
-import { THEME_CONFIG } from '@/utils/baseConfig';
 import { useThemeStore } from '@/stores';
 import { useToast } from '@/composables/useToast';
+import { applyThemeToDocument } from '@/utils/themeApplier';
 
 export function useTheme() {
   const themeStore = useThemeStore();
@@ -22,57 +22,8 @@ export function useTheme() {
       return;
     }
 
-    const root = document.documentElement;
-    const body = document.body;
-    const themeVars = THEME_CONFIG[selectedTheme];
-
-    if (!body || !themeVars) {
-      return;
-    }
-
-    if (selectedTheme === 'dark') {
-      root.classList.add('dark-theme');
-      body.classList.add('dark-theme');
-    } else {
-      root.classList.remove('dark-theme');
-      body.classList.remove('dark-theme');
-    }
-
-    root.style.colorScheme = selectedTheme;
-    body.offsetHeight;
-
-    root.style.setProperty('--theme-color', themeVars.primaryColor);
-    root.style.setProperty('--theme-color-rgb', themeVars.primaryColorRgb);
-    root.style.setProperty('--theme-hover-color', themeVars.primaryColorHover);
-    root.style.setProperty('--primary-color-hover', themeVars.primaryColorHover);
-    root.style.setProperty('--background-color', themeVars.backgroundColor);
-    root.style.setProperty('--card-background', themeVars.cardBackground);
-    root.style.setProperty('--text-color', themeVars.textColor);
-    root.style.setProperty('--secondary-text-color', themeVars.secondaryTextColor);
-    root.style.setProperty('--border-color', themeVars.borderColor);
-    root.style.setProperty('--shadow-color', themeVars.shadowColor);
-    
-    if (selectedTheme === 'dark') {
-
-      document.querySelectorAll('.auth-card').forEach(card => {
-
-        card.style.backgroundColor = '#1e1e1e';
-
-        card.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.3)';
-
-      });
-
-    } else {
-
-      document.querySelectorAll('.auth-card').forEach(card => {
-
-        card.style.backgroundColor = '';
-
-        card.style.boxShadow = '';
-
-      });
-
-    }
+    applyThemeToDocument(selectedTheme);
+    document.body?.offsetHeight;
 
   };
   

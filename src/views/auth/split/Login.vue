@@ -798,7 +798,7 @@ export default {
 
 :global(body.dark-theme .input-with-icon .input-icon),
 :global(html.dark-theme .input-with-icon .input-icon) {
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: rgba(255, 255, 255, 0.96) !important;
   stroke: currentColor !important;
 }
 
@@ -806,7 +806,7 @@ export default {
 :global(body.dark-theme .input-with-icon .password-toggle svg),
 :global(html.dark-theme .input-with-icon .password-toggle),
 :global(html.dark-theme .input-with-icon .password-toggle svg) {
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
   stroke: currentColor !important;
 }
 
