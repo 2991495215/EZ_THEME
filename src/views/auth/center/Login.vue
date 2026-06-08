@@ -1072,83 +1072,60 @@ export default {
 
 
 
-:global(body.dark-theme) {
+:global(body.dark-theme .input-with-icon .input-icon),
+:global(html.dark-theme .input-with-icon .input-icon) {
+  color: rgba(255, 255, 255, 0.78) !important;
+  stroke: currentColor !important;
+}
 
-  .input-with-icon {
+:global(body.dark-theme .input-with-icon .password-toggle),
+:global(body.dark-theme .input-with-icon .password-toggle svg),
+:global(html.dark-theme .input-with-icon .password-toggle),
+:global(html.dark-theme .input-with-icon .password-toggle svg) {
+  color: rgba(255, 255, 255, 0.78) !important;
+  stroke: currentColor !important;
+}
 
-    .input-icon {
+:global(body.dark-theme .input-with-icon .password-toggle:hover),
+:global(body.dark-theme .input-with-icon .password-toggle:hover svg),
+:global(body.dark-theme .input-with-icon:focus-within .input-icon),
+:global(body.dark-theme .input-with-icon:focus-within .password-toggle),
+:global(body.dark-theme .input-with-icon:focus-within .password-toggle svg),
+:global(html.dark-theme .input-with-icon .password-toggle:hover),
+:global(html.dark-theme .input-with-icon .password-toggle:hover svg),
+:global(html.dark-theme .input-with-icon:focus-within .input-icon),
+:global(html.dark-theme .input-with-icon:focus-within .password-toggle),
+:global(html.dark-theme .input-with-icon:focus-within .password-toggle svg) {
+  color: rgba(255, 255, 255, 0.92) !important;
+  stroke: currentColor !important;
+}
 
-      color: rgba(255, 255, 255, 0.72) !important;
+:global(body.dark-theme .input-with-icon .form-control),
+:global(html.dark-theme .input-with-icon .form-control) {
+  background-color: var(--input-bg-color, #333);
+  border-color: var(--input-border-color, #444);
+}
 
-    }
+:global(body.dark-theme .input-with-icon .form-control:focus),
+:global(html.dark-theme .input-with-icon .form-control:focus) {
+  background-color: var(--input-focus-bg-color, #3a3a3a);
+  border-color: var(--theme-color);
+}
 
-    .password-toggle {
-      color: rgba(255, 255, 255, 0.72) !important;
+:global(body.dark-theme .input-with-icon .form-control::placeholder),
+:global(html.dark-theme .input-with-icon .form-control::placeholder) {
+  color: var(--placeholder-color, #777);
+}
 
-      &:hover {
-        color: rgba(255, 255, 255, 0.9) !important;
-      }
-    }
+:global(body.dark-theme .checkbox-container .checkbox-label),
+:global(html.dark-theme .checkbox-container .checkbox-label) {
+  color: var(--secondary-text-color);
+}
 
-    &:focus-within {
-      .input-icon,
-      .password-toggle {
-        color: rgba(255, 255, 255, 0.9) !important;
-      }
-    }
-
-
-
-    .form-control {
-
-      background-color: var(--input-bg-color, #333);
-
-      border-color: var(--input-border-color, #444);
-
-
-
-      &:focus {
-
-        background-color: var(--input-focus-bg-color, #3a3a3a);
-
-        border-color: var(--theme-color);
-
-      }
-
-
-
-      &::placeholder {
-
-        color: var(--placeholder-color, #777);
-
-      }
-
-    }
-
-  }
-
-
-
-  .checkbox-container {
-
-    .checkbox-label {
-
-      color: var(--secondary-text-color);
-
-    }
-
-
-
-    .checkmark {
-
-      background-color: transparent;
-
-      border-color: var(--border-color, #555);
-
-    }
-
-  }
-
+:global(body.dark-theme .checkbox-container .checkmark),
+:global(html.dark-theme .checkbox-container .checkmark) {
+  background-color: transparent;
+  border-color: var(--border-color, #555);
 }
 
 
