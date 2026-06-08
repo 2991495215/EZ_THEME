@@ -293,9 +293,11 @@ export default {
 
   overflow: hidden;
 
-  background-color: rgba(var(--theme-color-rgb), 0.1);
+  background-color: var(--card-background);
 
-  border: 1px solid rgba(var(--theme-color-rgb), 0.3);
+  border: 1px solid var(--border-color);
+
+  color: var(--text-color);
 
   transition: all 0.3s ease;
 
@@ -349,7 +351,7 @@ export default {
 
       height: 20px;
 
-      color: var(--theme-color);
+      color: currentColor;
 
     }
 
