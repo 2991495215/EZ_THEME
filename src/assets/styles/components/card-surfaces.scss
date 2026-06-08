@@ -2559,3 +2559,86 @@ body:not(.dark-theme) .nodes-container .more-btn:hover {
   background: rgba(var(--theme-color-rgb), 0.09) !important;
   border-color: rgba(var(--theme-color-rgb), 0.18) !important;
 }
+
+/* Final neutral dark pass for client downloads and node cards. */
+body.dark-theme .dashboard-container .client-guide-section,
+.dark-theme .dashboard-container .client-guide-section,
+body.dark-theme .nodes-container .nodes-content,
+.dark-theme .nodes-container .nodes-content {
+  background: rgba(9, 11, 18, 0.58) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 14px 34px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark-theme .dashboard-container .client-guide-tabs,
+.dark-theme .dashboard-container .client-guide-tabs,
+body.dark-theme .dashboard-container .client-guide-tab,
+.dark-theme .dashboard-container .client-guide-tab,
+body.dark-theme .dashboard-container .client-download-item,
+.dark-theme .dashboard-container .client-download-item,
+body.dark-theme .dashboard-container .client-guide-icon-wrap,
+.dark-theme .dashboard-container .client-guide-icon-wrap,
+body.dark-theme .dashboard-container .client-download-action,
+.dark-theme .dashboard-container .client-download-action,
+body.dark-theme .nodes-container .node-item,
+.dark-theme .nodes-container .node-item,
+body.dark-theme .nodes-container .more-btn,
+.dark-theme .nodes-container .more-btn {
+  background: rgba(255, 255, 255, 0.045) !important;
+  border-color: rgba(255, 255, 255, 0.085) !important;
+  color: rgba(238, 242, 255, 0.88) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 8px 18px rgba(0, 0, 0, 0.16) !important;
+}
+
+body.dark-theme .dashboard-container .client-guide-tab.active,
+.dark-theme .dashboard-container .client-guide-tab.active {
+  background: rgba(255, 255, 255, 0.085) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 8px 18px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark-theme .dashboard-container .client-guide-tab:hover,
+.dark-theme .dashboard-container .client-guide-tab:hover,
+body.dark-theme .dashboard-container .client-download-item:hover,
+.dark-theme .dashboard-container .client-download-item:hover,
+body.dark-theme .dashboard-container .client-download-item:hover .client-download-action,
+.dark-theme .dashboard-container .client-download-item:hover .client-download-action,
+body.dark-theme .nodes-container .node-item:hover,
+.dark-theme .nodes-container .node-item:hover,
+body.dark-theme .nodes-container .more-btn:hover,
+.dark-theme .nodes-container .more-btn:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.13) !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 22px rgba(0, 0, 0, 0.22) !important;
+}
+
+body.dark-theme .dashboard-container .client-download-action::before,
+body.dark-theme .dashboard-container .client-download-action::after,
+.dark-theme .dashboard-container .client-download-action::before,
+.dark-theme .dashboard-container .client-download-action::after {
+  display: none !important;
+  content: none !important;
+}
+
+body.dark-theme .nodes-container .node-tag,
+.dark-theme .nodes-container .node-tag {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.095) !important;
+  color: rgba(226, 232, 240, 0.82) !important;
+}
+
+body.dark-theme .nodes-container .node-tag.type-tag,
+.dark-theme .nodes-container .node-tag.type-tag {
+  background: rgba(96, 165, 250, 0.075) !important;
+  border-color: rgba(147, 197, 253, 0.16) !important;
+  color: #a9c8ff !important;
+}
+
+body.dark-theme .nodes-container .node-tag.rate-tag,
+.dark-theme .nodes-container .node-tag.rate-tag {
+  background: rgba(74, 222, 128, 0.075) !important;
+  border-color: rgba(134, 239, 172, 0.16) !important;
+  color: #8eea9c !important;
+}
