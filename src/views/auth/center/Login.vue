@@ -1072,28 +1072,28 @@ export default {
 
 
 
-.dark-theme {
+:global(body.dark-theme) {
 
   .input-with-icon {
 
     .input-icon {
 
-      color: rgba(255, 255, 255, 0.62);
+      color: rgba(255, 255, 255, 0.72) !important;
 
     }
 
     .password-toggle {
-      color: rgba(255, 255, 255, 0.62);
+      color: rgba(255, 255, 255, 0.72) !important;
 
       &:hover {
-        color: rgba(255, 255, 255, 0.86);
+        color: rgba(255, 255, 255, 0.9) !important;
       }
     }
 
     &:focus-within {
       .input-icon,
       .password-toggle {
-        color: rgba(255, 255, 255, 0.82);
+        color: rgba(255, 255, 255, 0.9) !important;
       }
     }
 
