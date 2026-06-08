@@ -5,6 +5,12 @@ package-lock.json
 # 忽略打包输出目录
 dist/
 build/
+deploy_xboard_fixed/
+dist_xboard_deploy/
+ez_theme_domains_xboard.tgz
+ez_theme_login_fix_xboard.tgz
+ez_theme_xboard_current.tgz
+ez_theme_xboard_current.zip
 
 # 忽略日志文件
 *.log
