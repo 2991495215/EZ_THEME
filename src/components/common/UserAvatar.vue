@@ -18,7 +18,7 @@
 
       <div v-else class="avatar-placeholder">
 
-        <img src="/images/logo.png?v=20260608" alt="User Avatar" class="avatar-logo" />
+        <IconUser class="user-icon" />
 
       </div>
 
@@ -343,10 +343,14 @@ export default {
 
     
 
-    .avatar-logo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .user-icon {
+
+      width: 20px;
+
+      height: 20px;
+
+      color: var(--theme-color);
+
     }
 
   }
