@@ -732,9 +732,9 @@ onBeforeUnmount(() => {
   background-color: var(--node-modal-overlay);
   z-index: 1000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 20px;
+  padding: 86px 20px 20px;
   box-sizing: border-box;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -1252,6 +1252,11 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 820px) {
+  .node-detail-modal-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+
   .node-detail-modal-container {
     max-width: 620px;
   }
