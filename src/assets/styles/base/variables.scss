@@ -11,6 +11,13 @@
   --card-border-color: rgba(99, 102, 241, 0.16);
   --card-hover-border-color: rgba(99, 102, 241, 0.38);
   --card-hover-background: rgba(255, 255, 255, 0.72);
+  --header-surface-background: rgba(var(--card-background-rgb), 0.72);
+  --header-surface-border: rgba(var(--theme-color-rgb), 0.18);
+  --header-surface-shadow: 0 16px 38px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.24), inset 0 -1px 0 rgba(15, 23, 42, 0.08);
+  --header-active-background: rgba(var(--theme-color-rgb), 0.14);
+  --header-active-border: rgba(var(--theme-color-rgb), 0.24);
+  --header-active-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.2);
+  --header-accent-color: var(--theme-color);
   
   // 文本颜色
   --text-color: #1f2937;
@@ -52,6 +59,12 @@ body.dark-theme {
   --card-border-color: rgba(255, 255, 255, 0.11);
   --card-hover-border-color: rgba(var(--theme-color-rgb), 0.42);
   --card-hover-background: rgba(20, 27, 48, 0.86);
+  --header-surface-background: rgba(var(--card-background-rgb), 0.72);
+  --header-surface-border: rgba(var(--theme-color-rgb), 0.2);
+  --header-surface-shadow: 0 16px 38px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+  --header-active-background: rgba(var(--theme-color-rgb), 0.16);
+  --header-active-border: rgba(var(--theme-color-rgb), 0.24);
+  --header-active-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.22);
   --shadow-color: rgba(0, 0, 0, 0.45);
 }
 

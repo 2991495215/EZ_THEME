@@ -998,7 +998,7 @@ function debounce(fn, delay) {
 
   .slide-tabs-wrapper {
 
-    background: rgba(var(--card-background-rgb), 0.72);
+    background: var(--header-surface-background);
 
     backdrop-filter: blur(16px) saturate(1.08);
 
@@ -1008,9 +1008,9 @@ function debounce(fn, delay) {
 
     padding: 6px;
 
-    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(15, 23, 42, 0.08);
+    box-shadow: var(--header-surface-shadow);
 
-    border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+    border: 1px solid var(--header-surface-border);
 
     overflow: hidden;
 
@@ -1134,44 +1134,6 @@ function debounce(fn, delay) {
 
       }
 
-      
-      
-      &:last-child {
-
-        border: 1px solid var(--theme-color);
-
-        background-color: rgba(var(--theme-color-rgb), 0.05);
-
-        
-
-        .nav-icon svg {
-
-          color: var(--theme-color);
-
-        }
-
-        
-
-        &:hover {
-
-          background-color: rgba(var(--theme-color-rgb), 0.1);
-
-        }
-
-        
-
-        &.active {
-
-          background-color: rgba(var(--theme-color-rgb), 0.16);
-
-        }
-
-      }
-
-      
-
-      
-
       .nav-icon {
 
         display: flex;
@@ -1236,13 +1198,15 @@ function debounce(fn, delay) {
 
       height: 100%;
 
-      background: rgba(var(--theme-color-rgb), 0.16);
+      background: var(--header-active-background);
+
+      border: 1px solid var(--header-active-border);
 
       border-radius: 999px;
 
       z-index: 1;
 
-      box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.22), 0 8px 18px rgba(var(--theme-color-rgb), 0.08);
+      box-shadow: var(--header-active-shadow);
 
       will-change: transform, width, opacity;
 

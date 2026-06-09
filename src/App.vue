@@ -285,7 +285,6 @@ export default {
   overflow: hidden;
 }
 
-
 .static-layout {
   position: fixed;
   width: 100%;
@@ -305,13 +304,13 @@ export default {
   z-index: 110;
   text-shadow: none;
   letter-spacing: -0.5px;
-  background-color: rgba(var(--theme-color-rgb), 0.08);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  background: var(--header-surface-background);
+  backdrop-filter: blur(16px) saturate(1.08);
+  -webkit-backdrop-filter: blur(16px) saturate(1.08);
   padding: 6px 14px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
+  border: 1px solid var(--header-surface-border);
   border-radius: 999px;  
-  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.14), inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.08);
+  box-shadow: var(--header-surface-shadow);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -324,14 +323,6 @@ export default {
     border-radius: 50%;
     object-fit: cover;
   }
-}
-
-
-.dark-theme .site-logo {
-  color: var(--theme-color);
-  background-color: rgba(var(--theme-color-rgb), 0.12);
-  border-color: rgba(var(--theme-color-rgb), 0.28);
-  box-shadow: inset 0 0 0 1px rgba(var(--theme-color-rgb), 0.12), 0 16px 38px rgba(0, 0, 0, 0.18);
 }
 
 
