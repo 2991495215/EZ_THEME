@@ -747,13 +747,13 @@ watchEffect(() => {
 
 
 .node-detail-modal-overlay {
-  --node-modal-surface: rgba(255, 255, 255, 0.38);
+  --node-modal-surface: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.08), rgba(255, 255, 255, 0.42));
   --node-modal-header-surface: transparent;
-  --node-modal-soft-surface: rgba(255, 255, 255, 0.38);
-  --node-modal-hover-surface: rgba(255, 255, 255, 0.44);
-  --node-modal-border: rgba(255, 255, 255, 0.58);
-  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58), 0 8px 18px rgba(31, 28, 22, 0.055);
-  --node-modal-overlay: rgba(0, 0, 0, 0.48);
+  --node-modal-soft-surface: rgba(var(--theme-color-rgb), 0.08);
+  --node-modal-hover-surface: rgba(var(--theme-color-rgb), 0.14);
+  --node-modal-border: rgba(var(--theme-color-rgb), 0.2);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 10px 26px rgba(31, 28, 22, 0.08);
+  --node-modal-overlay: rgba(0, 0, 0, 0.5);
 
   position: fixed;
 
@@ -779,17 +779,19 @@ watchEffect(() => {
 
   box-sizing: border-box;
 
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
+
+  -webkit-backdrop-filter: none;
 
 }
 
 :global(body.dark-theme .node-detail-modal-overlay) {
-  --node-modal-surface: rgba(255, 255, 255, 0.07);
+  --node-modal-surface: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.13), rgba(255, 255, 255, 0.035));
   --node-modal-header-surface: transparent;
-  --node-modal-soft-surface: rgba(255, 255, 255, 0.07);
-  --node-modal-hover-surface: rgba(255, 255, 255, 0.1);
-  --node-modal-border: rgba(255, 255, 255, 0.1);
-  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.14);
+  --node-modal-soft-surface: rgba(255, 255, 255, 0.045);
+  --node-modal-hover-surface: rgba(255, 255, 255, 0.08);
+  --node-modal-border: rgba(var(--theme-color-rgb), 0.24);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 30px rgba(0, 0, 0, 0.16);
   --node-modal-overlay: rgba(0, 0, 0, 0.55);
 }
 
@@ -803,9 +805,9 @@ watchEffect(() => {
 
   background: var(--node-modal-surface);
 
-  backdrop-filter: blur(18px) saturate(120%);
+  backdrop-filter: none;
 
-  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: none;
 
   border-radius: 16px;
 
