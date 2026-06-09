@@ -796,10 +796,7 @@ const DEFAULT_NODES_CONFIG = {
     showNodeRate: true,
 
     // 是否显示节点详细信息（主机和端口）
-    showNodeDetails: false,
-
-    // 内置后台服务器管理入口
-    adminMachineUrl: 'https://sub.trent30.com/admin123#/server/machine'
+    showNodeDetails: false
 };
 
 export const NODES_CONFIG = mergeDeep(DEFAULT_NODES_CONFIG, getConfig('NODES_CONFIG'));

@@ -9,7 +9,7 @@
             </span>
             <div class="modal-title-copy">
               <h3 class="modal-title">{{ node.name || '节点状态' }}</h3>
-              <p class="modal-subtitle">内置服务器管理</p>
+              <p class="modal-subtitle">服务器状态</p>
             </div>
           </div>
 
@@ -19,6 +19,14 @@
         </div>
 
         <div class="node-detail-modal-body">
+          <div v-if="machineLoading" class="probe-inline-state">
+            正在同步服务器状态...
+          </div>
+
+          <div v-else-if="machineError" class="probe-inline-state is-error">
+            {{ machineError }}
+          </div>
+
           <template v-if="machine">
             <section class="probe-summary">
               <div class="probe-server-head">
@@ -90,17 +98,6 @@
               </div>
             </section>
 
-            <div class="probe-actions">
-              <a
-                class="page-nav-btn"
-                :href="adminMachineUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <IconExternalLink :size="16" />
-                打开服务器管理
-              </a>
-            </div>
           </template>
 
           <section v-else class="probe-empty">
@@ -123,7 +120,6 @@ import {
   IconCpu,
   IconDatabase,
   IconDeviceDesktop,
-  IconExternalLink,
   IconServer,
   IconServer2,
   IconX
@@ -138,9 +134,17 @@ const props = defineProps({
     type: Object,
     default: () => ({})
   },
-  adminMachineUrl: {
+  machineDetail: {
+    type: Object,
+    default: null
+  },
+  machineLoading: {
+    type: Boolean,
+    default: false
+  },
+  machineError: {
     type: String,
-    default: 'https://sub.trent30.com/admin123#/server/machine'
+    default: ''
   }
 });
 
@@ -171,7 +175,13 @@ const normalizeLoadStatus = (status) => {
   return status;
 };
 
-const machine = computed(() => props.node?.machine || null);
+const machine = computed(() => {
+  if (props.machineDetail && Object.prototype.hasOwnProperty.call(props.machineDetail, 'machine')) {
+    return props.machineDetail.machine;
+  }
+
+  return props.node?.machine || null;
+});
 const loadStatus = computed(() => normalizeLoadStatus(machine.value?.load_status));
 
 const lastSeenAt = computed(() => toNumber(machine.value?.last_seen_at));
@@ -460,6 +470,28 @@ function speedText(value) {
   padding: 16px;
 }
 
+.probe-inline-state {
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+  border-radius: 9px;
+  background-color: rgba(var(--theme-color-rgb), 0.08);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.probe-inline-state.is-error {
+  border-color: rgba(194, 65, 12, 0.22);
+  background-color: rgba(194, 65, 12, 0.08);
+  color: #c2410c;
+}
+
+:global(body.dark-theme) .probe-inline-state.is-error {
+  border-color: rgba(253, 186, 116, 0.24);
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #fdba74;
+}
+
 .probe-server-head {
   display: flex;
   align-items: center;
@@ -621,34 +653,6 @@ function speedText(value) {
     border: 1px solid var(--node-modal-border);
     border-radius: 9px;
     background-color: var(--node-modal-surface);
-  }
-}
-
-.probe-actions {
-  display: flex;
-  justify-content: center;
-  padding-top: 2px;
-}
-
-.page-nav-btn {
-  min-height: 40px;
-  padding: 0 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 8px;
-  background-color: rgba(var(--theme-color-rgb), 0.1);
-  color: var(--theme-color);
-  font-weight: 600;
-  font-size: 14px;
-  text-decoration: none;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.2);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    background-color: rgba(var(--theme-color-rgb), 0.16);
-    border-color: rgba(var(--theme-color-rgb), 0.3);
   }
 }
 

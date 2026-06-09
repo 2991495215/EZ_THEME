@@ -527,10 +527,7 @@ export const config  = {
         showNodeDetails: false,
 
         // 是否允许查看节点详细信息（控制详情按钮和模态框）
-        allowViewNodeInfo: true,
-
-        // 内置后台服务器管理入口
-        adminMachineUrl: 'https://sub.trent30.com/admin123#/server/machine'
+        allowViewNodeInfo: true
     },
 
     // 客服系统配置

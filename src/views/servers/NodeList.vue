@@ -66,16 +66,6 @@
             当前在线账号
             <span class="node-summary-count">{{ currentOnlineCount }}</span>
           </span>
-          <a
-            class="node-probe-link"
-            :href="adminMachineUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="打开服务器管理"
-          >
-            <IconExternalLink :size="16" />
-            服务器管理
-          </a>
         </div>
 
         <div class="node-items">
@@ -141,7 +131,11 @@
 
       :node="selectedNode" 
 
-      :admin-machine-url="adminMachineUrl"
+      :machine-detail="selectedMachineDetail"
+
+      :machine-loading="machineDetailLoading"
+
+      :machine-error="machineDetailError"
 
       @close="closeNodeDetail"
 
@@ -169,13 +163,11 @@ import {
 
   IconUsers,
 
-  IconExternalLink,
-
   IconDotsVertical
 
 } from '@tabler/icons-vue';
 
-import { fetchServerNodes } from '@/api/servers';
+import { fetchNodeMachine, fetchServerNodes } from '@/api/servers';
 
 
 import { NODES_CONFIG } from '@/utils/baseConfig';
@@ -200,7 +192,6 @@ const showNodeDetails = ref(NODES_CONFIG.showNodeDetails);
 const showNodeRate = ref(NODES_CONFIG.showNodeRate);
 
 const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
-const adminMachineUrl = computed(() => NODES_CONFIG.adminMachineUrl || 'https://sub.trent30.com/admin123#/server/machine');
 
 
 const backendOnlineTotal = ref(null);
@@ -240,14 +231,20 @@ const currentOnlineCount = computed(() => {
 const showDetailModal = ref(false);
 
 const selectedNode = ref(null);
+const selectedMachineDetail = ref(null);
+const machineDetailLoading = ref(false);
+const machineDetailError = ref('');
 
 
 
 const openNodeDetail = (node) => {
 
   selectedNode.value = node;
+  selectedMachineDetail.value = null;
+  machineDetailError.value = '';
 
   showDetailModal.value = true;
+  fetchNodeMachineDetail(node);
 
 };
 
@@ -260,9 +257,29 @@ const closeNodeDetail = () => {
   setTimeout(() => {
 
     selectedNode.value = null;
+    selectedMachineDetail.value = null;
+    machineDetailError.value = '';
 
   }, 300);
 
+};
+
+const fetchNodeMachineDetail = async (node) => {
+  if (!node?.id) {
+    return;
+  }
+
+  machineDetailLoading.value = true;
+
+  try {
+    const result = await fetchNodeMachine(node.id);
+    selectedMachineDetail.value = result?.data || null;
+  } catch (err) {
+    console.error('Failed to fetch node machine:', err);
+    machineDetailError.value = err.response?.message || (err && err.message ? err.message : '服务器状态加载失败');
+  } finally {
+    machineDetailLoading.value = false;
+  }
 };
 
 
@@ -498,8 +515,7 @@ body.dark-theme .nodes-content {
   margin: 0 0 -2px;
 }
 
-.node-summary-tag,
-.node-probe-link {
+.node-summary-tag {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -523,22 +539,7 @@ body.dark-theme .nodes-content {
   line-height: 1;
 }
 
-.node-probe-link {
-  margin-left: auto;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.24);
-  background-color: rgba(var(--theme-color-rgb), 0.1);
-  color: var(--theme-color);
-  text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.node-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.36);
-  background-color: rgba(var(--theme-color-rgb), 0.16);
-}
-
-.node-summary-tag svg,
-.node-probe-link svg {
+.node-summary-tag svg {
   flex: 0 0 auto;
 }
 
@@ -547,13 +548,6 @@ body.dark-theme .node-summary-tag {
   background-color: rgba(255, 183, 77, 0.12);
   color: #ffb74d;
 }
-
-body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.3);
-  background-color: rgba(var(--theme-color-rgb), 0.12);
-}
-
-
 
 .node-items {
 
