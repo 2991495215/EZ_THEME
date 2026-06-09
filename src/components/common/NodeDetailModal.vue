@@ -747,10 +747,10 @@ watchEffect(() => {
 
 
 .node-detail-modal-overlay {
-  --node-modal-surface: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.08), rgba(255, 255, 255, 0.42));
-  --node-modal-header-surface: transparent;
-  --node-modal-soft-surface: rgba(var(--theme-color-rgb), 0.08);
-  --node-modal-hover-surface: rgba(var(--theme-color-rgb), 0.14);
+  --node-modal-surface: #ffffff;
+  --node-modal-header-surface: #ffffff;
+  --node-modal-soft-surface: #f4f7fb;
+  --node-modal-hover-surface: #eaf0f8;
   --node-modal-border: rgba(var(--theme-color-rgb), 0.2);
   --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 10px 26px rgba(31, 28, 22, 0.08);
   --node-modal-overlay: rgba(0, 0, 0, 0.5);
@@ -786,10 +786,10 @@ watchEffect(() => {
 }
 
 :global(body.dark-theme .node-detail-modal-overlay) {
-  --node-modal-surface: linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.13), rgba(255, 255, 255, 0.035));
-  --node-modal-header-surface: transparent;
-  --node-modal-soft-surface: rgba(255, 255, 255, 0.045);
-  --node-modal-hover-surface: rgba(255, 255, 255, 0.08);
+  --node-modal-surface: #1f2937;
+  --node-modal-header-surface: #1f2937;
+  --node-modal-soft-surface: #263244;
+  --node-modal-hover-surface: #2c394c;
   --node-modal-border: rgba(var(--theme-color-rgb), 0.24);
   --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 30px rgba(0, 0, 0, 0.16);
   --node-modal-overlay: rgba(0, 0, 0, 0.55);
