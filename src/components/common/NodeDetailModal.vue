@@ -747,6 +747,13 @@ watchEffect(() => {
 
 
 .node-detail-modal-overlay {
+  --node-modal-surface: rgba(255, 255, 255, 0.38);
+  --node-modal-header-surface: transparent;
+  --node-modal-soft-surface: rgba(255, 255, 255, 0.38);
+  --node-modal-hover-surface: rgba(255, 255, 255, 0.44);
+  --node-modal-border: rgba(255, 255, 255, 0.58);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58), 0 8px 18px rgba(31, 28, 22, 0.055);
+  --node-modal-overlay: rgba(0, 0, 0, 0.48);
 
   position: fixed;
 
@@ -758,7 +765,7 @@ watchEffect(() => {
 
   height: 100%;
 
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--node-modal-overlay);
 
   z-index: 1000;
 
@@ -776,6 +783,16 @@ watchEffect(() => {
 
 }
 
+:global(body.dark-theme .node-detail-modal-overlay) {
+  --node-modal-surface: rgba(255, 255, 255, 0.07);
+  --node-modal-header-surface: transparent;
+  --node-modal-soft-surface: rgba(255, 255, 255, 0.07);
+  --node-modal-hover-surface: rgba(255, 255, 255, 0.1);
+  --node-modal-border: rgba(255, 255, 255, 0.1);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.14);
+  --node-modal-overlay: rgba(0, 0, 0, 0.55);
+}
+
 
 
 .node-detail-modal-container {
@@ -784,13 +801,17 @@ watchEffect(() => {
 
   max-width: 500px;
 
-  background-color: rgba(var(--card-background-rgb, 255, 255, 255), 1);
+  background: var(--node-modal-surface);
+
+  backdrop-filter: blur(18px) saturate(120%);
+
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
 
   border-radius: 16px;
 
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--node-modal-shadow);
 
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--node-modal-border);
 
   overflow: hidden;
 
@@ -838,9 +859,9 @@ watchEffect(() => {
 
   align-items: center;
 
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--node-modal-border);
 
-  background-color: rgba(var(--theme-color-rgb), 0.03);
+  background: var(--node-modal-header-surface);
 
   flex-shrink: 0; 
 
@@ -888,7 +909,7 @@ watchEffect(() => {
 
     &:hover {
 
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: var(--node-modal-hover-surface);
 
       color: var(--text-color);
 
@@ -942,7 +963,7 @@ watchEffect(() => {
 
     padding: 8px 0;
 
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--node-modal-border);
 
     
 
@@ -1038,9 +1059,9 @@ watchEffect(() => {
 
         padding: 6px 10px;
 
-        background-color: rgba(var(--theme-color-rgb), 0.05);
+        background-color: var(--node-modal-soft-surface);
 
-        border: 1px solid rgba(var(--theme-color-rgb), 0.1);
+        border: 1px solid var(--node-modal-border);
 
         border-radius: 4px;
 
@@ -1084,7 +1105,9 @@ watchEffect(() => {
 
   .link-card {
 
-    background-color: rgba(var(--theme-color-rgb), 0.05);
+    background-color: var(--node-modal-soft-surface);
+
+    border: 1px solid var(--node-modal-border);
 
     border-radius: 8px;
 
@@ -1170,7 +1193,9 @@ watchEffect(() => {
 
   .qrcode-container {
 
-    background-color: rgba(var(--theme-color-rgb), 0.05);
+    background-color: var(--node-modal-soft-surface);
+
+    border: 1px solid var(--node-modal-border);
 
     border-radius: 8px;
 
