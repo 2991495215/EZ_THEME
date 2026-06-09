@@ -60,11 +60,21 @@
 
       <div v-else-if="nodes.length > 0" class="nodes-content">
 
-        <div v-if="hasOnlineCount" class="node-summary-bar" aria-live="polite">
-          <span class="node-summary-tag">
+        <div class="node-summary-bar" aria-live="polite">
+          <span v-if="hasOnlineCount" class="node-summary-tag">
             <IconUsers :size="16" />
-            当前在线 {{ currentOnlineCount }} 人
+            当前在线账号 {{ currentOnlineCount }} 个
           </span>
+          <a
+            class="node-probe-link"
+            href="https://k.trent30.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="打开探针"
+          >
+            <IconExternalLink :size="16" />
+            探针
+          </a>
         </div>
 
         <div class="node-items">
@@ -157,6 +167,8 @@ import {
   IconServer,
 
   IconUsers,
+
+  IconExternalLink,
 
   IconDotsVertical
 
@@ -375,7 +387,7 @@ onMounted(() => {
 
 .nodes-inner {
 
-  max-width: 1200px;
+  max-width: 1600px;
 
   margin: 0 auto;
 
@@ -477,7 +489,7 @@ onMounted(() => {
 
   gap: 1.5rem;
 
-  max-width: 1200px;
+  max-width: 1600px;
 
   width: 100%;
 
@@ -514,27 +526,48 @@ body.dark-theme .nodes-content {
 .node-summary-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 34px;
   margin: 0 0 -2px;
 }
 
-.node-summary-tag {
+.node-summary-tag,
+.node-probe-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   height: 32px;
   padding: 0 12px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 152, 0, 0.28);
-  background-color: rgba(255, 152, 0, 0.1);
-  color: #c77700;
   font-size: 13px;
   font-weight: 650;
   line-height: 1;
   white-space: nowrap;
 }
 
-.node-summary-tag svg {
+.node-summary-tag {
+  border: 1px solid rgba(255, 152, 0, 0.28);
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #c77700;
+}
+
+.node-probe-link {
+  margin-left: auto;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.24);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
+  color: var(--theme-color);
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.node-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.36);
+  background-color: rgba(var(--theme-color-rgb), 0.16);
+}
+
+.node-summary-tag svg,
+.node-probe-link svg {
   flex: 0 0 auto;
 }
 
@@ -542,6 +575,11 @@ body.dark-theme .node-summary-tag {
   border-color: rgba(255, 183, 77, 0.3);
   background-color: rgba(255, 183, 77, 0.12);
   color: #ffb74d;
+}
+
+body.dark-theme .node-probe-link {
+  border-color: rgba(var(--theme-color-rgb), 0.3);
+  background-color: rgba(var(--theme-color-rgb), 0.12);
 }
 
 
@@ -946,7 +984,7 @@ body.dark-theme .node-summary-tag {
 
   .node-items {
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
   }
 
