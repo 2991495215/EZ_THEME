@@ -554,7 +554,7 @@ body.dark-theme .nodes-content {
 }
 
 .node-summary-count {
-  color: #9a5a00;
+  font-weight: 800;
   line-height: 1;
 }
 
@@ -581,10 +581,6 @@ body.dark-theme .node-summary-tag {
   border-color: rgba(255, 183, 77, 0.3);
   background-color: rgba(255, 183, 77, 0.12);
   color: #ffb74d;
-}
-
-body.dark-theme .node-summary-count {
-  color: #ffd180;
 }
 
 body.dark-theme .node-probe-link {
