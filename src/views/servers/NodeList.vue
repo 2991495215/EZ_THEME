@@ -66,6 +66,16 @@
             当前在线账号
             <span class="node-summary-count">{{ currentOnlineCount }}</span>
           </span>
+          <a
+            class="node-probe-link"
+            href="https://k.trent30.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="打开探针"
+          >
+            <IconExternalLink :size="16" />
+            探针
+          </a>
         </div>
 
         <div class="node-items">
@@ -163,7 +173,9 @@ import {
 
   IconUsers,
 
-  IconDotsVertical
+  IconDotsVertical,
+
+  IconExternalLink
 
 } from '@tabler/icons-vue';
 
@@ -515,7 +527,8 @@ body.dark-theme .nodes-content {
   margin: 0 0 -2px;
 }
 
-.node-summary-tag {
+.node-summary-tag,
+.node-probe-link {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -534,12 +547,27 @@ body.dark-theme .nodes-content {
   color: #c77700;
 }
 
+.node-probe-link {
+  margin-left: auto;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.24);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
+  color: var(--theme-color);
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.node-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.36);
+  background-color: rgba(var(--theme-color-rgb), 0.16);
+}
+
 .node-summary-count {
   font-weight: 800;
   line-height: 1;
 }
 
-.node-summary-tag svg {
+.node-summary-tag svg,
+.node-probe-link svg {
   flex: 0 0 auto;
 }
 
@@ -547,6 +575,11 @@ body.dark-theme .node-summary-tag {
   border-color: rgba(255, 183, 77, 0.3);
   background-color: rgba(255, 183, 77, 0.12);
   color: #ffb74d;
+}
+
+body.dark-theme .node-probe-link {
+  border-color: rgba(var(--theme-color-rgb), 0.3);
+  background-color: rgba(var(--theme-color-rgb), 0.12);
 }
 
 .node-items {
