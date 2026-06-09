@@ -68,13 +68,13 @@
           </span>
           <a
             class="node-probe-link"
-            href="https://k.trent30.com"
+            :href="adminMachineUrl"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="打开探针"
+            aria-label="打开服务器管理"
           >
             <IconExternalLink :size="16" />
-            探针
+            服务器管理
           </a>
         </div>
 
@@ -141,6 +141,8 @@
 
       :node="selectedNode" 
 
+      :admin-machine-url="adminMachineUrl"
+
       @close="closeNodeDetail"
 
     />
@@ -198,6 +200,7 @@ const showNodeDetails = ref(NODES_CONFIG.showNodeDetails);
 const showNodeRate = ref(NODES_CONFIG.showNodeRate);
 
 const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
+const adminMachineUrl = computed(() => NODES_CONFIG.adminMachineUrl || 'https://sub.trent30.com/admin123#/server/machine');
 
 
 const backendOnlineTotal = ref(null);

@@ -9,7 +9,7 @@
             </span>
             <div class="modal-title-copy">
               <h3 class="modal-title">{{ node.name || '节点状态' }}</h3>
-              <p class="modal-subtitle">服务器探针</p>
+              <p class="modal-subtitle">内置服务器管理</p>
             </div>
           </div>
 
@@ -93,19 +93,19 @@
             <div class="probe-actions">
               <a
                 class="page-nav-btn"
-                href="https://k.trent30.com"
+                :href="adminMachineUrl"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <IconExternalLink :size="16" />
-                前往探针
+                打开服务器管理
               </a>
             </div>
           </template>
 
           <section v-else class="probe-empty">
             <IconAlertCircle :size="36" />
-            <h4>未绑定探针服务器</h4>
+            <h4>未绑定服务器</h4>
             <p>后台服务器管理绑定后，这里会显示当前节点所处服务器名称和状态。</p>
           </section>
         </div>
@@ -137,6 +137,10 @@ const props = defineProps({
   node: {
     type: Object,
     default: () => ({})
+  },
+  adminMachineUrl: {
+    type: String,
+    default: 'https://sub.trent30.com/admin123#/server/machine'
   }
 });
 
