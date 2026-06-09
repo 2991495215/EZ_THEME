@@ -99,7 +99,7 @@
               </div>
 
               <div v-if="showNodeRate && allowViewNodeInfo" class="node-actions">
-                <button class="more-btn" @click="openNodeDetail(node)" aria-label="查看节点详情">
+                <button class="more-btn" @click="openNodeDetail(node)" aria-label="查看服务器状态">
                   <IconDotsVertical :size="18" />
                 </button>
               </div>
@@ -141,8 +141,6 @@
 
       :node="selectedNode" 
 
-      :userInfo="userInfo"
-
       @close="closeNodeDetail"
 
     />
@@ -177,8 +175,6 @@ import {
 
 import { fetchServerNodes } from '@/api/servers';
 
-import { getUserInfo } from '@/api/user';
-
 
 import { NODES_CONFIG } from '@/utils/baseConfig';
 
@@ -204,8 +200,6 @@ const showNodeRate = ref(NODES_CONFIG.showNodeRate);
 const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
 
 
-
-const userInfo = ref(null);
 const backendOnlineTotal = ref(null);
 
 const normalizeOnlineCount = (value) => {
@@ -269,35 +263,6 @@ const closeNodeDetail = () => {
 };
 
 
-
-const fetchUserInfo = async () => {
-
-  try {
-
-    const result = await getUserInfo();
-
-    if (result && result.data) {
-
-      userInfo.value = result.data;
-
-    }
-
-  } catch (err) {
-
-    console.error('Failed to fetch user info:', err);
-
-    if ($toast) {
-
-      $toast.error(t('common.userInfoError') || '获取用户信息失败');
-
-    }
-
-  }
-
-};
-
-
-
 const fetchNodes = async () => {
 
   loading.value = true;
@@ -352,9 +317,6 @@ onMounted(() => {
 
 
   
-
-  fetchUserInfo();
-
   fetchNodes();
 
 });
