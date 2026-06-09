@@ -63,7 +63,8 @@
         <div class="node-summary-bar" aria-live="polite">
           <span v-if="hasOnlineCount" class="node-summary-tag">
             <IconUsers :size="16" />
-            当前在线账号 {{ currentOnlineCount }} 个
+            当前在线账号
+            <span class="node-summary-count">{{ currentOnlineCount }}</span>
           </span>
           <a
             class="node-probe-link"
@@ -550,6 +551,12 @@ body.dark-theme .nodes-content {
   border: 1px solid rgba(255, 152, 0, 0.28);
   background-color: rgba(255, 152, 0, 0.1);
   color: #c77700;
+}
+
+.node-summary-count {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .node-probe-link {
