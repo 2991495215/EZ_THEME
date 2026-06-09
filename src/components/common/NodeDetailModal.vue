@@ -55,48 +55,103 @@
               </div>
             </section>
 
-            <section class="probe-metrics">
-              <div class="probe-metric-row">
-                <div class="probe-metric-head">
-                  <span><IconCpu :size="16" />CPU</span>
-                  <strong>{{ percentText(cpuUsage) }}</strong>
+            <div class="probe-dashboard-grid">
+              <section class="probe-panel probe-trend-panel">
+                <div class="probe-panel-head">
+                  <div>
+                    <IconChartLine :size="18" />
+                    <h4>负载趋势</h4>
+                  </div>
+                  <span>{{ historyRangeText }}</span>
                 </div>
-                <div class="probe-meter">
-                  <span :style="{ width: meterWidth(cpuUsage) }"></span>
-                </div>
-              </div>
 
-              <div class="probe-metric-row">
-                <div class="probe-metric-head">
-                  <span><IconDeviceDesktop :size="16" />内存</span>
-                  <strong>{{ bytePairText(memoryMetric) }}</strong>
-                </div>
-                <div class="probe-meter">
-                  <span :style="{ width: meterWidth(memoryUsage) }"></span>
-                </div>
-              </div>
+                <div v-if="hasHistory" ref="chartRef" class="probe-trend-chart"></div>
+                <div v-else class="probe-trend-empty">暂无趋势数据</div>
+              </section>
 
-              <div class="probe-metric-row">
-                <div class="probe-metric-head">
-                  <span><IconDatabase :size="16" />磁盘</span>
-                  <strong>{{ bytePairText(diskMetric) }}</strong>
-                </div>
-                <div class="probe-meter">
-                  <span :style="{ width: meterWidth(diskUsage) }"></span>
-                </div>
-              </div>
+              <div class="probe-side-stack">
+                <section class="probe-panel probe-metrics">
+                  <div class="probe-panel-head">
+                    <div>
+                      <IconActivity :size="18" />
+                      <h4>负载</h4>
+                    </div>
+                  </div>
 
-              <div class="probe-speed-row">
-                <div>
-                  <span><IconArrowDown :size="15" />下行</span>
-                  <strong>{{ speedText(netInSpeed) }}</strong>
-                </div>
-                <div>
-                  <span><IconArrowUp :size="15" />上行</span>
-                  <strong>{{ speedText(netOutSpeed) }}</strong>
-                </div>
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconCpu :size="16" />CPU</span>
+                      <strong>{{ percentText(cpuUsage) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(cpuUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconDeviceDesktop :size="16" />内存</span>
+                      <strong>{{ bytePairText(memoryMetric) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(memoryUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconDatabase :size="16" />磁盘</span>
+                      <strong>{{ bytePairText(diskMetric) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(diskUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-speed-row">
+                    <div>
+                      <span><IconArrowDown :size="15" />下行</span>
+                      <strong>{{ speedText(netInSpeed) }}</strong>
+                    </div>
+                    <div>
+                      <span><IconArrowUp :size="15" />上行</span>
+                      <strong>{{ speedText(netOutSpeed) }}</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="probe-panel probe-related">
+                  <div class="probe-panel-head">
+                    <div>
+                      <IconAffiliate :size="18" />
+                      <h4>关联节点</h4>
+                    </div>
+                    <span>{{ normalizedRelatedNodes.length }} 个</span>
+                  </div>
+
+                  <div v-if="normalizedRelatedNodes.length > 0" class="probe-related-list">
+                    <div
+                      v-for="item in normalizedRelatedNodes"
+                      :key="item.id"
+                      class="probe-related-node"
+                      :class="{ current: isCurrentNode(item) }"
+                    >
+                      <div class="probe-related-main">
+                        <span class="probe-related-dot" :class="{ online: isNodeOnline(item) }"></span>
+                        <strong>{{ item.name || '未命名节点' }}</strong>
+                      </div>
+                      <div class="probe-related-meta">
+                        <span>{{ item.type || '-' }}</span>
+                        <span>{{ nodeRateText(item) }}</span>
+                        <span v-if="nodeOnlineText(item)">{{ nodeOnlineText(item) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else class="probe-related-empty">暂无关联节点</div>
+                </section>
               </div>
-            </section>
+            </div>
 
           </template>
 
@@ -112,11 +167,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import {
+  IconActivity,
   IconAlertCircle,
+  IconAffiliate,
   IconArrowDown,
   IconArrowUp,
+  IconChartLine,
   IconCpu,
   IconDatabase,
   IconDeviceDesktop,
@@ -124,6 +182,12 @@ import {
   IconServer2,
   IconX
 } from '@tabler/icons-vue';
+import { use, init } from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
+
+use([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 const props = defineProps({
   show: {
@@ -145,10 +209,17 @@ const props = defineProps({
   machineError: {
     type: String,
     default: ''
+  },
+  relatedNodes: {
+    type: Array,
+    default: () => []
   }
 });
 
 const emit = defineEmits(['close']);
+const chartRef = ref(null);
+let chartInstance = null;
+let chartFrame = null;
 
 const close = () => {
   emit('close');
@@ -183,6 +254,32 @@ const machine = computed(() => {
   return props.node?.machine || null;
 });
 const loadStatus = computed(() => normalizeLoadStatus(machine.value?.load_status));
+const historyRows = computed(() => {
+  const rows = props.machineDetail?.history;
+
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return rows
+    .map(row => ({
+      recordedAt: toNumber(row.recorded_at),
+      cpu: toNumber(row.cpu) ?? 0,
+      memory: ratio({
+        used: toNumber(row.mem_used) ?? 0,
+        total: toNumber(row.mem_total) ?? 0
+      }),
+      disk: ratio({
+        used: toNumber(row.disk_used) ?? 0,
+        total: toNumber(row.disk_total) ?? 0
+      }),
+      netIn: toNumber(row.net_in_speed) ?? 0,
+      netOut: toNumber(row.net_out_speed) ?? 0
+    }))
+    .filter(row => row.recordedAt)
+    .sort((a, b) => a.recordedAt - b.recordedAt);
+});
+const hasHistory = computed(() => historyRows.value.length > 1);
 
 const lastSeenAt = computed(() => toNumber(machine.value?.last_seen_at));
 const isMachineActive = computed(() => machine.value?.is_active === true || machine.value?.is_active === 1);
@@ -254,6 +351,45 @@ const memoryUsage = computed(() => ratio(memoryMetric.value));
 const diskUsage = computed(() => ratio(diskMetric.value));
 const netInSpeed = computed(() => toNumber(loadStatus.value?.net?.in_speed) ?? 0);
 const netOutSpeed = computed(() => toNumber(loadStatus.value?.net?.out_speed) ?? 0);
+const normalizedRelatedNodes = computed(() => {
+  const nodes = Array.isArray(props.relatedNodes) ? props.relatedNodes : [];
+  const fallback = props.node ? [props.node] : [];
+  const source = nodes.length > 0 ? nodes : fallback;
+  const seen = new Set();
+
+  return source.filter((item) => {
+    if (!item?.id || seen.has(item.id)) {
+      return false;
+    }
+
+    seen.add(item.id);
+    return true;
+  });
+});
+
+const historyRangeText = computed(() => {
+  if (!hasHistory.value) {
+    return '24h';
+  }
+
+  const first = historyRows.value[0]?.recordedAt;
+  const last = historyRows.value[historyRows.value.length - 1]?.recordedAt;
+
+  if (!first || !last || last <= first) {
+    return '24h';
+  }
+
+  const hours = Math.max(1, Math.round((last - first) / 3600));
+  return `${hours}h`;
+});
+
+const chartColors = {
+  cpu: '#111827',
+  memory: '#f59e0b',
+  disk: '#ef4444',
+  netIn: '#10b981',
+  netOut: '#3b82f6'
+};
 
 function ratio(metric) {
   if (!metric.total) {
@@ -298,6 +434,274 @@ function bytePairText(metric) {
 function speedText(value) {
   return `${formatBytes(value)}/s`;
 }
+
+function chartTimeText(value) {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value * 1000);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+function chartPercent(value) {
+  return Math.max(0, value).toFixed(value >= 10 ? 0 : 1);
+}
+
+function formatSpeedAxis(value) {
+  if (!value) {
+    return '0';
+  }
+
+  return formatBytes(value).replace(' ', '');
+}
+
+function isCurrentNode(item) {
+  return Number(item?.id) === Number(props.node?.id);
+}
+
+function isNodeOnline(item) {
+  return item?.is_online === true || item?.is_online === 1;
+}
+
+function nodeRateText(item) {
+  if (item?.rate === undefined || item?.rate === null || item?.rate === '') {
+    return 'x-';
+  }
+
+  return `x${item.rate}`;
+}
+
+function nodeOnlineText(item) {
+  const value = toNumber(item?.online);
+
+  if (value === null) {
+    return '';
+  }
+
+  return `${Math.floor(Math.max(0, value))} 在线`;
+}
+
+function disposeChart() {
+  if (chartFrame) {
+    cancelAnimationFrame(chartFrame);
+    chartFrame = null;
+  }
+
+  if (chartInstance) {
+    chartInstance.dispose();
+    chartInstance = null;
+  }
+}
+
+function scheduleChart() {
+  if (!hasHistory.value) {
+    disposeChart();
+    return;
+  }
+
+  if (chartFrame) {
+    cancelAnimationFrame(chartFrame);
+  }
+
+  chartFrame = requestAnimationFrame(() => {
+    chartFrame = null;
+    renderChart();
+  });
+}
+
+function renderChart() {
+  if (!chartRef.value || !hasHistory.value) {
+    return;
+  }
+
+  const { width, height } = chartRef.value.getBoundingClientRect();
+
+  if (width <= 0 || height <= 0) {
+    return;
+  }
+
+  if (!chartInstance) {
+    chartInstance = init(chartRef.value);
+  }
+
+  const overlay = chartRef.value.closest('.node-detail-modal-overlay');
+  const overlayStyle = overlay ? getComputedStyle(overlay) : null;
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#111827';
+  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
+  const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0';
+  const tooltipBackground = overlayStyle?.getPropertyValue('--node-modal-surface').trim() || '#ffffff';
+  const times = historyRows.value.map(row => chartTimeText(row.recordedAt));
+
+  chartInstance.setOption({
+    animation: false,
+    color: [textColor, chartColors.memory, chartColors.disk, chartColors.netIn, chartColors.netOut],
+    tooltip: {
+      trigger: 'axis',
+      confine: true,
+      backgroundColor: tooltipBackground,
+      borderColor,
+      textStyle: {
+        color: textColor,
+        fontSize: 12
+      },
+      formatter(params) {
+        const rows = [`${params[0]?.axisValue || ''}`];
+        params.forEach((item) => {
+          const unit = item.seriesName.includes('网速') ? '/s' : '%';
+          const value = item.seriesName.includes('网速') ? speedText(item.data) : `${chartPercent(item.data)}%`;
+          rows.push(`${item.marker} ${item.seriesName}: ${unit === '/s' ? value : value}`);
+        });
+        return rows.join('<br/>');
+      }
+    },
+    legend: {
+      top: 0,
+      left: 0,
+      itemWidth: 8,
+      itemHeight: 8,
+      textStyle: {
+        color: mutedColor,
+        fontSize: 12
+      },
+      data: ['CPU', '内存', '磁盘', '下行网速', '上行网速']
+    },
+    grid: {
+      top: 40,
+      left: 34,
+      right: 44,
+      bottom: 26,
+      containLabel: false
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: times,
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        color: mutedColor,
+        fontSize: 11,
+        hideOverlap: true
+      },
+      axisLine: {
+        lineStyle: {
+          color: borderColor
+        }
+      }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        min: 0,
+        max: 100,
+        axisLabel: {
+          formatter: '{value}%',
+          color: mutedColor,
+          fontSize: 11
+        },
+        splitLine: {
+          lineStyle: {
+            color: borderColor,
+            type: 'dashed'
+          }
+        }
+      },
+      {
+        type: 'value',
+        min: 0,
+        axisLabel: {
+          formatter: value => formatSpeedAxis(value),
+          color: mutedColor,
+          fontSize: 11
+        },
+        splitLine: {
+          show: false
+        }
+      }
+    ],
+    series: [
+      {
+        name: 'CPU',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.cpu)
+      },
+      {
+        name: '内存',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        areaStyle: { opacity: 0.08 },
+        data: historyRows.value.map(row => row.memory)
+      },
+      {
+        name: '磁盘',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.disk)
+      },
+      {
+        name: '下行网速',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        yAxisIndex: 1,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.netIn)
+      },
+      {
+        name: '上行网速',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        yAxisIndex: 1,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.netOut)
+      }
+    ]
+  }, true);
+}
+
+function handleResize() {
+  if (chartInstance) {
+    chartInstance.resize();
+  }
+}
+
+watch(
+  () => [props.show, props.machineDetail],
+  () => {
+    if (!props.show) {
+      disposeChart();
+      return;
+    }
+
+    nextTick(scheduleChart);
+  },
+  { deep: true, immediate: true }
+);
+
+watch(hasHistory, () => {
+  if (props.show) {
+    nextTick(scheduleChart);
+  }
+});
+
+window.addEventListener('resize', handleResize);
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  disposeChart();
+});
 </script>
 
 <style scoped lang="scss">
@@ -348,7 +752,7 @@ function speedText(value) {
 
 .node-detail-modal-container {
   width: 100%;
-  max-width: 560px;
+  max-width: 980px;
   background: var(--node-modal-surface);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -358,7 +762,7 @@ function speedText(value) {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: min(85vh, 620px);
+  max-height: min(88vh, 760px);
   animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -459,7 +863,7 @@ function speedText(value) {
 }
 
 .probe-summary,
-.probe-metrics,
+.probe-panel,
 .probe-empty {
   border: 1px solid var(--node-modal-border);
   border-radius: 12px;
@@ -585,8 +989,86 @@ function speedText(value) {
   }
 }
 
-.probe-metrics {
+.probe-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.probe-side-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.probe-panel {
   padding: 16px;
+  min-width: 0;
+}
+
+.probe-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--text-color);
+  }
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.25;
+    color: var(--text-color);
+  }
+
+  > span {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1;
+  }
+}
+
+.probe-trend-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+}
+
+.probe-trend-chart {
+  width: 100%;
+  min-height: 300px;
+  flex: 1 1 auto;
+}
+
+.probe-trend-empty,
+.probe-related-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  border: 1px dashed var(--node-modal-border);
+  border-radius: 9px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.probe-metrics {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -656,6 +1138,94 @@ function speedText(value) {
   }
 }
 
+.probe-related {
+  flex: 1 1 auto;
+}
+
+.probe-related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 210px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.probe-related-node {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--node-modal-border);
+  border-radius: 9px;
+  background-color: var(--node-modal-surface);
+
+  &.current {
+    border-color: rgba(var(--theme-color-rgb), 0.32);
+    background-color: rgba(var(--theme-color-rgb), 0.08);
+  }
+}
+
+.probe-related-main,
+.probe-related-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.probe-related-main {
+  gap: 8px;
+
+  strong {
+    min-width: 0;
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.probe-related-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: rgba(148, 163, 184, 0.7);
+  flex: 0 0 auto;
+
+  &.online {
+    background-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+  }
+}
+
+.probe-related-meta {
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.2;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    + span::before {
+      content: "";
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      margin: 0 8px 2px 0;
+      border-radius: 999px;
+      background-color: currentColor;
+      opacity: 0.45;
+    }
+  }
+}
+
 .probe-empty {
   padding: 28px 20px;
   text-align: center;
@@ -681,6 +1251,24 @@ function speedText(value) {
   }
 }
 
+@media (max-width: 820px) {
+  .node-detail-modal-container {
+    max-width: 620px;
+  }
+
+  .probe-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .probe-trend-panel {
+    min-height: 320px;
+  }
+
+  .probe-trend-chart {
+    min-height: 260px;
+  }
+}
+
 @media (max-width: 480px) {
   .node-detail-modal-overlay {
     padding: 10px;
@@ -689,7 +1277,7 @@ function speedText(value) {
 
   .node-detail-modal-container {
     margin: 0;
-    max-height: calc(90vh - 80px);
+    max-height: calc(92vh - 40px);
   }
 
   .node-detail-modal-header,
@@ -700,6 +1288,14 @@ function speedText(value) {
   .probe-meta-grid,
   .probe-speed-row {
     grid-template-columns: 1fr;
+  }
+
+  .probe-trend-panel {
+    min-height: 280px;
+  }
+
+  .probe-trend-chart {
+    min-height: 220px;
   }
 
   .probe-server-head {

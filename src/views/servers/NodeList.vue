@@ -147,6 +147,8 @@
 
       :machine-error="machineDetailError"
 
+      :related-nodes="selectedRelatedNodes"
+
       @close="closeNodeDetail"
 
     />
@@ -246,6 +248,22 @@ const selectedNode = ref(null);
 const selectedMachineDetail = ref(null);
 const machineDetailLoading = ref(false);
 const machineDetailError = ref('');
+
+const getMachineId = (node) => node?.machine_id ?? node?.machine?.id ?? null;
+
+const selectedRelatedNodes = computed(() => {
+  if (!selectedNode.value) {
+    return [];
+  }
+
+  const machineId = getMachineId(selectedNode.value);
+
+  if (!machineId) {
+    return [selectedNode.value];
+  }
+
+  return nodes.value.filter(node => Number(getMachineId(node)) === Number(machineId));
+});
 
 
 
