@@ -293,13 +293,15 @@ export default {
 
   overflow: hidden;
 
-  background-color: var(--card-background);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
 
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.3);
 
   color: var(--text-color);
 
   transition: all 0.3s ease;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 
   display: flex;
 
@@ -311,11 +313,11 @@ export default {
 
   &:hover {
 
-    background-color: rgba(var(--theme-color-rgb), 0.1);
+    background-color: rgba(var(--theme-color-rgb), 0.16);
 
     border-color: var(--theme-color);
 
-    box-shadow: 0 0 0 3px rgba(var(--theme-color-rgb), 0.15);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
 
     transform: translateY(-2px);
 
@@ -375,6 +377,11 @@ export default {
 
   }
 
+}
+
+body.dark-theme .avatar-wrapper {
+  background-color: var(--card-background);
+  border-color: var(--border-color);
 }
 
 
