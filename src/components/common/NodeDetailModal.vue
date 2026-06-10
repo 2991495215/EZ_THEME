@@ -13,9 +13,22 @@
             </div>
           </div>
 
-          <button class="modal-close-btn" @click="close" aria-label="关闭">
-            <IconX :size="20" />
-          </button>
+          <div class="modal-header-actions">
+            <a
+              class="modal-probe-link"
+              href="https://k.trent30.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="前往探针"
+            >
+              <IconExternalLink :size="16" />
+              前往探针
+            </a>
+
+            <button class="modal-close-btn" @click="close" aria-label="关闭">
+              <IconX :size="20" />
+            </button>
+          </div>
         </div>
 
         <div class="node-detail-modal-body">
@@ -178,6 +191,7 @@ import {
   IconCpu,
   IconDatabase,
   IconDeviceDesktop,
+  IconExternalLink,
   IconServer,
   IconServer2,
   IconX
@@ -830,6 +844,44 @@ onBeforeUnmount(() => {
   line-height: 1.4;
 }
 
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+  flex: 0 0 auto;
+}
+
+.modal-probe-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.54);
+  border-radius: 9px;
+  background-color: var(--theme-color);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 18px rgba(var(--theme-color-rgb), 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+
+  svg {
+    flex: 0 0 auto;
+  }
+
+  &:hover {
+    filter: brightness(1.06);
+    box-shadow: 0 10px 22px rgba(var(--theme-color-rgb), 0.26);
+    transform: translateY(-1px);
+  }
+}
+
 .modal-close-btn {
   background: none;
   border: none;
@@ -841,7 +893,6 @@ onBeforeUnmount(() => {
   width: 34px;
   height: 34px;
   padding: 0;
-  margin-left: 12px;
   border-radius: 9px;
   transition: background-color 0.2s ease, color 0.2s ease;
   flex: 0 0 auto;
@@ -1288,6 +1339,19 @@ onBeforeUnmount(() => {
   .node-detail-modal-header,
   .node-detail-modal-body {
     padding: 16px;
+  }
+
+  .modal-probe-link {
+    width: 34px;
+    padding: 0;
+
+    svg {
+      margin: 0;
+    }
+  }
+
+  .modal-probe-link {
+    font-size: 0;
   }
 
   .probe-meta-grid,

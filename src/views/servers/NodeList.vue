@@ -74,7 +74,7 @@
             aria-label="打开探针"
           >
             <IconExternalLink :size="16" />
-            探针
+            前往探针
           </a>
         </div>
 
@@ -567,16 +567,20 @@ body.dark-theme .nodes-content {
 
 .node-probe-link {
   margin-left: auto;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.24);
-  background-color: rgba(var(--theme-color-rgb), 0.1);
-  color: var(--theme-color);
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.58);
+  background-color: var(--theme-color);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(var(--theme-color-rgb), 0.22);
   text-decoration: none;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
 .node-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.36);
-  background-color: rgba(var(--theme-color-rgb), 0.16);
+  filter: brightness(1.06);
+  box-shadow: 0 12px 28px rgba(var(--theme-color-rgb), 0.28);
+  transform: translateY(-1px);
 }
 
 .node-summary-count {
@@ -596,8 +600,9 @@ body.dark-theme .node-summary-tag {
 }
 
 body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.3);
-  background-color: rgba(var(--theme-color-rgb), 0.12);
+  border-color: rgba(var(--theme-color-rgb), 0.72);
+  background-color: var(--theme-color);
+  color: #ffffff;
 }
 
 .node-items {
