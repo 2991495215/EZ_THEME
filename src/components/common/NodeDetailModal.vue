@@ -857,29 +857,53 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  height: 34px;
-  padding: 0 13px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.54);
+  position: relative;
+  height: 36px;
+  padding: 0 14px 0 12px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.46);
   border-radius: 9px;
-  background-color: var(--theme-color);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.94), rgba(var(--theme-color-rgb), 0.76));
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: 0 8px 18px rgba(var(--theme-color-rgb), 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow:
+    0 8px 18px rgba(var(--theme-color-rgb), 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   svg {
     flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    padding: 3px;
+    margin-left: -2px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.16);
+    box-sizing: content-box;
   }
 
   &:hover {
-    filter: brightness(1.06);
-    box-shadow: 0 10px 22px rgba(var(--theme-color-rgb), 0.26);
+    border-color: rgba(var(--theme-color-rgb), 0.62);
+    box-shadow:
+      0 11px 22px rgba(var(--theme-color-rgb), 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.38),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.08);
     transform: translateY(-1px);
   }
+}
+
+body.dark-theme .modal-probe-link {
+  border-color: rgba(var(--theme-color-rgb), 0.5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.88), rgba(var(--theme-color-rgb), 0.68));
 }
 
 .modal-close-btn {
@@ -1342,7 +1366,7 @@ onBeforeUnmount(() => {
   }
 
   .modal-probe-link {
-    width: 34px;
+    width: 36px;
     padding: 0;
 
     svg {

@@ -567,19 +567,30 @@ body.dark-theme .nodes-content {
 
 .node-probe-link {
   margin-left: auto;
-  height: 38px;
-  padding: 0 16px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.58);
-  background-color: var(--theme-color);
+  position: relative;
+  height: 40px;
+  padding: 0 17px 0 14px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.46);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.96), rgba(var(--theme-color-rgb), 0.78));
   color: #ffffff;
-  box-shadow: 0 10px 24px rgba(var(--theme-color-rgb), 0.22);
+  box-shadow:
+    0 10px 22px rgba(var(--theme-color-rgb), 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
   text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .node-probe-link:hover {
-  filter: brightness(1.06);
-  box-shadow: 0 12px 28px rgba(var(--theme-color-rgb), 0.28);
+  border-color: rgba(var(--theme-color-rgb), 0.64);
+  box-shadow:
+    0 14px 28px rgba(var(--theme-color-rgb), 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
   transform: translateY(-1px);
 }
 
@@ -593,6 +604,16 @@ body.dark-theme .nodes-content {
   flex: 0 0 auto;
 }
 
+.node-probe-link svg {
+  width: 17px;
+  height: 17px;
+  padding: 4px;
+  margin-left: -2px;
+  border-radius: 7px;
+  background-color: rgba(255, 255, 255, 0.16);
+  box-sizing: content-box;
+}
+
 body.dark-theme .node-summary-tag {
   border-color: rgba(255, 183, 77, 0.3);
   background-color: rgba(255, 183, 77, 0.12);
@@ -600,8 +621,10 @@ body.dark-theme .node-summary-tag {
 }
 
 body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.72);
-  background-color: var(--theme-color);
+  border-color: rgba(var(--theme-color-rgb), 0.5);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.9), rgba(var(--theme-color-rgb), 0.68));
   color: #ffffff;
 }
 
