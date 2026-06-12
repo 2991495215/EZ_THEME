@@ -900,10 +900,22 @@ onBeforeUnmount(() => {
 }
 
 body.dark-theme .modal-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.5);
+  border-color: rgba(var(--theme-color-rgb), 0.42);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.88), rgba(var(--theme-color-rgb), 0.68));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.7), rgba(var(--theme-color-rgb), 0.52));
+  box-shadow:
+    0 8px 18px rgba(var(--theme-color-rgb), 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+body.dark-theme .modal-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.52);
+  box-shadow:
+    0 11px 22px rgba(var(--theme-color-rgb), 0.17),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
 
 .modal-close-btn {

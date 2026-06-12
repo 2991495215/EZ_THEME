@@ -657,11 +657,23 @@ body.dark-theme .node-summary-tag svg {
 }
 
 body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.5);
+  border-color: rgba(var(--theme-color-rgb), 0.42);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.9), rgba(var(--theme-color-rgb), 0.68));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04)),
+    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.72), rgba(var(--theme-color-rgb), 0.52));
   color: #ffffff;
+  box-shadow:
+    0 10px 22px rgba(var(--theme-color-rgb), 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+body.dark-theme .node-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.52);
+  box-shadow:
+    0 14px 28px rgba(var(--theme-color-rgb), 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
 }
 
 .node-items {
