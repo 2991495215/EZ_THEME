@@ -541,7 +541,7 @@ body.dark-theme .nodes-content {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 34px;
+  min-height: 40px;
   margin: 0 0 -2px;
 }
 
@@ -560,9 +560,18 @@ body.dark-theme .nodes-content {
 }
 
 .node-summary-tag {
-  border: 1px solid rgba(255, 152, 0, 0.28);
-  background-color: rgba(255, 152, 0, 0.1);
-  color: #c77700;
+  height: 40px;
+  padding: 0 16px 0 14px;
+  border: 1px solid rgba(245, 158, 11, 0.42);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.08));
+  color: #b96b00;
+  box-shadow:
+    0 10px 22px rgba(245, 158, 11, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -1px 0 rgba(180, 83, 9, 0.08);
 }
 
 .node-probe-link {
@@ -595,13 +604,26 @@ body.dark-theme .nodes-content {
 }
 
 .node-summary-count {
-  font-weight: 800;
+  margin-left: 2px;
+  color: #9a5a00;
+  font-size: 15px;
+  font-weight: 850;
   line-height: 1;
 }
 
 .node-summary-tag svg,
 .node-probe-link svg {
   flex: 0 0 auto;
+}
+
+.node-summary-tag svg {
+  width: 17px;
+  height: 17px;
+  padding: 4px;
+  margin-left: -2px;
+  border-radius: 7px;
+  background-color: rgba(245, 158, 11, 0.13);
+  box-sizing: content-box;
 }
 
 .node-probe-link svg {
@@ -615,9 +637,23 @@ body.dark-theme .nodes-content {
 }
 
 body.dark-theme .node-summary-tag {
-  border-color: rgba(255, 183, 77, 0.3);
-  background-color: rgba(255, 183, 77, 0.12);
-  color: #ffb74d;
+  border-color: rgba(251, 191, 36, 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  color: #fbbf24;
+  box-shadow:
+    0 10px 22px rgba(251, 191, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+body.dark-theme .node-summary-count {
+  color: #fcd34d;
+}
+
+body.dark-theme .node-summary-tag svg {
+  background-color: rgba(251, 191, 36, 0.16);
 }
 
 body.dark-theme .node-probe-link {
