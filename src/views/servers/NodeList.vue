@@ -161,7 +161,7 @@
 
 <script setup>
 
-import { ref, computed, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onActivated, onDeactivated, inject } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -365,10 +365,23 @@ const fetchNodes = async () => {
 
 onMounted(() => {
 
+  document.body.classList.add('nodes-page-active');
 
   
   fetchNodes();
 
+});
+
+onActivated(() => {
+  document.body.classList.add('nodes-page-active');
+});
+
+onDeactivated(() => {
+  document.body.classList.remove('nodes-page-active');
+});
+
+onBeforeUnmount(() => {
+  document.body.classList.remove('nodes-page-active');
 });
 
 </script>
@@ -376,6 +389,22 @@ onMounted(() => {
 
 
 <style lang="scss" scoped>
+
+:global(body.nodes-page-active .main-board) {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--theme-color-rgb), 0.04), transparent 38%),
+    var(--background-color);
+}
+
+:global(body.nodes-page-active.dark-theme .main-board) {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(var(--theme-color-rgb), 0.08), transparent 36%),
+    #171A1D;
+}
+
+:global(body.nodes-page-active .main-board .background-decoration) {
+  display: none;
+}
 
 .nodes-container {
 
