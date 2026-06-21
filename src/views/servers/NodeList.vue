@@ -508,19 +508,19 @@ onMounted(() => {
 
   margin: 0 auto;
 
-  padding: 16px;
+  padding: 18px 20px 20px;
 
-  border: 1px solid var(--card-border-color, var(--border-color));
+  border: 1px solid rgba(var(--text-color-rgb), 0.08);
 
   border-radius: 22px;
 
   background:
-    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.12), transparent 34%),
-    linear-gradient(135deg, rgba(var(--card-background-rgb), 0.28), rgba(var(--card-background-rgb), 0.12));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
+    rgba(var(--card-background-rgb), 0.08);
 
-  backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: none;
 
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: none;
 
   box-sizing: border-box;
 
@@ -529,11 +529,10 @@ onMounted(() => {
 
 
 body.dark-theme .nodes-content {
-
   background:
-    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(22, 29, 50, 0.72), rgba(12, 17, 32, 0.48));
-
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(25, 25, 26, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .node-summary-bar {
@@ -542,7 +541,7 @@ body.dark-theme .nodes-content {
   justify-content: space-between;
   gap: 12px;
   min-height: 40px;
-  margin: 0 0 -2px;
+  margin: 0 0 2px;
 }
 
 .node-summary-tag,
@@ -562,49 +561,36 @@ body.dark-theme .nodes-content {
 .node-summary-tag {
   height: 40px;
   padding: 0 16px 0 14px;
-  border: 1px solid rgba(245, 158, 11, 0.42);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
   border-radius: 10px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
-    linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.08));
-  color: #b96b00;
-  box-shadow:
-    0 10px 22px rgba(245, 158, 11, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.52),
-    inset 0 -1px 0 rgba(180, 83, 9, 0.08);
+  background-color: rgba(var(--card-background-rgb), 0.46);
+  color: var(--text-color);
+  box-shadow: none;
 }
 
 .node-probe-link {
   margin-left: auto;
   height: 40px;
   padding: 0 16px 0 13px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.2);
   border-radius: 10px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.28)),
-    rgba(var(--theme-color-rgb), 0.08);
+  background-color: rgba(var(--card-background-rgb), 0.5);
   color: rgb(var(--theme-color-rgb));
-  box-shadow:
-    0 8px 18px rgba(31, 28, 22, 0.055),
-    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  box-shadow: none;
   text-decoration: none;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .node-probe-link:hover {
   border-color: rgba(var(--theme-color-rgb), 0.34);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34)),
-    rgba(var(--theme-color-rgb), 0.12);
-  box-shadow:
-    0 10px 22px rgba(var(--theme-color-rgb), 0.11),
-    inset 0 1px 0 rgba(255, 255, 255, 0.64);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 
 .node-summary-count {
   margin-left: 2px;
-  color: #9a5a00;
+  color: var(--theme-color);
   font-size: 15px;
   font-weight: 850;
   line-height: 1;
@@ -621,7 +607,7 @@ body.dark-theme .nodes-content {
   padding: 4px;
   margin-left: -2px;
   border-radius: 7px;
-  background-color: rgba(245, 158, 11, 0.13);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
   box-sizing: content-box;
 }
 
@@ -636,44 +622,33 @@ body.dark-theme .nodes-content {
 }
 
 body.dark-theme .node-summary-tag {
-  border-color: rgba(251, 191, 36, 0.38);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
-  color: #fbbf24;
-  box-shadow:
-    0 10px 22px rgba(251, 191, 36, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--theme-color-rgb), 0.26);
+  background-color: rgba(31, 35, 41, 0.78);
+  color: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
 }
 
 body.dark-theme .node-summary-count {
-  color: #fcd34d;
+  color: var(--theme-color);
 }
 
 body.dark-theme .node-summary-tag svg {
-  background-color: rgba(251, 191, 36, 0.16);
+  background-color: rgba(var(--theme-color-rgb), 0.16);
+  color: var(--theme-color);
 }
 
 body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.26);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
-    rgba(var(--theme-color-rgb), 0.16);
-  color: rgba(232, 240, 255, 0.94);
-  box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.12);
+  background-color: rgba(31, 35, 41, 0.82);
+  color: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
 }
 
 body.dark-theme .node-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.38);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
-    rgba(var(--theme-color-rgb), 0.2);
-  box-shadow:
-    0 10px 22px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  border-color: rgba(var(--theme-color-rgb), 0.34);
+  background-color: rgba(var(--theme-color-rgb), 0.16);
+  color: #ffffff;
+  box-shadow: none;
 }
 
 .node-items {
