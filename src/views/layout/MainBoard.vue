@@ -27,20 +27,6 @@
 
     </div>
 
-    
-
-    <!-- 背景装饰 -->
-
-    <div class="background-decoration">
-
-      <div class="floating-ball ball-1"></div>
-
-      <div class="floating-ball ball-2"></div>
-
-      <div class="floating-ball ball-3"></div>
-
-    </div>
-
   </div>
 
 </template>
@@ -101,6 +87,16 @@ export default {
 
   z-index: 1;
 
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.035), transparent 220px),
+    var(--background-color);
+
+}
+
+:global(body.dark-theme) .main-board {
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.06), transparent 240px),
+    #171A1D;
 }
 
 
@@ -136,46 +132,14 @@ export default {
 
 
 .background-decoration {
-
-  position: fixed;
-
-  top: 0;
-
-  left: 0;
-
-  right: 0;
-
-  bottom: 0;
-
-  z-index: -1;
-
-  overflow: hidden;
-
-  pointer-events: none;
-
-  
-
-  @supports (-webkit-touch-callout: none) {
-
-    display: none;
-
-  }
+  display: none;
 
 }
 
 
 
 .floating-ball {
-
-  position: absolute;
-
-  border-radius: 50%;
-
-  filter: blur(60px);
-
-  opacity: 0.3;
-
-  mix-blend-mode: lighten;
+  display: none;
 
 }
 
