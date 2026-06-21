@@ -232,10 +232,10 @@ const DEFAULT_BASE_CONFIG = {
     defaultLanguage: 'zh-CN',
 
     // 默认主题 ('light' 或 'dark') TODO
-    defaultTheme: 'dark',
+    defaultTheme: 'light',
 
     // 主题色 (16进制颜色值) TODO
-    primaryColor: '#00947c',
+    primaryColor: '#355cc2',
 
     // 是否启用落地页 (true=启用, false=禁用) TODO
     enableLandingPage: true

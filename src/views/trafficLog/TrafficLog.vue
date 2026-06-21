@@ -361,7 +361,7 @@ const initChart = () => {
 
   
 
-  const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || '#00947c';
+  const themeColor = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || '#355cc2';
 
   
 
