@@ -8,20 +8,6 @@
 
 
 
-    <!-- 背景装饰 -->
-
-    <div class="background-decoration">
-
-      <div class="floating-ball ball-1"></div>
-
-      <div class="floating-ball ball-2"></div>
-
-      <div class="floating-ball ball-3"></div>
-
-    </div>
-
-
-
     <!-- 顶部工具栏：语言选择器和主题切换 -->
 
     <div class="top-toolbar">

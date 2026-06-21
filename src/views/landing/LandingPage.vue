@@ -6,20 +6,6 @@
 
     
 
-    <!-- 背景装饰 -->
-
-    <div class="background-decoration">
-
-      <div class="bg-circle circle-1" :class="{ 'dark-mode': isDarkTheme }"></div>
-
-      <div class="bg-circle circle-2" :class="{ 'dark-mode': isDarkTheme }"></div>
-
-      <div class="bg-circle circle-3" :class="{ 'dark-mode': isDarkTheme }"></div>
-
-    </div>
-
-    
-
     <!-- 顶部工具栏 -->
 
     <div class="top-toolbar">
@@ -316,6 +302,9 @@ export default {
   align-items: center;
 
   background-color: var(--background-color);
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.035), transparent 240px),
+    var(--background-color);
 
   color: var(--text-color);
 
@@ -323,191 +312,10 @@ export default {
 
 }
 
-
-
-
-
-.background-decoration {
-
-  position: absolute;
-
-  top: 0;
-
-  left: 0;
-
-  width: 100%;
-
-  height: 100%;
-
-  z-index: 0;
-
-  overflow: hidden;
-
-  
-
-  @supports (-webkit-touch-callout: none) {
-
-    display: none;
-
-  }
-
-  
-
-  .bg-circle {
-
-    position: absolute;
-
-    border-radius: 50%;
-
-    filter: blur(80px);
-
-    opacity: 0.4; 
-
-    animation: float 20s infinite ease-in-out;
-
-    transition: opacity 0.5s ease, background-color 0.5s ease;
-
-    
-
-    @supports (-webkit-touch-callout: none) {
-
-      filter: blur(20px);
-
-      opacity: 0.15;
-
-      animation-duration: 40s; 
-    }
-
-    
-
-    &.dark-mode {
-
-      opacity: 0.25; 
-
-      filter: blur(100px) saturate(0.7); 
-
-      
-
-      @supports (-webkit-touch-callout: none) {
-
-        filter: blur(15px) saturate(0.5);
-
-        opacity: 0.1;
-
-      }
-
-    }
-
-  }
-
-  
-
-  .circle-1 {
-
-    width: 600px;
-
-    height: 600px;
-
-    background: var(--theme-color);
-
-    top: -10%;
-
-    left: -10%;
-
-    animation-duration: 25s;
-
-    
-
-    &.dark-mode {
-
-      background: rgba(0, 148, 124, 0.6); 
-
-    }
-
-  }
-
-  
-
-  .circle-2 {
-
-    width: 500px;
-
-    height: 500px;
-
-    background: #A747FE;
-
-    top: 40%;
-
-    right: -5%;
-
-    animation-duration: 30s;
-
-    
-
-    &.dark-mode {
-
-      background: rgba(167, 71, 254, 0.5); 
-
-    }
-
-  }
-
-  
-
-  .circle-3 {
-
-    width: 450px;
-
-    height: 450px;
-
-    background: #37DEC9;
-
-    bottom: -10%;
-
-    left: 20%;
-
-    animation-duration: 35s;
-
-    
-
-    &.dark-mode {
-
-      background: rgba(55, 222, 201, 0.5); 
-
-    }
-
-  }
-
-}
-
-
-
-@keyframes float {
-
-  0%, 100% {
-
-    transform: translate(0, 0) rotate(0deg);
-
-  }
-
-  25% {
-
-    transform: translate(5%, 5%) rotate(5deg);
-
-  }
-
-  50% {
-
-    transform: translate(0, 10%) rotate(0deg);
-
-  }
-
-  75% {
-
-    transform: translate(-5%, 5%) rotate(-5deg);
-
-  }
-
+.landing-page.dark-theme {
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.06), transparent 260px),
+    #171A1D;
 }
 
 

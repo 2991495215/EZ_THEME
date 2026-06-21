@@ -15,6 +15,15 @@
   position: relative;
   overflow: hidden;
   z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.035), transparent 240px),
+    var(--background-color);
+}
+
+body.dark-theme .auth-container {
+  background:
+    linear-gradient(180deg, rgba(var(--theme-color-rgb), 0.06), transparent 260px),
+    #171A1D;
 }
 
 .auth-card {
@@ -104,67 +113,3 @@
     font-size: $font-size-sm;
   }
 }
-
-// 背景装饰
-.background-decoration {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: -1;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.floating-ball {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.3;
-  mix-blend-mode: lighten;
-  
-  // iOS设备完全隐藏装饰球
-  @supports (-webkit-touch-callout: none) {
-    display: none;
-  }
-}
-
-.ball-1 {
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle at 30% 30%, 
-    rgba(var(--theme-color-rgb), 0.4),
-    rgba(var(--theme-color-rgb), 0.1) 70%,
-    transparent
-  );
-  top: -10%;
-  left: -10%;
-  animation: floatingBall1 25s infinite ease-in-out;
-}
-
-.ball-2 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle at 70% 70%, 
-    rgba(167, 71, 254, 0.35),
-    rgba(167, 71, 254, 0.08) 70%,
-    transparent
-  );
-  top: 40%;
-  right: -5%;
-  animation: floatingBall2 30s infinite ease-in-out;
-}
-
-.ball-3 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle at 50% 50%, 
-    rgba(55, 222, 201, 0.3),
-    rgba(55, 222, 201, 0.05) 70%,
-    transparent
-  );
-  bottom: -10%;
-  left: 20%;
-  animation: floatingBall3 35s infinite ease-in-out;
-} 
