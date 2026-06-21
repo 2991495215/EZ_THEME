@@ -639,8 +639,8 @@ watch(locale, () => {
     font-weight: 500;
     
     &.status-pending {
-      background-color: rgba(255, 152, 0, 0.1);
-      color: #ff9800;
+      background-color: rgba(var(--warning-color-rgb), 0.1);
+      color: var(--warning-color);
     }
     
     &.status-processing {

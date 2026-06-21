@@ -106,9 +106,9 @@
 }
 
 :where(.card-badge.stock-warning) {
-  background-color: rgba(255, 152, 0, 0.12) !important;
-  border-color: rgba(255, 152, 0, 0.32) !important;
-  color: #ff9800 !important;
+  background-color: rgba(var(--warning-color-rgb), 0.12) !important;
+  border-color: rgba(var(--warning-color-rgb), 0.32) !important;
+  color: var(--warning-color) !important;
 }
 
 :where(.card-badge.stock-danger) {

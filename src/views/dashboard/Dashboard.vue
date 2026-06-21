@@ -2038,9 +2038,9 @@ export default {
         overflow: hidden;
 
         &.reset-warning {
-          color: #ff9800;
-          border-color: #ff9800;
-          background-color: rgba(255, 152, 0, 0.1);
+          color: var(--warning-color);
+          border-color: var(--warning-color);
+          background-color: rgba(var(--warning-color-rgb), 0.1);
         }
 
         &.reset-danger {
@@ -2055,9 +2055,9 @@ export default {
         overflow: hidden;
 
         &.renew-warning {
-          color: #ff9800;
-          border-color: #ff9800;
-          background-color: rgba(255, 152, 0, 0.1);
+          color: var(--warning-color);
+          border-color: var(--warning-color);
+          background-color: rgba(var(--warning-color-rgb), 0.1);
         }
 
         &.renew-danger {
@@ -2136,7 +2136,7 @@ export default {
       }
 
       &.warning-card .water-progress {
-        background-color: rgba(255, 152, 0, 0.15);
+        background-color: rgba(var(--warning-color-rgb), 0.15);
       }
 
       &.danger-card .water-progress {
@@ -2260,8 +2260,8 @@ export default {
           }
 
           &.linux {
-            background-color: rgba(243, 123, 29, 0.1);
-            color: #f37b1d;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
           }
 
           &.openwrt {
@@ -3362,16 +3362,16 @@ export default {
 
 
 .stats-card.warning-card {
-  border-color: #ff9800;
+  border-color: var(--warning-color);
   box-shadow: none;
 
   .stats-icon {
-    background-color: rgba(255, 152, 0, 0.1);
-    color: #ff9800;
+    background-color: rgba(var(--warning-color-rgb), 0.1);
+    color: var(--warning-color);
   }
 
   .stats-value {
-    color: #ff9800;
+    color: var(--warning-color);
   }
 }
 
@@ -4015,7 +4015,7 @@ export default {
 
     .warning-icon {
       margin-bottom: 16px;
-      color: #ff9800;
+      color: var(--warning-color);
     }
 
     .warning-text {
@@ -4131,16 +4131,16 @@ export default {
 @use '@/assets/styles/no-plan-card' as *;
 
 .stats-card.warning-card {
-  border-color: #ff9800 !important;
+  border-color: var(--warning-color) !important;
   box-shadow: none !important;
 
   .stats-icon {
-    background-color: rgba(255, 152, 0, 0.1) !important;
-    color: #ff9800 !important;
+    background-color: rgba(var(--warning-color-rgb), 0.1) !important;
+    color: var(--warning-color) !important;
   }
 
   .stats-value {
-    color: #ff9800 !important;
+    color: var(--warning-color) !important;
   }
 }
 

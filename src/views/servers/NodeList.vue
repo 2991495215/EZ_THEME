@@ -1387,6 +1387,11 @@ body.dark-theme .node-probe-link:hover {
   border: 0 !important;
 }
 
+.nodes-container .more-btn svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
 .nodes-container .more-btn:hover {
   background-color: var(--card-hover-background, rgba(var(--theme-color-rgb), 0.08));
   color: var(--theme-color);

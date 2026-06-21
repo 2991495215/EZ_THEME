@@ -1672,9 +1672,9 @@ onUnmounted(() => {
 }
 
 .level-medium {
-    background-color: rgba(255, 152, 0, 0.1);
+    background-color: rgba(var(--warning-color-rgb), 0.1);
 
-    color: #ff9800;
+    color: var(--warning-color);
 }
 
 .level-high {
@@ -2547,12 +2547,12 @@ onUnmounted(() => {
                     }
 
                     &.level-medium {
-                        background-color: rgba(255, 152, 0, 0.1);
+                        background-color: rgba(var(--warning-color-rgb), 0.1);
 
-                        border-color: rgba(255, 152, 0, 0.3);
+                        border-color: rgba(var(--warning-color-rgb), 0.3);
 
                         .tag-icon {
-                            color: #ff9800;
+                            color: var(--warning-color);
                         }
                     }
 

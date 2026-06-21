@@ -1362,6 +1362,8 @@ export default {
 
         margin: 0;
 
+        color: var(--text-color);
+
         word-wrap: break-word;
 
         overflow-wrap: break-word;
@@ -1426,11 +1428,11 @@ export default {
 
           &.stock-warning {
 
-            background-color: rgba(255, 152, 0, 0.2);
+            background-color: rgba(var(--warning-color-rgb), 0.2);
 
-            border-color: rgba(255, 152, 0, 0.1);
+            border-color: rgba(var(--warning-color-rgb), 0.1);
 
-            color: #ff9800;
+            color: var(--warning-color);
 
           }
 
@@ -1844,6 +1846,8 @@ export default {
 
           margin: 0;
 
+          color: var(--text-color);
+
           word-wrap: break-word;
 
           overflow-wrap: break-word;
@@ -1908,11 +1912,11 @@ export default {
 
             &.stock-warning {
 
-              background-color: rgba(255, 152, 0, 0.2);
+              background-color: rgba(var(--warning-color-rgb), 0.2);
 
-              border-color: rgba(255, 152, 0, 0.1);
+              border-color: rgba(var(--warning-color-rgb), 0.1);
 
-              color: #ff9800;
+              color: var(--warning-color);
 
             }
 
@@ -2468,7 +2472,7 @@ export default {
 
       &.stock-warning {
 
-        background-color: rgba(255, 152, 0, 0.1);
+        background-color: rgba(var(--warning-color-rgb), 0.1);
 
       }
 

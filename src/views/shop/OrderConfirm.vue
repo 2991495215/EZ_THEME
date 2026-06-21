@@ -1427,9 +1427,9 @@ export default {
 
   .alert-card {
 
-    background-color: rgba(255, 152, 0, 0.08);
+    background-color: rgba(var(--warning-color-rgb), 0.08);
 
-    border: 1px solid rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(var(--warning-color-rgb), 0.2);
 
     border-radius: 16px;
 
@@ -1443,7 +1443,7 @@ export default {
 
     width: 100%;
 
-    box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(var(--warning-color-rgb), 0.1);
 
     backdrop-filter: blur(10px);
 
@@ -1457,7 +1457,7 @@ export default {
 
       transform: translateY(-2px);
 
-      box-shadow: 0 6px 20px rgba(255, 152, 0, 0.15);
+      box-shadow: 0 6px 20px rgba(var(--warning-color-rgb), 0.15);
 
     }
 
@@ -1467,11 +1467,11 @@ export default {
 
       margin-right: 14px;
 
-      color: #ff9800;
+      color: var(--warning-color);
 
       flex-shrink: 0;
 
-      background-color: rgba(255, 152, 0, 0.1);
+      background-color: rgba(var(--warning-color-rgb), 0.1);
 
       width: 44px;
 
@@ -1517,7 +1517,7 @@ export default {
 
         margin: 0 0 6px 0;
 
-        color: #ff9800;
+        color: var(--warning-color);
 
         letter-spacing: 0.2px;
 
@@ -1733,11 +1733,11 @@ export default {
 
         &.stock-warning {
 
-          background-color: rgba(255, 152, 0, 0.2);
+          background-color: rgba(var(--warning-color-rgb), 0.2);
 
-          border-color: rgba(255, 152, 0, 0.1);
+          border-color: rgba(var(--warning-color-rgb), 0.1);
 
-          color: #ff9800;
+          color: var(--warning-color);
 
         }
 

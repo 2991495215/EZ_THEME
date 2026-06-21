@@ -1680,9 +1680,9 @@ const addImageToInput = (imgUrl) => {
     }
 
     &.level-1 {
-        background-color: rgba(255, 152, 0, 0.1);
+        background-color: rgba(var(--warning-color-rgb), 0.1);
 
-        color: #ff9800;
+        color: var(--warning-color);
     }
 
     &.level-2 {
@@ -2600,7 +2600,7 @@ const addImageToInput = (imgUrl) => {
     }
 
     &:disabled {
-        background-color: #fbb4af;
+        background-color: rgba(244, 67, 54, 0.22);
 
         cursor: not-allowed;
     }

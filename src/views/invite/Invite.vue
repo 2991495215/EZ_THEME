@@ -1950,9 +1950,9 @@ export default {
         }
         
         &.pending {
-          background-color: rgba(255, 152, 0, 0.1);
-          color: #ff9800;
-          border: 1px solid rgba(255, 152, 0, 0.2);
+          background-color: rgba(var(--warning-color-rgb), 0.1);
+          color: var(--warning-color);
+          border: 1px solid rgba(var(--warning-color-rgb), 0.2);
         }
         
         &.waiting {
@@ -2448,16 +2448,16 @@ export default {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     
     .alert.alert-warning {
-      background-color: rgba(255, 152, 0, 0.1);
-      border-color: rgba(255, 152, 0, 0.25);
+      background-color: rgba(var(--warning-color-rgb), 0.1);
+      border-color: rgba(var(--warning-color-rgb), 0.25);
       
       .alert-icon {
-        color: #ff9800;
-        filter: drop-shadow(0 1px 3px rgba(255, 152, 0, 0.3));
+        color: var(--warning-color);
+        filter: drop-shadow(0 1px 3px rgba(var(--warning-color-rgb), 0.3));
       }
       
       .alert-desc {
-        color: #ff9800;
+        color: var(--warning-color);
       }
     }
     
@@ -2663,22 +2663,22 @@ export default {
     }
     
     &.alert-warning {
-      background-color: rgba(255, 152, 0, 0.08);
-      border: 1px solid rgba(255, 152, 0, 0.2);
+      background-color: rgba(var(--warning-color-rgb), 0.08);
+      border: 1px solid rgba(var(--warning-color-rgb), 0.2);
       
       &::before {
-        background-color: #ff9800;
+        background-color: var(--warning-color);
       }
       
       .alert-icon {
-        color: #ff9800;
-        filter: drop-shadow(0 2px 4px rgba(255, 152, 0, 0.3));
+        color: var(--warning-color);
+        filter: drop-shadow(0 2px 4px rgba(var(--warning-color-rgb), 0.3));
       }
       
       .alert-title {
         font-weight: 600;
         margin-bottom: 4px;
-        color: #ff9800;
+        color: var(--warning-color);
         font-size: 15px;
       }
       
@@ -3445,22 +3445,22 @@ export default {
     }
     
     &.alert-warning {
-      background-color: rgba(255, 152, 0, 0.08);
-      border: 1px solid rgba(255, 152, 0, 0.2);
+      background-color: rgba(var(--warning-color-rgb), 0.08);
+      border: 1px solid rgba(var(--warning-color-rgb), 0.2);
       
       &::before {
-        background-color: #ff9800;
+        background-color: var(--warning-color);
       }
       
       .alert-icon {
-        color: #ff9800;
-        filter: drop-shadow(0 2px 4px rgba(255, 152, 0, 0.3));
+        color: var(--warning-color);
+        filter: drop-shadow(0 2px 4px rgba(var(--warning-color-rgb), 0.3));
       }
       
       .alert-title {
         font-weight: 600;
         margin-bottom: 4px;
-        color: #ff9800;
+        color: var(--warning-color);
         font-size: 15px;
       }
       

@@ -307,7 +307,7 @@
             :force="0.4"
             :stageWidth="window.innerWidth"
             :stageHeight="window.innerHeight"
-            :colors="['#ffcc00', '#ff8800', '#ff3333', '#26A65B', '#42A5F5', '#9C27B0']"
+            :colors="['#355cc2', '#42A5F5', '#8b5cf6', '#26A65B', '#3b82f6', '#9C27B0']"
           />
         </div>
       </div>
@@ -1831,11 +1831,11 @@ export default {
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           
           &.warning {
-            background-color: rgba(255, 152, 0, 0.15);
-            color: #ff9800;
+            background-color: rgba(var(--warning-color-rgb), 0.15);
+            color: var(--warning-color);
             
             svg {
-              filter: drop-shadow(0 2px 8px rgba(255, 152, 0, 0.3));
+              filter: drop-shadow(0 2px 8px rgba(var(--warning-color-rgb), 0.3));
             }
           }
           
@@ -2057,12 +2057,12 @@ export default {
     margin: 24px auto 0;
     width: 48px;
     height: 48px;
-    background-color: #ff980020;
+    background-color: rgba(var(--warning-color-rgb), 0.12);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ff9800;
+    color: var(--warning-color);
   }
   
   .cancel-modal-header {
@@ -2211,15 +2211,15 @@ export default {
   }
   
   &.status-pending {
-    background-color: rgba(255, 152, 0, 0.12);
-    border: 1px solid rgba(255, 152, 0, 0.2);
+    background-color: rgba(var(--warning-color-rgb), 0.12);
+    border: 1px solid rgba(var(--warning-color-rgb), 0.2);
     
     .status-icon {
-      color: #ff9800;
+      color: var(--warning-color);
     }
     
     h3 {
-      color: #f57c00;
+      color: var(--warning-color);
     }
   }
   
