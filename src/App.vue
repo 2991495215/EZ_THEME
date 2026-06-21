@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-shell">
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
     <div class="static-layout" v-if="$route.meta.requiresAuth">
       <!-- 网站名称 -->
@@ -272,6 +272,15 @@ export default {
 
 .page-transitioning {
   overflow: hidden;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background-color: var(--background-color);
+}
+
+body.dark-theme .app-shell {
+  background-color: #171A1D;
 }
 
 

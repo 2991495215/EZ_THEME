@@ -587,27 +587,8 @@ const DEFAULT_THEME_CONFIG = {
 export const THEME_CONFIG = mergeDeep(DEFAULT_THEME_CONFIG, getConfig('THEME_CONFIG'));
 
 
-// 默认背景装饰球配置
-const DEFAULT_BACKGROUND_BALLS_CONFIG = [
-    {
-        size: '600px',
-        background: 'var(--theme-color)',
-        position: {top: '-10%', left: '-10%'},
-        animationDuration: '25s'
-    },
-    {
-        size: '500px',
-        background: '#A747FE',
-        position: {top: '40%', right: '-5%'},
-        animationDuration: '30s'
-    },
-    {
-        size: '450px',
-        background: '#37DEC9',
-        position: {bottom: '-10%', left: '20%'},
-        animationDuration: '35s'
-    }
-];
+// 默认不启用背景装饰球，避免页面切换时露出额外色块
+const DEFAULT_BACKGROUND_BALLS_CONFIG = [];
 
 export const BACKGROUND_BALLS_CONFIG = getConfig('BACKGROUND_BALLS_CONFIG', DEFAULT_BACKGROUND_BALLS_CONFIG);
 

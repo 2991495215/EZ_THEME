@@ -99,10 +99,10 @@ export const config  = {
         defaultLanguage: 'zh-CN',
 
         // 默认主题 ('light' 或 'dark')
-        defaultTheme: 'light',
+        defaultTheme: 'dark',
 
         // 主题色 (16进制颜色值)
-        primaryColor: '#355cc2',
+        primaryColor: '#00947c',
 
         // 是否启用落地页 (true=启用, false=禁用)
         enableLandingPage: true // 默认启用
