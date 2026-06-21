@@ -33,6 +33,7 @@ const pathMappings = {
   '/user/order/getPaymentMethod': '/pay/methods',
 
   '/user/server/fetch': '/node/list',
+  '/user/server/machine': '/node/machine',
 
   '/user/ticket/fetch': '/ticket/list',
   '/user/ticket/save': '/ticket/new',

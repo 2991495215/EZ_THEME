@@ -1,1515 +1,1416 @@
-﻿<template>
-
+<template>
   <transition name="fade">
-
     <div v-if="show" class="node-detail-modal-overlay" @click.self="close">
-
       <div class="node-detail-modal-container">
-
         <div class="node-detail-modal-header">
+          <div class="modal-title-group">
+            <span class="modal-title-icon">
+              <IconServer :size="20" />
+            </span>
+            <div class="modal-title-copy">
+              <h3 class="modal-title">{{ node.name || '节点状态' }}</h3>
+              <p class="modal-subtitle">服务器状态</p>
+            </div>
+          </div>
 
-          <h3 class="modal-title">{{ node.name }}</h3>
+          <div class="modal-header-actions">
+            <a
+              class="modal-probe-link"
+              href="https://k.trent30.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="前往探针"
+            >
+              <IconExternalLink :size="16" />
+              前往探针
+            </a>
 
-          <button class="modal-close-btn" @click="close">
-
-            <IconX :size="20" />
-
-          </button>
-
+            <button class="modal-close-btn" @click="close" aria-label="关闭">
+              <IconX :size="20" />
+            </button>
+          </div>
         </div>
 
-        
-
-        <!-- 使用页面切换动画 -->
-
-        <transition :name="slideDirection" mode="out-in">
-
-          <!-- 节点基本信息页面 -->
-
-          <div v-if="currentPage === 'info'" key="info" class="node-detail-modal-body">
-
-            <!-- 节点基本信息 -->
-
-            <div class="node-info-section">
-
-              <div class="info-row">
-
-                <span class="info-label">{{ $t('nodes.type') }}:</span>
-
-                <span class="info-value">{{ node.type }}</span>
-
-              </div>
-
-              <div class="info-row">
-
-                <span class="info-label">{{ $t('nodes.rate') }}:</span>
-
-                <span class="info-value" :class="{ 'high-rate': parseFloat(node.rate) != 1 }">x{{ node.rate }}</span>
-
-              </div>
-
-              <div class="info-row">
-
-                <span class="info-label">{{ $t('nodes.host') }}:</span>
-
-                <span class="info-value">{{ node.host }}</span>
-
-              </div>
-
-              <div class="info-row">
-
-                <span class="info-label">{{ $t('nodes.port') }}:</span>
-
-                <span class="info-value">{{ node.port }}</span>
-
-              </div>
-
-              
-
-              <!-- 根据节点类型显示不同的信息 -->
-
-              <template v-if="node.type === 'ss' || node.type === 'shadowsocks'">
-
-                <div class="info-row">
-
-                  <span class="info-label">{{ $t('nodes.cipher')}}:</span>
-
-                  <span class="info-value">{{ node.cipher}}</span>
-
-                </div>
-
-              </template>
-
-              
-
-              <template v-if="node.type === 'trojan'">
-
-                <div class="info-row">
-
-                  <span class="info-label">{{ $t('nodes.security')}}:</span>
-
-                  <span class="info-value">{{ node.allow_insecure ? $t('nodes.allowInsecure') : $t('nodes.secure') }}</span>
-
-                </div>
-
-              </template>
-
-              
-
-              <template v-if="node.type === 'vmess'">
-
-                <div class="info-row">
-
-                  <span class="info-label">{{ $t('nodes.tls') || 'TLS' }}:</span>
-
-                  <span class="info-value">{{ node.tls === 1 ? $t('common.on') : $t('common.off') }}</span>
-
-                </div>
-
-              </template>
-
-            </div>
-
-            
-
-            <!-- 切换到订阅链接页面的按钮 -->
-
-            <div class="page-nav-btn-container">
-
-              <button class="page-nav-btn" @click="switchToPage('subscribe')">
-
-                <IconLink :size="16" />
-
-                {{ $t('nodes.viewSubscribeLink') }}
-
-              </button>
-
-            </div>
-
+        <div class="node-detail-modal-body">
+          <div v-if="machineLoading" class="probe-inline-state">
+            正在同步服务器状态...
           </div>
 
-          
-
-          <!-- 订阅链接页面 -->
-
-          <div v-else-if="currentPage === 'subscribe'" key="subscribe" class="node-detail-modal-body">
-
-            <!-- 快速连接信息切换 -->
-
-            <div class="quick-link-section">
-
-              <div class="section-header">
-
-                <h4>{{ $t('nodes.quickLink') }}</h4>
-
-                <div class="view-toggle">
-
-                  <button 
-
-                    class="toggle-btn" 
-
-                    :class="{ active: viewMode === 'link' }" 
-
-                    @click="viewMode = 'link'"
-
-                  >
-
-                    <IconFileText :size="16" />
-
-                    {{ $t('nodes.linkView') }}
-
-                  </button>
-
-                  <button 
-
-                    class="toggle-btn" 
-
-                    :class="{ active: viewMode === 'qrcode' }" 
-
-                    @click="viewMode = 'qrcode'"
-
-                  >
-
-                    <IconQrcode :size="16" />
-
-                    {{ $t('nodes.qrcodeView') }}
-
-                  </button>
-
-                </div>
-
-              </div>
-
-              
-
-              <!-- 链接视图 -->
-
-              <div v-if="viewMode === 'link'" class="link-card">
-
-                <pre class="link-text">{{ subscribeLink }}</pre>
-
-                <button class="copy-btn" @click="copySubscribeLink">
-
-                  <IconCopy :size="16" />
-
-                  {{ $t('common.copy') }}
-
-                </button>
-
-              </div>
-
-              
-
-              <!-- 二维码视图 -->
-
-              <div v-else-if="viewMode === 'qrcode'" class="qrcode-container">
-
-                <div v-if="qrCodeLoading" class="qrcode-loading">
-
-                  <div class="loader"></div>
-
-                  <p>{{ $t('common.loadingQRCode') }}</p>
-
-                </div>
-
-                <div v-else class="qrcode-wrapper">
-
-                  <img :src="qrCodeUrl" alt="QR Code" @load="qrCodeLoaded" />
-
-                  <button class="copy-btn" @click="copySubscribeLink">
-
-                    <IconCopy :size="16" />
-
-                    {{ $t('common.copy') }}
-
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
-            
-
-            <!-- 返回节点信息页面的按钮 -->
-
-            <div class="page-nav-btn-container">
-
-              <button class="page-nav-btn" @click="switchToPage('info')">
-
-                <IconArrowLeft :size="16" />
-
-                {{ $t('common.back') }}
-
-              </button>
-
-            </div>
-
+          <div v-else-if="machineError" class="probe-inline-state is-error">
+            {{ machineError }}
           </div>
 
-        </transition>
+          <template v-if="machine">
+            <section class="probe-summary">
+              <div class="probe-server-head">
+                <div class="probe-server-name">
+                  <IconServer2 :size="18" />
+                  <span>{{ machine.name || '未命名服务器' }}</span>
+                </div>
+                <span class="probe-status-badge" :class="statusClass">
+                  {{ statusText }}
+                </span>
+              </div>
 
+              <div class="probe-meta-grid">
+                <div class="probe-meta-item">
+                  <span>节点类型</span>
+                  <strong>{{ node.type || '-' }}</strong>
+                </div>
+                <div class="probe-meta-item">
+                  <span>倍率</span>
+                  <strong>{{ rateText }}</strong>
+                </div>
+                <div class="probe-meta-item">
+                  <span>最后心跳</span>
+                  <strong>{{ heartbeatText }}</strong>
+                </div>
+              </div>
+            </section>
+
+            <div class="probe-dashboard-grid">
+              <section class="probe-panel probe-trend-panel">
+                <div class="probe-panel-head">
+                  <div>
+                    <IconChartLine :size="18" />
+                    <h4>负载趋势</h4>
+                  </div>
+                  <span>{{ historyRangeText }}</span>
+                </div>
+
+                <div v-if="hasHistory" ref="chartRef" class="probe-trend-chart"></div>
+                <div v-else class="probe-trend-empty">暂无趋势数据</div>
+              </section>
+
+              <div class="probe-side-stack">
+                <section class="probe-panel probe-metrics">
+                  <div class="probe-panel-head">
+                    <div>
+                      <IconActivity :size="18" />
+                      <h4>负载</h4>
+                    </div>
+                  </div>
+
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconCpu :size="16" />CPU</span>
+                      <strong>{{ percentText(cpuUsage) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(cpuUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconDeviceDesktop :size="16" />内存</span>
+                      <strong>{{ bytePairText(memoryMetric) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(memoryUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-metric-row">
+                    <div class="probe-metric-head">
+                      <span><IconDatabase :size="16" />磁盘</span>
+                      <strong>{{ bytePairText(diskMetric) }}</strong>
+                    </div>
+                    <div class="probe-meter">
+                      <span :style="{ width: meterWidth(diskUsage) }"></span>
+                    </div>
+                  </div>
+
+                  <div class="probe-speed-row">
+                    <div>
+                      <span><IconArrowDown :size="15" />下行</span>
+                      <strong>{{ speedText(netInSpeed) }}</strong>
+                    </div>
+                    <div>
+                      <span><IconArrowUp :size="15" />上行</span>
+                      <strong>{{ speedText(netOutSpeed) }}</strong>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="probe-panel probe-related">
+                  <div class="probe-panel-head">
+                    <div>
+                      <IconAffiliate :size="18" />
+                      <h4>关联节点</h4>
+                    </div>
+                    <span>{{ normalizedRelatedNodes.length }} 个</span>
+                  </div>
+
+                  <div v-if="normalizedRelatedNodes.length > 0" class="probe-related-list">
+                    <div
+                      v-for="item in normalizedRelatedNodes"
+                      :key="item.id"
+                      class="probe-related-node"
+                      :class="{ current: isCurrentNode(item) }"
+                    >
+                      <div class="probe-related-main">
+                        <span class="probe-related-dot" :class="{ online: isNodeOnline(item) }"></span>
+                        <strong>{{ item.name || '未命名节点' }}</strong>
+                      </div>
+                      <div class="probe-related-meta">
+                        <span>{{ item.type || '-' }}</span>
+                        <span>{{ nodeRateText(item) }}</span>
+                        <span v-if="nodeOnlineText(item)">{{ nodeOnlineText(item) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div v-else class="probe-related-empty">暂无关联节点</div>
+                </section>
+              </div>
+            </div>
+
+          </template>
+
+          <section v-else class="probe-empty">
+            <IconAlertCircle :size="36" />
+            <h4>未绑定服务器</h4>
+            <p>后台服务器管理绑定后，这里会显示当前节点所处服务器名称和状态。</p>
+          </section>
+        </div>
       </div>
-
     </div>
-
   </transition>
-
 </template>
 
-
-
 <script setup>
-
-import { ref, computed, watchEffect } from 'vue';
-
-import { useI18n } from 'vue-i18n';
-
-import { 
-
-  IconX, 
-
-  IconCopy, 
-
-  IconQrcode, 
-
-  IconFileText, 
-
-  IconLink, 
-
-  IconArrowLeft 
-
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import {
+  IconActivity,
+  IconAlertCircle,
+  IconAffiliate,
+  IconArrowDown,
+  IconArrowUp,
+  IconChartLine,
+  IconCpu,
+  IconDatabase,
+  IconDeviceDesktop,
+  IconExternalLink,
+  IconServer,
+  IconServer2,
+  IconX
 } from '@tabler/icons-vue';
+import { use, init } from 'echarts/core';
+import { LineChart } from 'echarts/charts';
+import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 
-import { useToast } from '@/composables/useToast';
-
-import QRCode from 'qrcode';
-
-
-
-const { t } = useI18n();
-
-const { showToast } = useToast();
-
-
+use([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
 
 const props = defineProps({
-
   show: {
-
     type: Boolean,
-
     default: false
-
   },
-
   node: {
-
     type: Object,
-
     default: () => ({})
-
   },
-
-  userInfo: {
-
+  machineDetail: {
     type: Object,
-
-    default: () => ({})
-
+    default: null
+  },
+  machineLoading: {
+    type: Boolean,
+    default: false
+  },
+  machineError: {
+    type: String,
+    default: ''
+  },
+  relatedNodes: {
+    type: Array,
+    default: () => []
   }
-
 });
-
-
 
 const emit = defineEmits(['close']);
-
-
-
-const currentPage = ref('info'); 
-const slideDirection = ref('slide-left'); 
-
-
-const switchToPage = (pageName) => {
-
-  if (pageName === 'subscribe') {
-
-    slideDirection.value = 'slide-left'; 
-  } else {
-
-    slideDirection.value = 'slide-right'; 
-  }
-
-  currentPage.value = pageName;
-
-};
-
-
-
-const viewMode = ref('link');
-
-
-
-const qrCodeUrl = ref('');
-
-const qrCodeLoading = ref(false);
-
-
+const chartRef = ref(null);
+let chartInstance = null;
+let chartFrame = null;
 
 const close = () => {
-
   emit('close');
-
-  setTimeout(() => {
-
-    currentPage.value = 'info';
-
-  }, 300);
-
 };
 
-
-
-const safeBase64Encode = (str) => {
-
-  return btoa(
-
-    encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
-
-      return String.fromCharCode(parseInt(p1, 16));
-
-    })
-
-  );
-
+const toNumber = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
 };
 
-
-
-const subscribeLink = computed(() => {
-
-  let nodeType = props.node.type?.toLowerCase();
-
-  
-
-  if (!nodeType || !props.node.host || !props.node.port) {
-
-    return t('nodes.invalidNodeData') || '节点数据不完整，无法生成链接';
-
+const normalizeLoadStatus = (status) => {
+  if (!status) {
+    return {};
   }
 
-  
-
-  if (nodeType === 'shadowsocks') {
-
-    nodeType = 'ss';
-
-  }
-
-  
-
-  const userUuid = props.userInfo?.uuid || '00000000-0000-0000-0000-000000000000';
-
-
-
-  switch (nodeType) {
-    case 'ss': {
-      const cipher = props.node.cipher || 'chacha20-ietf-poly1305';
-      const ssConfig = `${cipher}:${userUuid}@${props.node.host}:${props.node.port}`;
-      const base64Config = safeBase64Encode(ssConfig);
-      return `ss://${base64Config}`;
-    }
-
-    case 'vmess': {
-      const vmessConfig = {
-        v: '2',
-        ps: props.node.name,
-        add: props.node.host,
-        port: props.node.port,
-        id: userUuid,
-        aid: '0',
-        net: props.node.network || 'tcp',
-        type: 'none',
-        host: props.node.host,
-        path: props.node.path || '/',
-        tls: props.node.tls === 1 ? 'tls' : '',
-      };
-      const base64Config = safeBase64Encode(JSON.stringify(vmessConfig));
-      return `vmess://${base64Config}`;
-    }
-
-    case 'vless': {
-      let vlessUrl = `vless://${userUuid}@${props.node.host}:${props.node.port}`;
-      if (props.node.flow) {
-        vlessUrl += `&flow=${encodeURIComponent(props.node.flow)}`;
-      }
-      const networkType = props.node.network || 'tcp';
-      vlessUrl += `&type=${encodeURIComponent(networkType)}`;
-      vlessUrl += `&headerType=none`;
-      if (props.node.tls) {
-        const security = props.node.tls === 2 ? 'reality' : 'tls';
-        vlessUrl += `&security=${security}`;
-        if (props.node.tls === 2 && props.node.tls_settings) {
-          if (props.node.tls_settings.server_name) {
-            vlessUrl += `&sni=${encodeURIComponent(props.node.tls_settings.server_name)}`;
-          }
-          vlessUrl += `&fp=${encodeURIComponent(props.node.tls_settings?.fingerprint || 'chrome')}`;
-          if (props.node.tls_settings.public_key) {
-            vlessUrl += `&pbk=${encodeURIComponent(props.node.tls_settings.public_key)}`;
-          }
-          if (props.node.tls_settings.short_id) {
-            vlessUrl += `&sid=${encodeURIComponent(props.node.tls_settings.short_id)}`;
-          }
-          if (props.node.tls_settings.server_port && props.node.tls_settings.server_port !== props.node.port.toString()) {
-            vlessUrl += `&port=${encodeURIComponent(props.node.tls_settings.server_port)}`;
-          }
-          if (props.node.tls_settings.allow_insecure === '1') {
-            vlessUrl += `&allowInsecure=1`;
-          }
-        }
-      }
-      if (props.node.path) {
-        vlessUrl += `&path=${encodeURIComponent(props.node.path)}`;
-      }
-      vlessUrl += `#${encodeURIComponent(props.node.name)}`;
-      return vlessUrl;
-    }
-
-    case 'trojan': {
-      let trojanUrl = `trojan://${userUuid}@${props.node.host}:${props.node.port}`;
-      if (props.node.allow_insecure) {
-        trojanUrl += '?allowInsecure=1';
-      }
-      trojanUrl += `#${encodeURIComponent(props.node.name)}`;
-      return trojanUrl;
-    }
-
-    case 'hysteria': {
-      let hysteria2Url = `hysteria2://${userUuid}@${props.node.host}:${props.node.port}`;
-      const queryParams = [];
-      if (props.node.sni) {
-        queryParams.push(`sni=${encodeURIComponent(props.node.sni)}`);
-      }
-      queryParams.push(`insecure=${props.node.allow_insecure ? '1' : '0'}`);
-      if (queryParams.length > 0) {
-        hysteria2Url += `?${queryParams.join('&')}`;
-      }
-      hysteria2Url += `#${encodeURIComponent(props.node.name)}`;
-      return hysteria2Url;
-    }
-
-    default:
-      return t('nodes.unsupportedNodeType') || '不支持的类型';
-  }
-
-});
-
-
-
-const updateQrCode = () => {
-
-  if (subscribeLink.value) {
-
-    qrCodeLoading.value = true;
-
+  if (typeof status === 'string') {
     try {
-
-      QRCode.toDataURL(subscribeLink.value, {
-
-        width: 200,
-
-        margin: 2,
-
-        color: {
-
-          dark: '#000000',
-
-          light: '#ffffff'
-
-        }
-
-      })
-
-      .then(url => {
-
-        qrCodeUrl.value = url;
-
-        qrCodeLoading.value = false;
-
-      })
-
-      .catch(err => {
-
-        console.error('二维码生成失败:', err);
-
-        qrCodeLoading.value = false;
-
-        showToast(t('common.qrCodeGenerationFailed') || '二维码生成失败', 'error');
-
-      });
-
+      return JSON.parse(status) || {};
     } catch (error) {
+      return {};
+    }
+  }
 
-      console.error('生成二维码失败:', error);
+  return status;
+};
 
-      qrCodeLoading.value = false;
+const machine = computed(() => {
+  if (props.machineDetail && Object.prototype.hasOwnProperty.call(props.machineDetail, 'machine')) {
+    return props.machineDetail.machine;
+  }
 
-      showToast(t('common.qrCodeGenerationFailed') || '二维码生成失败', 'error');
+  return props.node?.machine || null;
+});
+const loadStatus = computed(() => normalizeLoadStatus(machine.value?.load_status));
+const historyRows = computed(() => {
+  const rows = props.machineDetail?.history;
 
+  if (!Array.isArray(rows)) {
+    return [];
+  }
+
+  return rows
+    .map(row => ({
+      recordedAt: toNumber(row.recorded_at),
+      cpu: toNumber(row.cpu) ?? 0,
+      memory: ratio({
+        used: toNumber(row.mem_used) ?? 0,
+        total: toNumber(row.mem_total) ?? 0
+      }),
+      disk: ratio({
+        used: toNumber(row.disk_used) ?? 0,
+        total: toNumber(row.disk_total) ?? 0
+      }),
+      netIn: toNumber(row.net_in_speed) ?? 0,
+      netOut: toNumber(row.net_out_speed) ?? 0
+    }))
+    .filter(row => row.recordedAt)
+    .sort((a, b) => a.recordedAt - b.recordedAt);
+});
+const hasHistory = computed(() => historyRows.value.length > 1);
+
+const lastSeenAt = computed(() => toNumber(machine.value?.last_seen_at));
+const isMachineActive = computed(() => machine.value?.is_active === true || machine.value?.is_active === 1);
+
+const isOnline = computed(() => {
+  if (!isMachineActive.value || !lastSeenAt.value) {
+    return false;
+  }
+
+  return Math.floor(Date.now() / 1000) - lastSeenAt.value <= 300;
+});
+
+const statusText = computed(() => {
+  if (!isMachineActive.value) {
+    return '已停用';
+  }
+
+  return isOnline.value ? '在线' : '离线';
+});
+
+const statusClass = computed(() => ({
+  online: isOnline.value,
+  offline: !isOnline.value
+}));
+
+const heartbeatText = computed(() => {
+  if (!lastSeenAt.value) {
+    return '-';
+  }
+
+  const diff = Math.max(0, Math.floor(Date.now() / 1000) - lastSeenAt.value);
+
+  if (diff < 60) {
+    return `${diff || 1}秒前`;
+  }
+
+  if (diff < 3600) {
+    return `${Math.floor(diff / 60)}分钟前`;
+  }
+
+  if (diff < 86400) {
+    return `${Math.floor(diff / 3600)}小时前`;
+  }
+
+  return `${Math.floor(diff / 86400)}天前`;
+});
+
+const rateText = computed(() => {
+  if (props.node?.rate === undefined || props.node?.rate === null || props.node?.rate === '') {
+    return '-';
+  }
+
+  return `x${props.node.rate}`;
+});
+
+const cpuUsage = computed(() => toNumber(loadStatus.value?.cpu) ?? 0);
+
+const memoryMetric = computed(() => ({
+  used: toNumber(loadStatus.value?.mem?.used) ?? 0,
+  total: toNumber(loadStatus.value?.mem?.total) ?? 0
+}));
+
+const diskMetric = computed(() => ({
+  used: toNumber(loadStatus.value?.disk?.used) ?? 0,
+  total: toNumber(loadStatus.value?.disk?.total) ?? 0
+}));
+
+const memoryUsage = computed(() => ratio(memoryMetric.value));
+const diskUsage = computed(() => ratio(diskMetric.value));
+const netInSpeed = computed(() => toNumber(loadStatus.value?.net?.in_speed) ?? 0);
+const netOutSpeed = computed(() => toNumber(loadStatus.value?.net?.out_speed) ?? 0);
+const normalizedRelatedNodes = computed(() => {
+  const nodes = Array.isArray(props.relatedNodes) ? props.relatedNodes : [];
+  const fallback = props.node ? [props.node] : [];
+  const source = nodes.length > 0 ? nodes : fallback;
+  const seen = new Set();
+
+  return source.filter((item) => {
+    if (!item?.id || seen.has(item.id)) {
+      return false;
     }
 
+    seen.add(item.id);
+    return true;
+  });
+});
+
+const historyRangeText = computed(() => {
+  if (!hasHistory.value) {
+    return '24h';
   }
 
+  const first = historyRows.value[0]?.recordedAt;
+  const last = historyRows.value[historyRows.value.length - 1]?.recordedAt;
+
+  if (!first || !last || last <= first) {
+    return '24h';
+  }
+
+  const hours = Math.max(1, Math.round((last - first) / 3600));
+  return `${hours}h`;
+});
+
+const chartColors = {
+  cpu: '#111827',
+  memory: '#f59e0b',
+  disk: '#ef4444',
+  netIn: '#10b981',
+  netOut: '#3b82f6'
 };
 
+function ratio(metric) {
+  if (!metric.total) {
+    return 0;
+  }
 
+  return (metric.used / metric.total) * 100;
+}
 
-const qrCodeLoaded = () => {
+function percentText(value) {
+  return `${Math.max(0, value).toFixed(value >= 10 ? 0 : 1)}%`;
+}
 
-  qrCodeLoading.value = false;
+function meterWidth(value) {
+  const width = Math.max(0, Math.min(100, value));
+  return `${width}%`;
+}
 
-};
+function formatBytes(value) {
+  const number = Math.max(0, Number(value) || 0);
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = number;
+  let unitIndex = 0;
 
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
 
+  const decimals = size >= 10 || unitIndex === 0 ? 0 : 1;
+  return `${size.toFixed(decimals)} ${units[unitIndex]}`;
+}
 
-const copySubscribeLink = () => {
+function bytePairText(metric) {
+  if (!metric.total) {
+    return '-';
+  }
 
-  navigator.clipboard.writeText(subscribeLink.value)
+  return `${formatBytes(metric.used)} / ${formatBytes(metric.total)}`;
+}
 
-    .then(() => {
+function speedText(value) {
+  return `${formatBytes(value)}/s`;
+}
 
-      showToast(t('common.copied') || '已复制到剪贴板', 'success');
+function chartTimeText(value) {
+  if (!value) {
+    return '-';
+  }
 
-    })
+  const date = new Date(value * 1000);
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
 
-    .catch(err => {
+function chartPercent(value) {
+  return Math.max(0, value).toFixed(value >= 10 ? 0 : 1);
+}
 
-      console.error('无法复制链接: ', err);
+function formatSpeedAxis(value) {
+  if (!value) {
+    return '0';
+  }
 
-      
+  return formatBytes(value).replace(' ', '');
+}
 
-      try {
+function isCurrentNode(item) {
+  return Number(item?.id) === Number(props.node?.id);
+}
 
-        const textarea = document.createElement('textarea');
+function isNodeOnline(item) {
+  return item?.is_online === true || item?.is_online === 1;
+}
 
-        textarea.value = subscribeLink.value;
+function nodeRateText(item) {
+  if (item?.rate === undefined || item?.rate === null || item?.rate === '') {
+    return 'x-';
+  }
 
-        textarea.style.position = 'fixed';
+  return `x${item.rate}`;
+}
 
-        document.body.appendChild(textarea);
+function nodeOnlineText(item) {
+  const value = toNumber(item?.online);
 
-        textarea.focus();
+  if (value === null) {
+    return '';
+  }
 
-        textarea.select();
+  return `${Math.floor(Math.max(0, value))} 在线`;
+}
 
-        const successful = document.execCommand('copy');
+function disposeChart() {
+  if (chartFrame) {
+    cancelAnimationFrame(chartFrame);
+    chartFrame = null;
+  }
 
-        document.body.removeChild(textarea);
+  if (chartInstance) {
+    chartInstance.dispose();
+    chartInstance = null;
+  }
+}
 
-        
+function scheduleChart() {
+  if (!hasHistory.value) {
+    disposeChart();
+    return;
+  }
 
-        if (successful) {
+  if (chartFrame) {
+    cancelAnimationFrame(chartFrame);
+  }
 
-          showToast(t('common.copied') || '已复制到剪贴板', 'success');
+  chartFrame = requestAnimationFrame(() => {
+    chartFrame = null;
+    renderChart();
+  });
+}
 
-        } else {
+function renderChart() {
+  if (!chartRef.value || !hasHistory.value) {
+    return;
+  }
 
-          showToast(t('common.copyFailed') || '复制失败', 'error');
+  const { width, height } = chartRef.value.getBoundingClientRect();
 
-        }
+  if (width <= 0 || height <= 0) {
+    return;
+  }
 
-      } catch (fallbackErr) {
+  if (!chartInstance) {
+    chartInstance = init(chartRef.value);
+  }
 
-        console.error('后备复制方法也失败:', fallbackErr);
+  const overlay = chartRef.value.closest('.node-detail-modal-overlay');
+  const overlayStyle = overlay ? getComputedStyle(overlay) : null;
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#111827';
+  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
+  const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0';
+  const tooltipBackground = overlayStyle?.getPropertyValue('--node-modal-surface').trim() || '#ffffff';
+  const times = historyRows.value.map(row => chartTimeText(row.recordedAt));
 
-        showToast(t('common.copyFailed') || '复制失败', 'error');
-
+  chartInstance.setOption({
+    animation: false,
+    color: [textColor, chartColors.memory, chartColors.disk, chartColors.netIn, chartColors.netOut],
+    tooltip: {
+      trigger: 'axis',
+      confine: true,
+      backgroundColor: tooltipBackground,
+      borderColor,
+      textStyle: {
+        color: textColor,
+        fontSize: 12
+      },
+      formatter(params) {
+        const rows = [`${params[0]?.axisValue || ''}`];
+        params.forEach((item) => {
+          const unit = item.seriesName.includes('网速') ? '/s' : '%';
+          const value = item.seriesName.includes('网速') ? speedText(item.data) : `${chartPercent(item.data)}%`;
+          rows.push(`${item.marker} ${item.seriesName}: ${unit === '/s' ? value : value}`);
+        });
+        return rows.join('<br/>');
       }
+    },
+    legend: {
+      top: 0,
+      left: 0,
+      itemWidth: 8,
+      itemHeight: 8,
+      textStyle: {
+        color: mutedColor,
+        fontSize: 12
+      },
+      data: ['CPU', '内存', '磁盘', '下行网速', '上行网速']
+    },
+    grid: {
+      top: 40,
+      left: 34,
+      right: 44,
+      bottom: 26,
+      containLabel: false
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: times,
+      axisTick: {
+        show: false
+      },
+      axisLabel: {
+        color: mutedColor,
+        fontSize: 11,
+        hideOverlap: true
+      },
+      axisLine: {
+        lineStyle: {
+          color: borderColor
+        }
+      }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        min: 0,
+        max: 100,
+        axisLabel: {
+          formatter: '{value}%',
+          color: mutedColor,
+          fontSize: 11
+        },
+        splitLine: {
+          lineStyle: {
+            color: borderColor,
+            type: 'dashed'
+          }
+        }
+      },
+      {
+        type: 'value',
+        min: 0,
+        axisLabel: {
+          formatter: value => formatSpeedAxis(value),
+          color: mutedColor,
+          fontSize: 11
+        },
+        splitLine: {
+          show: false
+        }
+      }
+    ],
+    series: [
+      {
+        name: 'CPU',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.cpu)
+      },
+      {
+        name: '内存',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        areaStyle: { opacity: 0.08 },
+        data: historyRows.value.map(row => row.memory)
+      },
+      {
+        name: '磁盘',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.disk)
+      },
+      {
+        name: '下行网速',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        yAxisIndex: 1,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.netIn)
+      },
+      {
+        name: '上行网速',
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        yAxisIndex: 1,
+        lineStyle: { width: 2 },
+        data: historyRows.value.map(row => row.netOut)
+      }
+    ]
+  }, true);
+}
 
-    });
-
-};
-
-
-
-watchEffect(() => {
-
-  if (viewMode.value === 'qrcode' && props.show && currentPage.value === 'subscribe') {
-
-    updateQrCode();
-
+function handleResize() {
+  if (chartInstance) {
+    chartInstance.resize();
   }
+}
 
+watch(
+  () => [props.show, props.machineDetail],
+  () => {
+    if (!props.show) {
+      disposeChart();
+      return;
+    }
+
+    nextTick(scheduleChart);
+  },
+  { deep: true, immediate: true }
+);
+
+watch(hasHistory, () => {
+  if (props.show) {
+    nextTick(scheduleChart);
+  }
 });
 
+window.addEventListener('resize', handleResize);
 
-
-watchEffect(() => {
-
-  if (props.show && viewMode.value === 'qrcode' && currentPage.value === 'subscribe') {
-
-    updateQrCode();
-
-  }
-
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize);
+  disposeChart();
 });
-
-
-
-watchEffect(() => {
-
-  if (currentPage.value === 'subscribe' && viewMode.value === 'qrcode' && props.show) {
-
-    updateQrCode();
-
-  }
-
-});
-
 </script>
 
-
-
-<style lang="scss" scoped>
-
-.fade-enter-active, .fade-leave-active {
-
+<style scoped lang="scss">
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
-
 }
 
-
-
-.fade-enter-from, .fade-leave-to {
-
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-
 }
-
-
-
-
-
-.slide-left-enter-active,
-
-.slide-left-leave-active,
-
-.slide-right-enter-active,
-
-.slide-right-leave-active {
-
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
-}
-
-
-
-.slide-left-enter-from {
-
-  transform: translateX(100%);
-
-  opacity: 0;
-
-}
-
-
-
-.slide-left-leave-to {
-
-  transform: translateX(-100%);
-
-  opacity: 0;
-
-}
-
-
-
-.slide-right-enter-from {
-
-  transform: translateX(-100%);
-
-  opacity: 0;
-
-}
-
-
-
-.slide-right-leave-to {
-
-  transform: translateX(100%);
-
-  opacity: 0;
-
-}
-
-
 
 .node-detail-modal-overlay {
+  --node-modal-surface: #ffffff;
+  --node-modal-header-surface: #ffffff;
+  --node-modal-soft-surface: #f4f7fb;
+  --node-modal-hover-surface: #eaf0f8;
+  --node-modal-border: rgba(var(--theme-color-rgb), 0.2);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 10px 26px rgba(31, 28, 22, 0.08);
+  --node-modal-overlay: rgba(0, 0, 0, 0.5);
 
   position: fixed;
-
   top: 0;
-
   left: 0;
-
   width: 100%;
-
   height: 100%;
-
-  background-color: rgba(0, 0, 0, 0.5);
-
+  background-color: var(--node-modal-overlay);
   z-index: 1000;
-
   display: flex;
-
-  align-items: center;
-
+  align-items: flex-start;
   justify-content: center;
-
-  padding: 20px;
-
+  padding: 86px 20px 20px;
   box-sizing: border-box;
-
-  backdrop-filter: blur(4px);
-
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-
+:global(body.dark-theme .node-detail-modal-overlay) {
+  --node-modal-surface: #1f2937;
+  --node-modal-header-surface: #1f2937;
+  --node-modal-soft-surface: #263244;
+  --node-modal-hover-surface: #2c394c;
+  --node-modal-border: rgba(var(--theme-color-rgb), 0.24);
+  --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 30px rgba(0, 0, 0, 0.16);
+  --node-modal-overlay: rgba(0, 0, 0, 0.55);
+}
 
 .node-detail-modal-container {
-
   width: 100%;
-
-  max-width: 500px;
-
-  background-color: rgba(var(--card-background-rgb, 255, 255, 255), 1);
-
+  max-width: 980px;
+  background: var(--node-modal-surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-radius: 16px;
-
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-
-  border: 1px solid var(--border-color);
-
+  box-shadow: var(--node-modal-shadow);
+  border: 1px solid var(--node-modal-border);
   overflow: hidden;
-
   display: flex;
-
   flex-direction: column;
-
-  max-height: min(85vh, 600px); 
-
+  max-height: min(88vh, 760px);
   animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-
-  
-
-  @keyframes modal-in {
-
-    from {
-
-      opacity: 0;
-
-      transform: translateY(40px) scale(0.95);
-
-    }
-
-    to {
-
-      opacity: 1;
-
-      transform: translateY(0) scale(1);
-
-    }
-
-  }
-
 }
 
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 .node-detail-modal-header {
-
-  padding: 16px 20px;
-
+  padding: 18px 20px;
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
-  border-bottom: 1px solid var(--border-color);
-
-  background-color: rgba(var(--theme-color-rgb), 0.03);
-
-  flex-shrink: 0; 
-
-  
-
-  .modal-title {
-
-    margin: 0;
-
-    font-size: 18px;
-
-    font-weight: 600;
-
-    color: var(--text-color);
-
-  }
-
-  
-
-  .modal-close-btn {
-
-    background: none;
-
-    border: none;
-
-    cursor: pointer;
-
-    color: var(--text-muted);
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 8px;
-
-    margin: -8px;
-
-    border-radius: 50%;
-
-    transition: all 0.3s ease;
-
-    
-
-    &:hover {
-
-      background-color: rgba(0, 0, 0, 0.05);
-
-      color: var(--text-color);
-
-      transform: rotate(90deg);
-
-    }
-
-  }
-
+  border-bottom: 1px solid var(--node-modal-border);
+  background: var(--node-modal-header-surface);
+  flex-shrink: 0;
 }
 
-
-
-.node-detail-modal-body {
-
-  padding: 20px;
-
-  overflow-y: auto; 
-
+.modal-title-group {
   display: flex;
-
-  flex-direction: column;
-
-  gap: 24px;
-
-  flex-grow: 1; 
-
-  -webkit-overflow-scrolling: touch; 
-
-  height: 100%; 
-
-}
-
-
-
-.node-info-section {
-
-  display: flex;
-
-  flex-direction: column;
-
+  align-items: center;
   gap: 12px;
-
-  
-
-  .info-row {
-
-    display: flex;
-
-    align-items: center;
-
-    padding: 8px 0;
-
-    border-bottom: 1px solid var(--border-color);
-
-    
-
-    &:last-child {
-
-      border-bottom: none;
-
-    }
-
-    
-
-    .info-label {
-
-      font-weight: 500;
-
-      color: var(--text-muted);
-
-      flex: 0 0 40%; 
-
-    }
-
-    
-
-    .info-value {
-
-      color: var(--text-color);
-
-      font-weight: 500;
-
-      flex: 1; 
-
-      text-align: right; 
-
-      word-break: break-word; 
-
-      
-
-      &.high-rate {
-
-        color: #ff6b6b;
-
-      }
-
-    }
-
-  }
-
+  min-width: 0;
 }
 
-
-
-.quick-link-section {
-
-  .section-header {
-
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 12px;
-
-    
-
-    h4 {
-
-      margin: 0;
-
-      font-size: 16px;
-
-      color: var(--text-color);
-
-    }
-
-    
-
-    .view-toggle {
-
-      display: flex;
-
-      gap: 8px;
-
-      
-
-      .toggle-btn {
-
-        display: flex;
-
-        align-items: center;
-
-        gap: 4px;
-
-        padding: 6px 10px;
-
-        background-color: rgba(var(--theme-color-rgb), 0.05);
-
-        border: 1px solid rgba(var(--theme-color-rgb), 0.1);
-
-        border-radius: 4px;
-
-        color: var(--text-muted);
-
-        font-size: 12px;
-
-        cursor: pointer;
-
-        transition: all 0.2s ease;
-
-        
-
-        &:hover {
-
-          background-color: rgba(var(--theme-color-rgb), 0.1);
-
-          color: var(--theme-color);
-
-        }
-
-        
-
-        &.active {
-
-          background-color: rgba(var(--theme-color-rgb), 0.15);
-
-          color: var(--theme-color);
-
-          border-color: rgba(var(--theme-color-rgb), 0.3);
-
-        }
-
-      }
-
-    }
-
-  }
-
-  
-
-  .link-card {
-
-    background-color: rgba(var(--theme-color-rgb), 0.05);
-
-    border-radius: 8px;
-
-    padding: 12px;
-
-    position: relative;
-
-    
-
-    .link-text {
-
-      margin: 0;
-
-      font-family: monospace; 
-
-      font-size: 13px;
-
-      overflow-x: hidden;
-
-      overflow-y: auto; 
-
-      text-overflow: ellipsis;
-
-      white-space: pre-wrap;
-
-      word-break: break-all;
-
-      color: var(--text-color);
-
-      margin-bottom: 36px; 
-
-      max-height: 200px; 
-
-      padding-bottom: 8px; 
-
-    }
-
-    
-
-    .copy-btn {
-
-      position: absolute;
-
-      bottom: 12px;
-
-      right: 12px;
-
-      background-color: rgba(var(--theme-color-rgb), 0.1);
-
-      color: var(--theme-color);
-
-      border: none;
-
-      border-radius: 6px;
-
-      padding: 8px 12px;
-
-      font-size: 13px;
-
-      cursor: pointer;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 4px;
-
-      transition: all 0.2s ease;
-
-      
-
-      &:hover {
-
-        background-color: rgba(var(--theme-color-rgb), 0.2);
-
-      }
-
-    }
-
-  }
-
-  
-
-  .qrcode-container {
-
-    background-color: rgba(var(--theme-color-rgb), 0.05);
-
-    border-radius: 8px;
-
-    padding: 16px;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    min-height: 240px;
-
-    
-
-    .qrcode-loading {
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      justify-content: center;
-
-      gap: 16px;
-
-      
-
-      .loader {
-
-        width: 40px;
-
-        height: 40px;
-
-        border: 3px solid rgba(var(--theme-color-rgb), 0.3);
-
-        border-radius: 50%;
-
-        border-top-color: var(--theme-color);
-
-        animation: spin 1s linear infinite;
-
-      }
-
-      
-
-      p {
-
-        color: var(--text-muted);
-
-        font-size: 14px;
-
-        margin: 0;
-
-      }
-
-    }
-
-    
-
-    .qrcode-wrapper {
-
-      position: relative;
-
-      display: flex;
-
-      flex-direction: column;
-
-      align-items: center;
-
-      gap: 12px;
-
-      
-
-      img {
-
-        width: 200px;
-
-        height: 200px;
-
-        border-radius: 8px;
-
-        background-color: white;
-
-        padding: 8px;
-
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-
-      }
-
-      
-
-      .copy-btn {
-
-        background-color: rgba(var(--theme-color-rgb), 0.1);
-
-        color: var(--theme-color);
-
-        border: none;
-
-        border-radius: 4px;
-
-        padding: 6px 10px;
-
-        font-size: 12px;
-
-        cursor: pointer;
-
-        display: flex;
-
-        align-items: center;
-
-        gap: 4px;
-
-        transition: all 0.2s ease;
-
-        width: auto;
-
-        
-
-        &:hover {
-
-          background-color: rgba(var(--theme-color-rgb), 0.2);
-
-        }
-
-      }
-
-    }
-
-  }
-
-  
-
-  @keyframes spin {
-
-    to { transform: rotate(360deg); }
-
-  }
-
-}
-
-
-
-
-
-.page-nav-btn-container {
-
-  display: flex;
-
-  justify-content: center;
-
-  margin-top: auto; 
-
-  padding-top: 16px;
-
-}
-
-
-
-.page-nav-btn {
-
-  background-color: rgba(var(--theme-color-rgb), 0.1);
-
-  color: var(--theme-color);
-
-  border: 1px solid rgba(var(--theme-color-rgb), 0.2);
-
-  border-radius: 8px;
-
-  padding: 10px 16px;
-
-  font-size: 14px;
-
-  font-weight: 500;
-
-  cursor: pointer;
-
-  display: flex;
-
+.modal-title-icon {
+  display: inline-flex;
   align-items: center;
-
   justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--theme-color);
+  background-color: rgba(var(--theme-color-rgb), 0.1);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+  border-radius: 9px;
+  flex: 0 0 auto;
+}
 
-  gap: 8px;
+.modal-title-copy {
+  min-width: 0;
+}
 
-  transition: all 0.2s ease;
+.modal-title {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  width: 100%;
+.modal-subtitle {
+  margin: 3px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
 
-  max-width: 240px;
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 12px;
+  flex: 0 0 auto;
+}
 
-  
+.modal-probe-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px 0 12px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
+  border-radius: 9px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.28)),
+    rgba(var(--theme-color-rgb), 0.08);
+  color: rgb(var(--theme-color-rgb));
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 8px 18px rgba(31, 28, 22, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+
+  svg {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    padding: 3px;
+    margin-left: -2px;
+    border-radius: 6px;
+    background-color: rgba(var(--theme-color-rgb), 0.12);
+    box-sizing: content-box;
+  }
 
   &:hover {
-
-    background-color: rgba(var(--theme-color-rgb), 0.2);
-
-    transform: translateY(-2px);
-
+    border-color: rgba(var(--theme-color-rgb), 0.34);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34)),
+      rgba(var(--theme-color-rgb), 0.12);
+    box-shadow:
+      0 10px 22px rgba(var(--theme-color-rgb), 0.11),
+      inset 0 1px 0 rgba(255, 255, 255, 0.64);
+    transform: translateY(-1px);
   }
-
-  
-
-  &:active {
-
-    transform: translateY(0);
-
-  }
-
 }
 
+body.dark-theme .modal-probe-link {
+  border-color: rgba(var(--theme-color-rgb), 0.26);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
+    rgba(var(--theme-color-rgb), 0.16);
+  color: rgba(232, 240, 255, 0.94);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
 
+body.dark-theme .modal-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
+    rgba(var(--theme-color-rgb), 0.2);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
 
-@media (max-width: 480px) {
+.modal-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 9px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  flex: 0 0 auto;
 
-  .node-detail-modal-overlay {
+  &:hover {
+    background-color: var(--node-modal-hover-surface);
+    color: var(--text-color);
+  }
+}
 
-    padding: 10px; 
+.node-detail-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex-grow: 1;
+  -webkit-overflow-scrolling: touch;
+}
 
-    align-items: center; 
+.probe-summary,
+.probe-panel,
+.probe-empty {
+  border: 1px solid var(--node-modal-border);
+  border-radius: 12px;
+  background-color: var(--node-modal-soft-surface);
+}
 
+.probe-summary {
+  padding: 16px;
+}
+
+.probe-inline-state {
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.18);
+  border-radius: 9px;
+  background-color: rgba(var(--theme-color-rgb), 0.08);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.probe-inline-state.is-error {
+  border-color: rgba(194, 65, 12, 0.22);
+  background-color: rgba(194, 65, 12, 0.08);
+  color: #c2410c;
+}
+
+:global(body.dark-theme) .probe-inline-state.is-error {
+  border-color: rgba(253, 186, 116, 0.24);
+  background-color: rgba(249, 115, 22, 0.1);
+  color: #fdba74;
+}
+
+.probe-server-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.probe-server-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--text-color);
+  font-size: 17px;
+  font-weight: 700;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.probe-status-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+
+  &.online {
+    color: #16843a;
+    border: 1px solid rgba(22, 132, 58, 0.22);
+    background-color: rgba(22, 132, 58, 0.11);
   }
 
-  
+  &.offline {
+    color: #c2410c;
+    border: 1px solid rgba(194, 65, 12, 0.24);
+    background-color: rgba(194, 65, 12, 0.1);
+  }
+}
+
+:global(body.dark-theme) .probe-status-badge.online {
+  color: #86efac;
+  border-color: rgba(134, 239, 172, 0.24);
+  background-color: rgba(34, 197, 94, 0.12);
+}
+
+:global(body.dark-theme) .probe-status-badge.offline {
+  color: #fdba74;
+  border-color: rgba(253, 186, 116, 0.24);
+  background-color: rgba(249, 115, 22, 0.12);
+}
+
+.probe-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.probe-meta-item {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--node-modal-border);
+  border-radius: 9px;
+  background-color: var(--node-modal-surface);
+
+  span {
+    display: block;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  strong {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.probe-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.probe-side-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.probe-panel {
+  padding: 16px;
+  min-width: 0;
+}
+
+.probe-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--text-color);
+  }
+
+  svg {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.25;
+    color: var(--text-color);
+  }
+
+  > span {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-size: 13px;
+    line-height: 1;
+  }
+}
+
+.probe-trend-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+}
+
+.probe-trend-chart {
+  width: 100%;
+  min-height: 300px;
+  flex: 1 1 auto;
+}
+
+.probe-trend-empty,
+.probe-related-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  border: 1px dashed var(--node-modal-border);
+  border-radius: 9px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.probe-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.probe-metric-row {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.probe-metric-head,
+.probe-speed-row > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-color);
+}
+
+.probe-metric-head span,
+.probe-speed-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.probe-metric-head strong,
+.probe-speed-row strong {
+  color: var(--text-color);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.probe-meter {
+  height: 8px;
+  border-radius: 999px;
+  background-color: rgba(148, 163, 184, 0.24);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+    border-radius: inherit;
+    background-color: var(--theme-color);
+  }
+}
+
+.probe-speed-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 2px;
+
+  > div {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--node-modal-border);
+    border-radius: 9px;
+    background-color: var(--node-modal-surface);
+  }
+}
+
+.probe-related {
+  flex: 1 1 auto;
+}
+
+.probe-related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 210px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.probe-related-node {
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--node-modal-border);
+  border-radius: 9px;
+  background-color: var(--node-modal-surface);
+
+  &.current {
+    border-color: rgba(var(--theme-color-rgb), 0.32);
+    background-color: rgba(var(--theme-color-rgb), 0.08);
+  }
+}
+
+.probe-related-main,
+.probe-related-meta {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.probe-related-main {
+  gap: 8px;
+
+  strong {
+    min-width: 0;
+    color: var(--text-color);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.probe-related-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: rgba(148, 163, 184, 0.7);
+  flex: 0 0 auto;
+
+  &.online {
+    background-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+  }
+}
+
+.probe-related-meta {
+  gap: 8px;
+  margin-top: 8px;
+  padding-left: 16px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.2;
+
+  span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    + span::before {
+      content: "";
+      display: inline-block;
+      width: 3px;
+      height: 3px;
+      margin: 0 8px 2px 0;
+      border-radius: 999px;
+      background-color: currentColor;
+      opacity: 0.45;
+    }
+  }
+}
+
+.probe-empty {
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--text-muted);
+
+  svg {
+    color: var(--theme-color);
+    margin-bottom: 12px;
+  }
+
+  h4 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 10px auto 0;
+    max-width: 340px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 820px) {
+  .node-detail-modal-overlay {
+    align-items: center;
+    padding: 20px;
+  }
 
   .node-detail-modal-container {
-
-    margin: 0; 
-
-    max-height: calc(90vh - 80px); 
-
-    height: auto; 
-
+    max-width: 620px;
   }
 
-  
-
-  .node-detail-modal-body {
-
-    padding: 16px; 
-
-    gap: 16px; 
-
+  .probe-dashboard-grid {
+    grid-template-columns: 1fr;
   }
 
-  
-
-  .node-info-section .info-row {
-
-    
-
-    display: flex;
-
-    flex-direction: row; 
-
-    justify-content: space-between; 
-
-    
-
-    .info-label {
-
-      font-size: 14px;
-
-      flex: 0 0 40%; 
-
-    }
-
-    
-
-    .info-value {
-
-      font-size: 14px;
-
-      flex: 1; 
-
-      text-align: right; 
-
-    }
-
+  .probe-trend-panel {
+    min-height: 320px;
   }
 
-  
-
-  .quick-link-section {
-
-    .section-header {
-
-      flex-direction: column;
-
-      align-items: flex-start;
-
-      gap: 10px;
-
-      
-
-      .view-toggle {
-
-        width: 100%;
-
-        
-
-        .toggle-btn {
-
-          flex: 1;
-
-          justify-content: center;
-
-        }
-
-      }
-
-    }
-
-    
-
-    .link-card {
-
-      .link-text {
-
-        font-size: 12px; 
-
-        margin-bottom: 40px; 
-
-      }
-
-    }
-
+  .probe-trend-chart {
+    min-height: 260px;
   }
-
-  
-
-  .page-nav-btn {
-
-    padding: 10px 16px; 
-
-  }
-
 }
 
-</style> 
+@media (max-width: 480px) {
+  .node-detail-modal-overlay {
+    padding: 10px;
+    align-items: center;
+  }
+
+  .node-detail-modal-container {
+    margin: 0;
+    max-height: calc(92vh - 40px);
+  }
+
+  .node-detail-modal-header,
+  .node-detail-modal-body {
+    padding: 16px;
+  }
+
+  .modal-probe-link {
+    width: 36px;
+    padding: 0;
+
+    svg {
+      margin: 0;
+    }
+  }
+
+  .modal-probe-link {
+    font-size: 0;
+  }
+
+  .probe-meta-grid,
+  .probe-speed-row {
+    grid-template-columns: 1fr;
+  }
+
+  .probe-trend-panel {
+    min-height: 280px;
+  }
+
+  .probe-trend-chart {
+    min-height: 220px;
+  }
+
+  .probe-server-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .probe-status-badge {
+    align-self: flex-start;
+  }
+}
+</style>

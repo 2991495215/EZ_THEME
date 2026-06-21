@@ -60,6 +60,24 @@
 
       <div v-else-if="nodes.length > 0" class="nodes-content">
 
+        <div class="node-summary-bar" aria-live="polite">
+          <span v-if="hasOnlineCount" class="node-summary-tag">
+            <IconUsers :size="16" />
+            当前在线账号
+            <span class="node-summary-count">{{ currentOnlineCount }}</span>
+          </span>
+          <a
+            class="node-probe-link"
+            href="https://k.trent30.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="打开探针"
+          >
+            <IconExternalLink :size="16" />
+            前往探针
+          </a>
+        </div>
+
         <div class="node-items">
 
           <div v-for="node in nodes" :key="node.id" class="node-item">
@@ -81,7 +99,7 @@
               </div>
 
               <div v-if="showNodeRate && allowViewNodeInfo" class="node-actions">
-                <button class="more-btn" @click="openNodeDetail(node)" aria-label="查看节点详情">
+                <button class="more-btn" @click="openNodeDetail(node)" aria-label="查看服务器状态">
                   <IconDotsVertical :size="18" />
                 </button>
               </div>
@@ -123,7 +141,13 @@
 
       :node="selectedNode" 
 
-      :userInfo="userInfo"
+      :machine-detail="selectedMachineDetail"
+
+      :machine-loading="machineDetailLoading"
+
+      :machine-error="machineDetailError"
+
+      :related-nodes="selectedRelatedNodes"
 
       @close="closeNodeDetail"
 
@@ -137,7 +161,7 @@
 
 <script setup>
 
-import { ref, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, inject } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -149,13 +173,15 @@ import {
 
   IconServer,
 
-  IconDotsVertical
+  IconUsers,
+
+  IconDotsVertical,
+
+  IconExternalLink
 
 } from '@tabler/icons-vue';
 
-import { fetchServerNodes } from '@/api/servers';
-
-import { getUserInfo } from '@/api/user';
+import { fetchNodeMachine, fetchServerNodes } from '@/api/servers';
 
 
 import { NODES_CONFIG } from '@/utils/baseConfig';
@@ -182,8 +208,33 @@ const showNodeRate = ref(NODES_CONFIG.showNodeRate);
 const allowViewNodeInfo = ref(NODES_CONFIG.allowViewNodeInfo);
 
 
+const backendOnlineTotal = ref(null);
 
-const userInfo = ref(null);
+const normalizeOnlineCount = (value) => {
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+
+  const count = Number(value);
+  return Number.isFinite(count) && count >= 0 ? Math.floor(count) : null;
+};
+
+const getNodeOnlineCount = (node) => normalizeOnlineCount(node?.online);
+
+const hasOnlineCount = computed(() => backendOnlineTotal.value !== null || nodes.value.some(node => getNodeOnlineCount(node) !== null));
+
+const currentOnlineCount = computed(() => {
+  if (backendOnlineTotal.value !== null) {
+    return backendOnlineTotal.value;
+  }
+
+  return Math.max(
+    ...nodes.value
+      .map(node => getNodeOnlineCount(node))
+      .filter(count => count !== null),
+    0
+  );
+});
 
 
 
@@ -194,14 +245,36 @@ const userInfo = ref(null);
 const showDetailModal = ref(false);
 
 const selectedNode = ref(null);
+const selectedMachineDetail = ref(null);
+const machineDetailLoading = ref(false);
+const machineDetailError = ref('');
+
+const getMachineId = (node) => node?.machine_id ?? node?.machine?.id ?? null;
+
+const selectedRelatedNodes = computed(() => {
+  if (!selectedNode.value) {
+    return [];
+  }
+
+  const machineId = getMachineId(selectedNode.value);
+
+  if (!machineId) {
+    return [selectedNode.value];
+  }
+
+  return nodes.value.filter(node => Number(getMachineId(node)) === Number(machineId));
+});
 
 
 
 const openNodeDetail = (node) => {
 
   selectedNode.value = node;
+  selectedMachineDetail.value = null;
+  machineDetailError.value = '';
 
   showDetailModal.value = true;
+  fetchNodeMachineDetail(node);
 
 };
 
@@ -214,39 +287,30 @@ const closeNodeDetail = () => {
   setTimeout(() => {
 
     selectedNode.value = null;
+    selectedMachineDetail.value = null;
+    machineDetailError.value = '';
 
   }, 300);
 
 };
 
-
-
-const fetchUserInfo = async () => {
-
-  try {
-
-    const result = await getUserInfo();
-
-    if (result && result.data) {
-
-      userInfo.value = result.data;
-
-    }
-
-  } catch (err) {
-
-    console.error('Failed to fetch user info:', err);
-
-    if ($toast) {
-
-      $toast.error(t('common.userInfoError') || '获取用户信息失败');
-
-    }
-
+const fetchNodeMachineDetail = async (node) => {
+  if (!node?.id) {
+    return;
   }
 
-};
+  machineDetailLoading.value = true;
 
+  try {
+    const result = await fetchNodeMachine(node.id);
+    selectedMachineDetail.value = result?.data || null;
+  } catch (err) {
+    console.error('Failed to fetch node machine:', err);
+    machineDetailError.value = err.response?.message || (err && err.message ? err.message : '服务器状态加载失败');
+  } finally {
+    machineDetailLoading.value = false;
+  }
+};
 
 
 const fetchNodes = async () => {
@@ -262,6 +326,8 @@ const fetchNodes = async () => {
     const result = await fetchServerNodes();
 
     
+
+    backendOnlineTotal.value = normalizeOnlineCount(result?.online_total);
 
     if (result && result.data) {
 
@@ -301,9 +367,6 @@ onMounted(() => {
 
 
   
-
-  fetchUserInfo();
-
   fetchNodes();
 
 });
@@ -316,6 +379,7 @@ onMounted(() => {
 
 .nodes-container {
 
+  position: relative;
   padding: 1.25rem;
 
   padding-bottom: calc(1.25rem + 64px); 
@@ -336,7 +400,7 @@ onMounted(() => {
 
 .nodes-inner {
 
-  max-width: 1200px;
+  max-width: 1600px;
 
   margin: 0 auto;
 
@@ -438,15 +502,179 @@ onMounted(() => {
 
   gap: 1.5rem;
 
-  max-width: 1200px;
+  max-width: 1600px;
 
   width: 100%;
 
   margin: 0 auto;
 
+  padding: 16px;
+
+  border: 1px solid var(--card-border-color, var(--border-color));
+
+  border-radius: 22px;
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(var(--card-background-rgb), 0.28), rgba(var(--card-background-rgb), 0.12));
+
+  backdrop-filter: blur(18px) saturate(140%);
+
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+
+  box-sizing: border-box;
+
 }
 
 
+
+body.dark-theme .nodes-content {
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(var(--theme-color-rgb), 0.18), transparent 34%),
+    linear-gradient(135deg, rgba(22, 29, 50, 0.72), rgba(12, 17, 32, 0.48));
+
+}
+
+.node-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  margin: 0 0 -2px;
+}
+
+.node-summary-tag,
+.node-probe-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.node-summary-tag {
+  height: 40px;
+  padding: 0 16px 0 14px;
+  border: 1px solid rgba(245, 158, 11, 0.42);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.08));
+  color: #b96b00;
+  box-shadow:
+    0 10px 22px rgba(245, 158, 11, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -1px 0 rgba(180, 83, 9, 0.08);
+}
+
+.node-probe-link {
+  margin-left: auto;
+  height: 40px;
+  padding: 0 16px 0 13px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.28)),
+    rgba(var(--theme-color-rgb), 0.08);
+  color: rgb(var(--theme-color-rgb));
+  box-shadow:
+    0 8px 18px rgba(31, 28, 22, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.node-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34)),
+    rgba(var(--theme-color-rgb), 0.12);
+  box-shadow:
+    0 10px 22px rgba(var(--theme-color-rgb), 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.64);
+  transform: translateY(-1px);
+}
+
+.node-summary-count {
+  margin-left: 2px;
+  color: #9a5a00;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.node-summary-tag svg,
+.node-probe-link svg {
+  flex: 0 0 auto;
+}
+
+.node-summary-tag svg {
+  width: 17px;
+  height: 17px;
+  padding: 4px;
+  margin-left: -2px;
+  border-radius: 7px;
+  background-color: rgba(245, 158, 11, 0.13);
+  box-sizing: content-box;
+}
+
+.node-probe-link svg {
+  width: 17px;
+  height: 17px;
+  padding: 4px;
+  margin-left: -2px;
+  border-radius: 7px;
+  background-color: rgba(var(--theme-color-rgb), 0.12);
+  box-sizing: content-box;
+}
+
+body.dark-theme .node-summary-tag {
+  border-color: rgba(251, 191, 36, 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0)),
+    linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+  color: #fbbf24;
+  box-shadow:
+    0 10px 22px rgba(251, 191, 36, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+body.dark-theme .node-summary-count {
+  color: #fcd34d;
+}
+
+body.dark-theme .node-summary-tag svg {
+  background-color: rgba(251, 191, 36, 0.16);
+}
+
+body.dark-theme .node-probe-link {
+  border-color: rgba(var(--theme-color-rgb), 0.26);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
+    rgba(var(--theme-color-rgb), 0.16);
+  color: rgba(232, 240, 255, 0.94);
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+body.dark-theme .node-probe-link:hover {
+  border-color: rgba(var(--theme-color-rgb), 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
+    rgba(var(--theme-color-rgb), 0.2);
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
 
 .node-items {
 
@@ -684,9 +912,9 @@ onMounted(() => {
 
 
 
-.nodes-loading, 
+.nodes-loading,
 
-.nodes-error, 
+.nodes-error,
 
 .nodes-empty {
 
@@ -701,6 +929,10 @@ onMounted(() => {
   padding: 3rem 1rem;
 
   text-align: center;
+
+  border-radius: 28px;
+
+  overflow: hidden;
 
   
 
@@ -844,7 +1076,7 @@ onMounted(() => {
 
   .node-items {
 
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
 
   }
 
@@ -857,7 +1089,6 @@ onMounted(() => {
 .nodes-empty {
   background-color: var(--card-background);
   border: 1px solid var(--card-border-color, var(--border-color));
-  border-radius: 12px;
   box-shadow: none;
 }
 
@@ -1060,6 +1291,8 @@ onMounted(() => {
 /* Final node card composition. Keep this block last to neutralize older layout rules above. */
 .nodes-container .node-items {
   gap: 16px;
+  position: relative;
+  z-index: 1;
 }
 
 .nodes-container .node-item {
@@ -1071,7 +1304,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: stretch !important;
   gap: 22px;
-  border-radius: 12px;
+  border-radius: 18px;
   background-color: var(--card-background);
 }
 
