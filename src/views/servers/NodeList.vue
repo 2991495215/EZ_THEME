@@ -576,30 +576,29 @@ body.dark-theme .nodes-content {
 
 .node-probe-link {
   margin-left: auto;
-  position: relative;
   height: 40px;
-  padding: 0 17px 0 14px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.46);
+  padding: 0 16px 0 13px;
+  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.96), rgba(var(--theme-color-rgb), 0.78));
-  color: #ffffff;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.28)),
+    rgba(var(--theme-color-rgb), 0.08);
+  color: rgb(var(--theme-color-rgb));
   box-shadow:
-    0 10px 22px rgba(var(--theme-color-rgb), 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.32),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 8px 18px rgba(31, 28, 22, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
   text-decoration: none;
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .node-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.64);
+  border-color: rgba(var(--theme-color-rgb), 0.34);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34)),
+    rgba(var(--theme-color-rgb), 0.12);
   box-shadow:
-    0 14px 28px rgba(var(--theme-color-rgb), 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 10px 22px rgba(var(--theme-color-rgb), 0.11),
+    inset 0 1px 0 rgba(255, 255, 255, 0.64);
   transform: translateY(-1px);
 }
 
@@ -632,7 +631,7 @@ body.dark-theme .nodes-content {
   padding: 4px;
   margin-left: -2px;
   border-radius: 7px;
-  background-color: rgba(255, 255, 255, 0.16);
+  background-color: rgba(var(--theme-color-rgb), 0.12);
   box-sizing: content-box;
 }
 
@@ -657,23 +656,24 @@ body.dark-theme .node-summary-tag svg {
 }
 
 body.dark-theme .node-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.42);
+  border-color: rgba(var(--theme-color-rgb), 0.26);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.72), rgba(var(--theme-color-rgb), 0.52));
-  color: #ffffff;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
+    rgba(var(--theme-color-rgb), 0.16);
+  color: rgba(232, 240, 255, 0.94);
   box-shadow:
-    0 10px 22px rgba(var(--theme-color-rgb), 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 8px 18px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 body.dark-theme .node-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.52);
+  border-color: rgba(var(--theme-color-rgb), 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
+    rgba(var(--theme-color-rgb), 0.2);
   box-shadow:
-    0 14px 28px rgba(var(--theme-color-rgb), 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 10px 22px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .node-items {

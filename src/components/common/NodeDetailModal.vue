@@ -857,26 +857,23 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  position: relative;
   height: 36px;
   padding: 0 14px 0 12px;
-  border: 1px solid rgba(var(--theme-color-rgb), 0.46);
+  border: 1px solid rgba(var(--theme-color-rgb), 0.22);
   border-radius: 9px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.94), rgba(var(--theme-color-rgb), 0.76));
-  color: #ffffff;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.28)),
+    rgba(var(--theme-color-rgb), 0.08);
+  color: rgb(var(--theme-color-rgb));
   font-size: 13px;
   font-weight: 700;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
   box-shadow:
-    0 8px 18px rgba(var(--theme-color-rgb), 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    0 8px 18px rgba(31, 28, 22, 0.055),
+    inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 
   svg {
     flex: 0 0 auto;
@@ -885,37 +882,41 @@ onBeforeUnmount(() => {
     padding: 3px;
     margin-left: -2px;
     border-radius: 6px;
-    background-color: rgba(255, 255, 255, 0.16);
+    background-color: rgba(var(--theme-color-rgb), 0.12);
     box-sizing: content-box;
   }
 
   &:hover {
-    border-color: rgba(var(--theme-color-rgb), 0.62);
+    border-color: rgba(var(--theme-color-rgb), 0.34);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34)),
+      rgba(var(--theme-color-rgb), 0.12);
     box-shadow:
-      0 11px 22px rgba(var(--theme-color-rgb), 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.38),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+      0 10px 22px rgba(var(--theme-color-rgb), 0.11),
+      inset 0 1px 0 rgba(255, 255, 255, 0.64);
     transform: translateY(-1px);
   }
 }
 
 body.dark-theme .modal-probe-link {
-  border-color: rgba(var(--theme-color-rgb), 0.42);
+  border-color: rgba(var(--theme-color-rgb), 0.26);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04)),
-    linear-gradient(135deg, rgba(var(--theme-color-rgb), 0.7), rgba(var(--theme-color-rgb), 0.52));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
+    rgba(var(--theme-color-rgb), 0.16);
+  color: rgba(232, 240, 255, 0.94);
   box-shadow:
-    0 8px 18px rgba(var(--theme-color-rgb), 0.13),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 8px 18px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 body.dark-theme .modal-probe-link:hover {
-  border-color: rgba(var(--theme-color-rgb), 0.52);
+  border-color: rgba(var(--theme-color-rgb), 0.38);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
+    rgba(var(--theme-color-rgb), 0.2);
   box-shadow:
-    0 11px 22px rgba(var(--theme-color-rgb), 0.17),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    0 10px 22px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .modal-close-btn {
