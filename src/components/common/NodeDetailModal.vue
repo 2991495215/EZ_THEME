@@ -543,9 +543,15 @@ function renderChart() {
 
   const overlay = chartRef.value.closest('.node-detail-modal-overlay');
   const overlayStyle = overlay ? getComputedStyle(overlay) : null;
-  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim() || '#111827';
-  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
-  const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0';
+  const rootStyle = getComputedStyle(document.documentElement);
+  const readCssVar = (style, name, fallback) => {
+    return style?.getPropertyValue(name).trim()
+      || rootStyle.getPropertyValue(name).trim()
+      || fallback;
+  };
+  const textColor = readCssVar(overlayStyle, '--node-modal-text', '#111827');
+  const mutedColor = readCssVar(overlayStyle, '--node-modal-muted', '#64748b');
+  const borderColor = readCssVar(overlayStyle, '--node-modal-chart-grid', '#e2e8f0');
   const tooltipBackground = overlayStyle?.getPropertyValue('--node-modal-surface').trim() || '#ffffff';
   const times = historyRows.value.map(row => chartTimeText(row.recordedAt));
 
@@ -735,8 +741,13 @@ onBeforeUnmount(() => {
   --node-modal-soft-surface: #f4f7fb;
   --node-modal-hover-surface: #eaf0f8;
   --node-modal-border: rgba(var(--theme-color-rgb), 0.2);
+  --node-modal-chart-grid: rgba(100, 116, 139, 0.2);
   --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 10px 26px rgba(31, 28, 22, 0.08);
   --node-modal-overlay: rgba(0, 0, 0, 0.5);
+  --node-modal-text: #111827;
+  --node-modal-muted: #64748b;
+  --text-color: var(--node-modal-text);
+  --text-muted: var(--node-modal-muted);
 
   position: fixed;
   top: 0;
@@ -760,14 +771,18 @@ onBeforeUnmount(() => {
   --node-modal-soft-surface: #263244;
   --node-modal-hover-surface: #2c394c;
   --node-modal-border: rgba(var(--theme-color-rgb), 0.24);
+  --node-modal-chart-grid: rgba(148, 163, 184, 0.22);
   --node-modal-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 30px rgba(0, 0, 0, 0.16);
   --node-modal-overlay: rgba(0, 0, 0, 0.55);
+  --node-modal-text: rgba(255, 255, 255, 0.92);
+  --node-modal-muted: rgba(226, 232, 240, 0.72);
 }
 
 .node-detail-modal-container {
   width: 100%;
   max-width: 980px;
   background: var(--node-modal-surface);
+  color: var(--text-color);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: 16px;
@@ -898,7 +913,7 @@ onBeforeUnmount(() => {
   }
 }
 
-body.dark-theme .modal-probe-link {
+:global(body.dark-theme .modal-probe-link) {
   border-color: rgba(var(--theme-color-rgb), 0.26);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
@@ -909,7 +924,7 @@ body.dark-theme .modal-probe-link {
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-body.dark-theme .modal-probe-link:hover {
+:global(body.dark-theme .modal-probe-link:hover) {
   border-color: rgba(var(--theme-color-rgb), 0.38);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.03)),
@@ -923,7 +938,7 @@ body.dark-theme .modal-probe-link:hover {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-muted, rgba(226, 232, 240, 0.72));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -978,7 +993,7 @@ body.dark-theme .modal-probe-link:hover {
   color: var(--theme-color);
 }
 
-:global(body.dark-theme) .probe-inline-state.is-error {
+:global(body.dark-theme .probe-inline-state.is-error) {
   border-color: rgba(var(--theme-color-rgb), 0.28);
   background-color: rgba(var(--theme-color-rgb), 0.12);
   color: var(--theme-color);
@@ -1032,13 +1047,13 @@ body.dark-theme .modal-probe-link:hover {
   }
 }
 
-:global(body.dark-theme) .probe-status-badge.online {
+:global(body.dark-theme .probe-status-badge.online) {
   color: #86efac;
   border-color: rgba(134, 239, 172, 0.24);
   background-color: rgba(34, 197, 94, 0.12);
 }
 
-:global(body.dark-theme) .probe-status-badge.offline {
+:global(body.dark-theme .probe-status-badge.offline) {
   color: var(--text-muted);
   border-color: var(--node-modal-border);
   background-color: var(--node-modal-soft-surface);

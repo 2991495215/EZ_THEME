@@ -377,7 +377,11 @@ onMounted(() => {
 
 .nodes-container {
 
+  --node-page-muted: #64748b;
+  --text-muted: var(--node-page-muted);
+
   position: relative;
+  color: var(--text-color);
   padding: 1.25rem;
 
   padding-bottom: calc(1.25rem + 64px); 
@@ -526,11 +530,16 @@ onMounted(() => {
 
 
 
-body.dark-theme .nodes-content {
+:global(body.dark-theme .nodes-content) {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
     rgba(25, 25, 26, 0.08);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+:global(body.dark-theme .nodes-container) {
+  --node-page-muted: rgba(226, 232, 240, 0.72);
+  --text-muted: var(--node-page-muted);
 }
 
 .node-summary-bar {
@@ -619,30 +628,30 @@ body.dark-theme .nodes-content {
   box-sizing: content-box;
 }
 
-body.dark-theme .node-summary-tag {
+:global(body.dark-theme .node-summary-tag) {
   border-color: rgba(var(--theme-color-rgb), 0.26);
   background-color: rgba(31, 35, 41, 0.78);
   color: rgba(255, 255, 255, 0.82);
   box-shadow: none;
 }
 
-body.dark-theme .node-summary-count {
+:global(body.dark-theme .node-summary-count) {
   color: var(--theme-color);
 }
 
-body.dark-theme .node-summary-tag svg {
+:global(body.dark-theme .node-summary-tag svg) {
   background-color: rgba(var(--theme-color-rgb), 0.16);
   color: var(--theme-color);
 }
 
-body.dark-theme .node-probe-link {
+:global(body.dark-theme .node-probe-link) {
   border-color: rgba(255, 255, 255, 0.12);
   background-color: rgba(31, 35, 41, 0.82);
   color: rgba(255, 255, 255, 0.82);
   box-shadow: none;
 }
 
-body.dark-theme .node-probe-link:hover {
+:global(body.dark-theme .node-probe-link:hover) {
   border-color: rgba(var(--theme-color-rgb), 0.34);
   background-color: rgba(var(--theme-color-rgb), 0.16);
   color: #ffffff;
@@ -1382,7 +1391,7 @@ body.dark-theme .node-probe-link:hover {
   height: 32px;
   padding: 0;
   border-radius: 8px;
-  color: var(--text-muted);
+  color: var(--node-page-muted, rgba(226, 232, 240, 0.72));
   background-color: transparent;
   border: 0 !important;
 }
