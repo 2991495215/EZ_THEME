@@ -400,7 +400,7 @@ const historyRangeText = computed(() => {
 const chartColors = {
   cpu: '#111827',
   memory: '#8b5cf6',
-  disk: '#ef4444',
+  disk: '#14b8a6',
   netIn: '#10b981',
   netOut: '#3b82f6'
 };
@@ -973,15 +973,15 @@ body.dark-theme .modal-probe-link:hover {
 }
 
 .probe-inline-state.is-error {
-  border-color: rgba(var(--error-color-rgb), 0.22);
-  background-color: rgba(var(--error-color-rgb), 0.08);
-  color: var(--error-color);
+  border-color: rgba(var(--theme-color-rgb), 0.22);
+  background-color: rgba(var(--theme-color-rgb), 0.08);
+  color: var(--theme-color);
 }
 
 :global(body.dark-theme) .probe-inline-state.is-error {
-  border-color: rgba(var(--error-color-rgb), 0.24);
-  background-color: rgba(var(--error-color-rgb), 0.1);
-  color: var(--error-color);
+  border-color: rgba(var(--theme-color-rgb), 0.28);
+  background-color: rgba(var(--theme-color-rgb), 0.12);
+  color: var(--theme-color);
 }
 
 .probe-server-head {
@@ -1026,9 +1026,9 @@ body.dark-theme .modal-probe-link:hover {
   }
 
   &.offline {
-    color: var(--error-color);
-    border: 1px solid rgba(var(--error-color-rgb), 0.24);
-    background-color: rgba(var(--error-color-rgb), 0.1);
+    color: var(--text-muted);
+    border: 1px solid var(--node-modal-border);
+    background-color: var(--node-modal-soft-surface);
   }
 }
 
@@ -1039,9 +1039,9 @@ body.dark-theme .modal-probe-link:hover {
 }
 
 :global(body.dark-theme) .probe-status-badge.offline {
-  color: var(--error-color);
-  border-color: rgba(var(--error-color-rgb), 0.24);
-  background-color: rgba(var(--error-color-rgb), 0.12);
+  color: var(--text-muted);
+  border-color: var(--node-modal-border);
+  background-color: var(--node-modal-soft-surface);
 }
 
 .probe-meta-grid {
