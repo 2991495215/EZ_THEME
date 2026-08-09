@@ -16,7 +16,7 @@
           <div class="modal-header-actions">
             <a
               class="modal-probe-link"
-              href="https://k.trent30.com"
+              href="https://k.zinc.run/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="前往探针"
@@ -73,12 +73,44 @@
                 <div class="probe-panel-head">
                   <div>
                     <IconChartLine :size="18" />
-                    <h4>负载趋势</h4>
+                    <h4>资源趋势</h4>
                   </div>
                   <span>{{ historyRangeText }}</span>
                 </div>
 
-                <div v-if="hasHistory" ref="chartRef" class="probe-trend-chart"></div>
+                <div v-if="hasHistory" class="probe-chart-grid">
+                  <article class="probe-chart-card">
+                    <div class="probe-chart-title">
+                      <span><IconCpu :size="15" />CPU 占用</span>
+                      <strong>{{ percentText(cpuUsage) }}</strong>
+                    </div>
+                    <div :ref="element => setChartRef('cpu', element)" class="probe-chart-canvas"></div>
+                  </article>
+
+                  <article class="probe-chart-card">
+                    <div class="probe-chart-title">
+                      <span><IconDeviceDesktop :size="15" />内存占用</span>
+                      <strong>{{ percentText(memoryUsage) }}</strong>
+                    </div>
+                    <div :ref="element => setChartRef('memory', element)" class="probe-chart-canvas"></div>
+                  </article>
+
+                  <article class="probe-chart-card">
+                    <div class="probe-chart-title">
+                      <span><IconDatabase :size="15" />磁盘占用</span>
+                      <strong>{{ percentText(diskUsage) }}</strong>
+                    </div>
+                    <div :ref="element => setChartRef('disk', element)" class="probe-chart-canvas"></div>
+                  </article>
+
+                  <article class="probe-chart-card">
+                    <div class="probe-chart-title">
+                      <span><IconActivity :size="15" />实时网速</span>
+                      <strong>{{ speedText(netInSpeed) }} / {{ speedText(netOutSpeed) }}</strong>
+                    </div>
+                    <div :ref="element => setChartRef('network', element)" class="probe-chart-canvas"></div>
+                  </article>
+                </div>
                 <div v-else class="probe-trend-empty">暂无趋势数据</div>
               </section>
 
@@ -180,7 +212,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, watch } from 'vue';
 import {
   IconActivity,
   IconAlertCircle,
@@ -231,9 +263,24 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close']);
-const chartRef = ref(null);
-let chartInstance = null;
+const chartElements = new Map();
+const chartInstances = new Map();
 let chartFrame = null;
+
+const setChartRef = (key, element) => {
+  if (element) {
+    chartElements.set(key, element);
+    return;
+  }
+
+  chartElements.delete(key);
+  const instance = chartInstances.get(key);
+
+  if (instance) {
+    instance.dispose();
+    chartInstances.delete(key);
+  }
+};
 
 const close = () => {
   emit('close');
@@ -498,21 +545,19 @@ function nodeOnlineText(item) {
   return `${Math.floor(Math.max(0, value))} 在线`;
 }
 
-function disposeChart() {
+function disposeCharts() {
   if (chartFrame) {
     cancelAnimationFrame(chartFrame);
     chartFrame = null;
   }
 
-  if (chartInstance) {
-    chartInstance.dispose();
-    chartInstance = null;
-  }
+  chartInstances.forEach(instance => instance.dispose());
+  chartInstances.clear();
 }
 
-function scheduleChart() {
+function scheduleCharts() {
   if (!hasHistory.value) {
-    disposeChart();
+    disposeCharts();
     return;
   }
 
@@ -522,26 +567,17 @@ function scheduleChart() {
 
   chartFrame = requestAnimationFrame(() => {
     chartFrame = null;
-    renderChart();
+    renderCharts();
   });
 }
 
-function renderChart() {
-  if (!chartRef.value || !hasHistory.value) {
+function renderCharts() {
+  if (!hasHistory.value || chartElements.size === 0) {
     return;
   }
 
-  const { width, height } = chartRef.value.getBoundingClientRect();
-
-  if (width <= 0 || height <= 0) {
-    return;
-  }
-
-  if (!chartInstance) {
-    chartInstance = init(chartRef.value);
-  }
-
-  const overlay = chartRef.value.closest('.node-detail-modal-overlay');
+  const firstElement = chartElements.values().next().value;
+  const overlay = firstElement?.closest('.node-detail-modal-overlay');
   const overlayStyle = overlay ? getComputedStyle(overlay) : null;
   const rootStyle = getComputedStyle(document.documentElement);
   const readCssVar = (style, name, fallback) => {
@@ -555,73 +591,108 @@ function renderChart() {
   const tooltipBackground = overlayStyle?.getPropertyValue('--node-modal-surface').trim() || '#ffffff';
   const times = historyRows.value.map(row => chartTimeText(row.recordedAt));
 
-  chartInstance.setOption({
+  const xAxis = {
+    type: 'category',
+    boundaryGap: false,
+    data: times,
+    axisTick: { show: false },
+    axisLabel: {
+      color: mutedColor,
+      fontSize: 10,
+      hideOverlap: true
+    },
+    axisLine: {
+      lineStyle: { color: borderColor }
+    }
+  };
+  const tooltip = (formatter) => ({
+    trigger: 'axis',
+    confine: true,
+    backgroundColor: tooltipBackground,
+    borderColor,
+    textStyle: {
+      color: textColor,
+      fontSize: 11
+    },
+    formatter
+  });
+  const percentageOption = (name, color, values) => ({
     animation: false,
-    color: [textColor, chartColors.memory, chartColors.disk, chartColors.netIn, chartColors.netOut],
-    tooltip: {
-      trigger: 'axis',
-      confine: true,
-      backgroundColor: tooltipBackground,
-      borderColor,
-      textStyle: {
-        color: textColor,
-        fontSize: 12
-      },
-      formatter(params) {
-        const rows = [`${params[0]?.axisValue || ''}`];
-        params.forEach((item) => {
-          const unit = item.seriesName.includes('网速') ? '/s' : '%';
-          const value = item.seriesName.includes('网速') ? speedText(item.data) : `${chartPercent(item.data)}%`;
-          rows.push(`${item.marker} ${item.seriesName}: ${unit === '/s' ? value : value}`);
-        });
-        return rows.join('<br/>');
-      }
-    },
-    legend: {
-      top: 0,
-      left: 0,
-      itemWidth: 8,
-      itemHeight: 8,
-      textStyle: {
-        color: mutedColor,
-        fontSize: 12
-      },
-      data: ['CPU', '内存', '磁盘', '下行网速', '上行网速']
-    },
+    color: [color],
+    tooltip: tooltip(params => {
+      const item = params[0];
+      return `${item?.axisValue || ''}<br/>${item?.marker || ''} ${name}: ${chartPercent(item?.data || 0)}%`;
+    }),
     grid: {
-      top: 40,
-      left: 34,
-      right: 44,
-      bottom: 26,
-      containLabel: false
+      top: 10,
+      left: 40,
+      right: 12,
+      bottom: 24
     },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: times,
-      axisTick: {
-        show: false
-      },
+    xAxis,
+    yAxis: {
+      type: 'value',
+      min: 0,
+      max: 100,
       axisLabel: {
+        formatter: '{value}%',
         color: mutedColor,
-        fontSize: 11,
-        hideOverlap: true
+        fontSize: 10
       },
-      axisLine: {
+      splitLine: {
         lineStyle: {
-          color: borderColor
+          color: borderColor,
+          type: 'dashed'
         }
       }
     },
-    yAxis: [
-      {
+    series: [{
+      name,
+      type: 'line',
+      smooth: 0.25,
+      showSymbol: false,
+      lineStyle: { width: 2 },
+      areaStyle: { opacity: 0.06 },
+      data: values
+    }]
+  });
+  const chartOptions = {
+    cpu: percentageOption('CPU', chartColors.cpu, historyRows.value.map(row => row.cpu)),
+    memory: percentageOption('内存', chartColors.memory, historyRows.value.map(row => row.memory)),
+    disk: percentageOption('磁盘', chartColors.disk, historyRows.value.map(row => row.disk)),
+    network: {
+      animation: false,
+      color: [chartColors.netIn, chartColors.netOut],
+      tooltip: tooltip(params => {
+        const rows = [`${params[0]?.axisValue || ''}`];
+        params.forEach(item => rows.push(`${item.marker} ${item.seriesName}: ${speedText(item.data)}`));
+        return rows.join('<br/>');
+      }),
+      legend: {
+        top: 0,
+        right: 4,
+        itemWidth: 8,
+        itemHeight: 8,
+        textStyle: {
+          color: mutedColor,
+          fontSize: 10
+        },
+        data: ['下行', '上行']
+      },
+      grid: {
+        top: 30,
+        left: 48,
+        right: 12,
+        bottom: 24
+      },
+      xAxis,
+      yAxis: {
         type: 'value',
         min: 0,
-        max: 100,
         axisLabel: {
-          formatter: '{value}%',
+          formatter: value => formatSpeedAxis(value),
           color: mutedColor,
-          fontSize: 11
+          fontSize: 10
         },
         splitLine: {
           lineStyle: {
@@ -630,89 +701,65 @@ function renderChart() {
           }
         }
       },
-      {
-        type: 'value',
-        min: 0,
-        axisLabel: {
-          formatter: value => formatSpeedAxis(value),
-          color: mutedColor,
-          fontSize: 11
+      series: [
+        {
+          name: '下行',
+          type: 'line',
+          smooth: 0.25,
+          showSymbol: false,
+          lineStyle: { width: 2 },
+          data: historyRows.value.map(row => row.netIn)
         },
-        splitLine: {
-          show: false
+        {
+          name: '上行',
+          type: 'line',
+          smooth: 0.25,
+          showSymbol: false,
+          lineStyle: { width: 2 },
+          data: historyRows.value.map(row => row.netOut)
         }
-      }
-    ],
-    series: [
-      {
-        name: 'CPU',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 2 },
-        data: historyRows.value.map(row => row.cpu)
-      },
-      {
-        name: '内存',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 2 },
-        areaStyle: { opacity: 0.08 },
-        data: historyRows.value.map(row => row.memory)
-      },
-      {
-        name: '磁盘',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        lineStyle: { width: 2 },
-        data: historyRows.value.map(row => row.disk)
-      },
-      {
-        name: '下行网速',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        yAxisIndex: 1,
-        lineStyle: { width: 2 },
-        data: historyRows.value.map(row => row.netIn)
-      },
-      {
-        name: '上行网速',
-        type: 'line',
-        smooth: true,
-        showSymbol: false,
-        yAxisIndex: 1,
-        lineStyle: { width: 2 },
-        data: historyRows.value.map(row => row.netOut)
-      }
-    ]
-  }, true);
+      ]
+    }
+  };
+
+  chartElements.forEach((element, key) => {
+    const { width, height } = element.getBoundingClientRect();
+
+    if (width <= 0 || height <= 0 || !chartOptions[key]) {
+      return;
+    }
+
+    let instance = chartInstances.get(key);
+
+    if (!instance) {
+      instance = init(element);
+      chartInstances.set(key, instance);
+    }
+
+    instance.setOption(chartOptions[key], true);
+  });
 }
 
 function handleResize() {
-  if (chartInstance) {
-    chartInstance.resize();
-  }
+  chartInstances.forEach(instance => instance.resize());
 }
 
 watch(
   () => [props.show, props.machineDetail],
   () => {
     if (!props.show) {
-      disposeChart();
+      disposeCharts();
       return;
     }
 
-    nextTick(scheduleChart);
+    nextTick(scheduleCharts);
   },
   { deep: true, immediate: true }
 );
 
 watch(hasHistory, () => {
   if (props.show) {
-    nextTick(scheduleChart);
+    nextTick(scheduleCharts);
   }
 });
 
@@ -720,7 +767,7 @@ window.addEventListener('resize', handleResize);
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
-  disposeChart();
+  disposeCharts();
 });
 </script>
 
@@ -1150,12 +1197,60 @@ onBeforeUnmount(() => {
 .probe-trend-panel {
   display: flex;
   flex-direction: column;
-  min-height: 360px;
+  min-height: 480px;
 }
 
-.probe-trend-chart {
+.probe-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  flex: 1 1 auto;
+}
+
+.probe-chart-card {
+  display: flex;
+  min-width: 0;
+  min-height: 190px;
+  padding: 12px;
+  flex-direction: column;
+  border: 1px solid var(--node-modal-border);
+  border-radius: 10px;
+  background-color: var(--node-modal-surface);
+}
+
+.probe-chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 24px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  svg {
+    color: var(--theme-color);
+  }
+
+  strong {
+    color: var(--text-color);
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.25;
+    text-align: right;
+  }
+}
+
+.probe-chart-canvas {
   width: 100%;
-  min-height: 300px;
+  min-height: 150px;
   flex: 1 1 auto;
 }
 
@@ -1369,11 +1464,11 @@ onBeforeUnmount(() => {
   }
 
   .probe-trend-panel {
-    min-height: 320px;
+    min-height: 460px;
   }
 
-  .probe-trend-chart {
-    min-height: 260px;
+  .probe-chart-card {
+    min-height: 180px;
   }
 }
 
@@ -1412,11 +1507,19 @@ onBeforeUnmount(() => {
   }
 
   .probe-trend-panel {
-    min-height: 280px;
+    min-height: 760px;
   }
 
-  .probe-trend-chart {
-    min-height: 220px;
+  .probe-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .probe-chart-card {
+    min-height: 170px;
+  }
+
+  .probe-chart-canvas {
+    min-height: 132px;
   }
 
   .probe-server-head {

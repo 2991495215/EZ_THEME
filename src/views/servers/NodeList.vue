@@ -68,7 +68,7 @@
           </span>
           <a
             class="node-probe-link"
-            href="https://k.trent30.com"
+            href="https://k.zinc.run/"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="打开探针"
@@ -254,6 +254,12 @@ const getMachineId = (node) => node?.machine_id ?? node?.machine?.id ?? null;
 const selectedRelatedNodes = computed(() => {
   if (!selectedNode.value) {
     return [];
+  }
+
+  const apiRelatedNodes = selectedMachineDetail.value?.related_nodes;
+
+  if (Array.isArray(apiRelatedNodes) && apiRelatedNodes.length > 0) {
+    return apiRelatedNodes;
   }
 
   const machineId = getMachineId(selectedNode.value);
