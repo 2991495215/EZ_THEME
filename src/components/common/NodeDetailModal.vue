@@ -9,7 +9,7 @@
             </span>
             <div class="modal-title-copy">
               <h3 class="modal-title">{{ node.name || '节点状态' }}</h3>
-              <p class="modal-subtitle">服务器状态</p>
+              <p class="modal-subtitle">节点详情</p>
             </div>
           </div>
 
@@ -43,26 +43,33 @@
           <template v-if="machine">
             <section class="probe-summary">
               <div class="probe-server-head">
-                <div class="probe-server-name">
-                  <IconServer2 :size="18" />
-                  <span>{{ machine.name || '未命名服务器' }}</span>
+                <div class="probe-server-identity">
+                  <span class="probe-server-label">承载服务器</span>
+                  <div class="probe-server-name">
+                    <IconServer2 :size="18" />
+                    <span>{{ machine.name || '未命名服务器' }}</span>
+                  </div>
                 </div>
                 <span class="probe-status-badge" :class="statusClass">
-                  {{ statusText }}
+                  服务器{{ statusText }}
                 </span>
               </div>
 
               <div class="probe-meta-grid">
                 <div class="probe-meta-item">
-                  <span>节点类型</span>
+                  <span>节点名称</span>
+                  <strong>{{ node.name || '未命名节点' }}</strong>
+                </div>
+                <div class="probe-meta-item">
+                  <span>节点协议</span>
                   <strong>{{ node.type || '-' }}</strong>
                 </div>
                 <div class="probe-meta-item">
-                  <span>倍率</span>
+                  <span>流量倍率</span>
                   <strong>{{ rateText }}</strong>
                 </div>
                 <div class="probe-meta-item">
-                  <span>最后心跳</span>
+                  <span>服务器心跳</span>
                   <strong>{{ heartbeatText }}</strong>
                 </div>
               </div>
@@ -73,7 +80,7 @@
                 <div class="probe-panel-head">
                   <div>
                     <IconChartLine :size="18" />
-                    <h4>资源趋势</h4>
+                    <h4>服务器资源趋势</h4>
                   </div>
                   <span>{{ historyRangeText }}</span>
                 </div>
@@ -119,7 +126,7 @@
                   <div class="probe-panel-head">
                     <div>
                       <IconActivity :size="18" />
-                      <h4>负载</h4>
+                      <h4>服务器当前负载</h4>
                     </div>
                   </div>
 
@@ -169,7 +176,7 @@
                   <div class="probe-panel-head">
                     <div>
                       <IconAffiliate :size="18" />
-                      <h4>关联节点</h4>
+                      <h4>同服务器节点</h4>
                     </div>
                     <span>{{ normalizedRelatedNodes.length }} 个</span>
                   </div>
@@ -184,6 +191,7 @@
                       <div class="probe-related-main">
                         <span class="probe-related-dot" :class="{ online: isNodeOnline(item) }"></span>
                         <strong>{{ item.name || '未命名节点' }}</strong>
+                        <span v-if="isCurrentNode(item)" class="probe-current-label">当前节点</span>
                       </div>
                       <div class="probe-related-meta">
                         <span>{{ item.type || '-' }}</span>
@@ -1054,6 +1062,19 @@ onBeforeUnmount(() => {
   margin-bottom: 16px;
 }
 
+.probe-server-identity {
+  min-width: 0;
+}
+
+.probe-server-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
 .probe-server-name {
   display: flex;
   align-items: center;
@@ -1108,7 +1129,7 @@ onBeforeUnmount(() => {
 
 .probe-meta-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -1384,6 +1405,17 @@ onBeforeUnmount(() => {
   }
 }
 
+.probe-current-label {
+  flex: 0 0 auto;
+  padding: 3px 6px;
+  border-radius: 5px;
+  color: rgb(var(--theme-color-rgb));
+  background-color: rgba(var(--theme-color-rgb), 0.12);
+  font-size: 10px;
+  font-weight: 750;
+  line-height: 1;
+}
+
 .probe-related-dot {
   width: 8px;
   height: 8px;
@@ -1461,6 +1493,10 @@ onBeforeUnmount(() => {
 
   .probe-dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .probe-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .probe-trend-panel {
