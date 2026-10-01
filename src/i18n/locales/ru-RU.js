@@ -77,6 +77,10 @@ export default {
     completed: 'Завершено'
   },
   auth: {
+    continueAsGuest: "Продолжить как гость",
+    guestLogin: "Гостевой режим · Войти",
+    guestMachineTitle: "Недоступно для гостей",
+    guestMachineHint: "Войдите, чтобы увидеть название и состояние сервера.",
     loginTitle: 'Добро пожаловать',
     loginSubtitle: 'Войдите в свой аккаунт',
     registerTitle: 'Создать аккаунт',

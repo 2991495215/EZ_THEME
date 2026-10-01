@@ -77,6 +77,10 @@ export default {
     completed: '已完成'
   },
   auth: {
+    continueAsGuest: "以訪客身份繼續",
+    guestLogin: "訪客模式 · 登入",
+    guestMachineTitle: "訪客模式不可見",
+    guestMachineHint: "登入後可查看目前節點所屬伺服器的名稱和狀態。",
     loginTitle: '歡迎回來',
     loginSubtitle: '請登入您的帳戶',
     registerTitle: '建立帳戶',

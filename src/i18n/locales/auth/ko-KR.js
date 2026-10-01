@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "게스트로 계속",
+    guestLogin: "게스트 모드 · 로그인",
+    guestMachineTitle: "게스트 모드에서 볼 수 없습니다",
+    guestMachineHint: "로그인하면 서버 이름과 상태를 확인할 수 있습니다.",
     loginTitle: '로그인',
     loginSubtitle: '계속하려면 자격 증명을 입력하세요',
     registerTitle: '계정 생성',

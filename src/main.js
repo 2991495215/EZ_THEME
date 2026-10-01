@@ -23,5 +23,6 @@ const enableAntiDebugging = env.VUE_APP_DEBUGGING == "true";
     await import('./appInit.js');
   } catch (error) {
     console.error(error);
+    window.XBOARD_BOOT_FAIL?.();
   }
 })();

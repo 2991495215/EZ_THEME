@@ -179,6 +179,7 @@
 
 
       <div class="auth-footer">
+        <router-link to="/dashboard" class="btn btn-secondary btn-block guest-browse-btn">{{ $t('auth.continueAsGuest') }}</router-link>
 
         <div class="auth-divider">
 

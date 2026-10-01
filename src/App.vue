@@ -1,7 +1,7 @@
 <template>
   <div class="app-shell">
     <!-- 静态布局容器，包含不需要过渡效果的菜单和按钮 -->
-    <div class="static-layout" v-if="$route.meta.requiresAuth">
+    <div class="static-layout" v-if="$route.matched.some(record => record.path === '/')">
       <!-- 网站名称 -->
       <div class="site-logo">
         <img v-if="siteConfig.showLogo" :src="siteConfig.logoPath" alt="Logo" class="site-logo-img" />
@@ -16,13 +16,14 @@
         <ThemeToggle />
         <LanguageSelector />
         <button 
-          v-if="PROFILE_CONFIG.showGiftCardRedeem" 
+          v-if="!isGuest && PROFILE_CONFIG.showGiftCardRedeem"
           class="gift-btn" 
           @click="$router.push('/profile')"
         >
           <IconGift :size="20" />
         </button>
-        <UserAvatar :username="username" :avatarUrl="avatarUrl" />
+        <button v-if="isGuest" class="btn btn-secondary guest-login-btn" @click="$router.push('/login')">{{ $t('auth.guestLogin') }}</button>
+        <UserAvatar v-else :username="username" :avatarUrl="avatarUrl" />
       </div>
     </div>
 
@@ -127,6 +128,7 @@ export default {
     const router = useRouter();
     const route = useRoute();
     const store = useStore();
+    const isGuest = computed(() => !store.getters.isLoggedIn);
     const { applyTheme } = useTheme();
     const siteConfig = ref(SITE_CONFIG);
     const cachedRoutes = computed(() => pageCache.getCachedRoutes());
@@ -251,6 +253,7 @@ export default {
     });
     
     return {
+      isGuest,
       username,
       avatarUrl,
       siteConfig,

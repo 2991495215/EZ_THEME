@@ -22,9 +22,16 @@ const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, extraScr
       return html.replace('<!--EZ_CONFIG_SCRIPT-->', '');
     }
 
-    return html.replace('<!--EZ_CONFIG_SCRIPT-->', `<script src="./${extraScriptFileName}"></script>`);
+    return html.replace('<!--EZ_CONFIG_SCRIPT-->', `<script src="/theme/Xboard/${extraScriptFileName}"></script>`);
   },
   closeBundle() {
+    const indexPath = path.resolve(__dirname, 'dist/index.html');
+    if (fs.existsSync(indexPath)) {
+      const html = fs.readFileSync(indexPath, 'utf-8')
+        .replace(/<title>[\s\S]*?<\/title>/, '<title>{{$title}}</title>')
+        .replace('<head>', '<head>\n<script>window.XBOARD_APP_NAME = @json($title);</script>');
+      fs.writeFileSync(path.resolve(__dirname, 'dist/dashboard.blade.php'), html);
+    }
     if (!enableConfigJS) return;
 
     const configPath = path.resolve(__dirname, 'src/config/index.js');
@@ -66,7 +73,7 @@ export default defineConfig(({ mode }) => {
   const extraScriptFileName = enableConfigJS ? generateRandomFileName() : '';
 
   return {
-    base: './',
+    base: isProd ? '/theme/Xboard/' : './',
     plugins: [
       vue(),
       createRuntimeConfigPlugin({

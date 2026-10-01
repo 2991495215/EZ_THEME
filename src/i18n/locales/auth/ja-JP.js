@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "ゲストとして続ける",
+    guestLogin: "ゲストモード · ログイン",
+    guestMachineTitle: "ゲストモードでは表示できません",
+    guestMachineHint: "ログインするとサーバー名と状態を確認できます。",
     loginTitle: 'ログイン',
     loginSubtitle: '続行するには認証情報を入力してください',
     registerTitle: 'アカウント作成',

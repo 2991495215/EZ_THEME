@@ -76,6 +76,10 @@ export default {
         completed: 'Completed'
     },
     auth: {
+    continueAsGuest: "Continue as guest",
+    guestLogin: "Guest mode · Sign in",
+    guestMachineTitle: "Unavailable in guest mode",
+    guestMachineHint: "Sign in to view the server name and status for this node.",
         loginTitle: 'Welcome Back',
         loginSubtitle: 'Please log in to your account',
         registerTitle: 'Create Account',

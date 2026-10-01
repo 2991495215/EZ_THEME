@@ -77,6 +77,10 @@ export default {
     completed: '完了'
   },
   auth: {
+    continueAsGuest: "ゲストとして続ける",
+    guestLogin: "ゲストモード · ログイン",
+    guestMachineTitle: "ゲストモードでは表示できません",
+    guestMachineHint: "ログインするとサーバー名と状態を確認できます。",
     loginTitle: 'おかえりなさい',
     loginSubtitle: 'アカウントにログイン',
     registerTitle: 'アカウント作成',

@@ -3,7 +3,7 @@
 
 export function fetchPlans() {
   return request({
-    url: '/user/plan/fetch',
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch`,
     method: 'get'
   });
 }
@@ -11,7 +11,7 @@ export function fetchPlans() {
 
 export function getCommConfig() {
   return request({
-    url: '/user/comm/config',
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/comm/config`,
     method: 'get'
   });
 }
@@ -19,7 +19,7 @@ export function getCommConfig() {
 
 export function fetchPlanById(id) {
   return request({
-    url: `/user/plan/fetch?id=${id}`,
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch?id=${id}`,
     method: 'get'
   });
 }

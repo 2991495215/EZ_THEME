@@ -210,8 +210,8 @@
 
           <section v-else class="probe-empty">
             <IconAlertCircle :size="36" />
-            <h4>未绑定服务器</h4>
-            <p>后台服务器管理绑定后，这里会显示当前节点所处服务器名称和状态。</p>
+            <h4>{{ auth.isLoggedIn ? '未绑定服务器' : t('auth.guestMachineTitle') }}</h4>
+            <p>{{ auth.isLoggedIn ? '后台服务器管理绑定后，这里会显示当前节点所处服务器名称和状态。' : t('auth.guestMachineHint') }}</p>
           </section>
         </div>
       </div>
@@ -221,6 +221,10 @@
 
 <script setup>
 import { computed, nextTick, onBeforeUnmount, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores';
+const { t } = useI18n();
+const auth = useAuthStore();
 import {
   IconActivity,
   IconAlertCircle,

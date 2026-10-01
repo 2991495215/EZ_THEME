@@ -77,6 +77,10 @@ export default {
     completed: '완료'
   },
   auth: {
+    continueAsGuest: "게스트로 계속",
+    guestLogin: "게스트 모드 · 로그인",
+    guestMachineTitle: "게스트 모드에서 볼 수 없습니다",
+    guestMachineHint: "로그인하면 서버 이름과 상태를 확인할 수 있습니다.",
     loginTitle: '다시 오신 것을 환영합니다',
     loginSubtitle: '계정에 로그인하세요',
     registerTitle: '계정 생성',

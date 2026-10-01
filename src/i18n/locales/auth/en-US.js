@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "Continue as guest",
+    guestLogin: "Guest mode · Sign in",
+    guestMachineTitle: "Unavailable in guest mode",
+    guestMachineHint: "Sign in to view the server name and status for this node.",
     loginTitle: 'Sign In',
     loginSubtitle: 'Enter your credentials to continue',
     registerTitle: 'Create Account',

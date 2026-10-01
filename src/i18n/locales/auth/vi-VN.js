@@ -2,6 +2,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "Tiếp tục với tư cách khách",
+    guestLogin: "Chế độ khách · Đăng nhập",
+    guestMachineTitle: "Không khả dụng cho khách",
+    guestMachineHint: "Đăng nhập để xem tên và trạng thái máy chủ của nút này.",
     loginTitle: 'Đăng nhập tài khoản',
     loginSubtitle: 'Vui lòng nhập thông tin đăng nhập để tiếp tục',
     registerTitle: 'Tạo tài khoản',

@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "ادامه به عنوان مهمان",
+    guestLogin: "حالت مهمان · ورود",
+    guestMachineTitle: "در حالت مهمان در دسترس نیست",
+    guestMachineHint: "برای مشاهده نام و وضعیت سرور وارد شوید.",
     loginTitle: 'ورود به حساب',
     loginSubtitle: 'لطفا اعتبار خود را وارد کنید تا ادامه دهید',
     registerTitle: 'ایجاد حساب',

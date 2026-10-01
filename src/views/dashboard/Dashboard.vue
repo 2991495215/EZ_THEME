@@ -1145,6 +1145,11 @@ export default {
     };
 
     const fetchUserInfo = async () => {
+      if (!localStorage.getItem('token')) {
+        hasPlan.value = false;
+        loading.userInfo = false;
+        return;
+      }
       if (loading.userInfo === false && Object.keys(userPlan.value).length > 0) return;
 
       loading.userInfo = true;
@@ -1286,7 +1291,7 @@ export default {
       loading.subscribe = true;
       try {
         const response = await getSubscribe();
-        allowNewPeriod.value = response.data.allow_new_period;
+        allowNewPeriod.value = response.data?.allow_new_period;
         if (response.data) {
           const subscribe = response.data;
           if (subscribe.plan && subscribe.plan.name) {
@@ -4233,4 +4238,3 @@ a.eztheme-btn {
   color: var(--theme-color);
 }
 </style>
-

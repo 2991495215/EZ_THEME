@@ -3,7 +3,7 @@
 
 export function fetchServerNodes() {
   return request({
-    url: '/user/server/fetch',
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/server/fetch`,
     method: 'get',
     params: {
       _t: Date.now()
@@ -21,6 +21,7 @@ export function fetchServerNodes() {
 }
 
 export function fetchNodeMachine(nodeId, options = {}) {
+  if (!localStorage.getItem('token')) return Promise.resolve({ data: null });
   return request({
     url: '/user/server/machine',
     method: 'get',

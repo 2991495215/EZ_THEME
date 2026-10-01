@@ -64,10 +64,10 @@ export const config  = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: '锌元素',
+        siteName: window.XBOARD_APP_NAME || '锌元素',
         siteDescription: '哈喽',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} 锌元素. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} ${window.XBOARD_APP_NAME || '锌元素'}. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,

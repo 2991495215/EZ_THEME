@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "Продолжить как гость",
+    guestLogin: "Гостевой режим · Войти",
+    guestMachineTitle: "Недоступно для гостей",
+    guestMachineHint: "Войдите, чтобы увидеть название и состояние сервера.",
     loginTitle: 'Вход',
     loginSubtitle: 'Введите свои учетные данные для продолжения',
     registerTitle: 'Создать учетную запись',

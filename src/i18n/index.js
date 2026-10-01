@@ -118,29 +118,10 @@ const loadLocaleMessages = async (isLoggedIn) => {
 
     
 
-    if (isLoggedIn) {
-
-      try {
-
-        indexModule = await import( './locales/index.js');
-
-      } catch (e) {
-
-      }
-
-    } else {
-
-      try {
-
-        indexModule = await import( './locales/auth/index.js');
-
-      } catch (e) {
-
-      }
-
+    try {
+      indexModule = await import('./locales/index.js');
+    } catch (e) {
     }
-
-    
 
     if (indexModule && indexModule.default) {
 

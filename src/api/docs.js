@@ -3,7 +3,7 @@
 
 export function fetchKnowledgeList(language) {
   return request({
-    url: `/user/knowledge/fetch?language=${language}`,
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/knowledge/fetch?language=${language}`,
     method: 'get'
   }).then(response => {
     if (typeof response === 'object') {
@@ -20,7 +20,7 @@ export function fetchKnowledgeList(language) {
 
 export function fetchKnowledgeDetail(id, language) {
   return request({
-    url: `/user/knowledge/fetch?id=${id}&language=${language}`,
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/knowledge/fetch?id=${id}&language=${language}`,
     method: 'get'
   }).then(response => {
     if (typeof response === 'object') {

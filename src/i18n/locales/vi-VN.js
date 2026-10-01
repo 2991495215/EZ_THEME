@@ -76,6 +76,10 @@ export default {
         completed: 'Hoàn thành'
     },
     auth: {
+    continueAsGuest: "Tiếp tục với tư cách khách",
+    guestLogin: "Chế độ khách · Đăng nhập",
+    guestMachineTitle: "Không khả dụng cho khách",
+    guestMachineHint: "Đăng nhập để xem tên và trạng thái máy chủ của nút này.",
         loginTitle: 'Chào mừng trở lại',
         loginSubtitle: 'Vui lòng đăng nhập tài khoản của bạn',
         registerTitle: 'Tạo tài khoản',

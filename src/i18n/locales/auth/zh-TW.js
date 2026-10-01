@@ -4,6 +4,10 @@ import { SITE_CONFIG } from '../../../utils/baseConfig';
 
 export default {
   auth: {
+    continueAsGuest: "以訪客身份繼續",
+    guestLogin: "訪客模式 · 登入",
+    guestMachineTitle: "訪客模式不可見",
+    guestMachineHint: "登入後可查看目前節點所屬伺服器的名稱和狀態。",
     loginTitle: '登錄賬戶',
     loginSubtitle: '請輸入您的憑證以繼續',
     registerTitle: '創建賬戶',

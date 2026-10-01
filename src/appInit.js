@@ -39,6 +39,7 @@ const initApp = async () => {
     useAuthStore().initUserInfo();
   } catch (error) {
     console.error('应用初始化失败:', error);
+    window.XBOARD_BOOT_FAIL?.();
   }
 };
 

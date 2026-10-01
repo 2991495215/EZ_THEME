@@ -308,7 +308,7 @@ const routes = [
 
           titleKey: 'menu.dashboard',
 
-          requiresAuth: true,
+          requiresAuth: false,
 
           keepAlive: true
 
@@ -328,7 +328,7 @@ const routes = [
 
           titleKey: 'menu.shop',
 
-          requiresAuth: true,
+          requiresAuth: false,
 
           keepAlive: true
 
@@ -408,7 +408,7 @@ const routes = [
 
           titleKey: 'menu.more',
 
-          requiresAuth: true
+          requiresAuth: false
 
         }
 
@@ -426,7 +426,7 @@ const routes = [
 
           titleKey: 'menu.docs',
 
-          requiresAuth: true,
+          requiresAuth: false,
 
           get activeNav() { return getActiveNavForRoute('Docs'); } 
         }
@@ -445,7 +445,7 @@ const routes = [
 
           titleKey: 'more.viewHelp',
 
-          requiresAuth: true,
+          requiresAuth: false,
 
           get activeNav() { return getActiveNavForRoute('Docs'); } 
         }
@@ -464,7 +464,7 @@ const routes = [
 
           titleKey: 'nodes.title',
 
-          requiresAuth: true,
+          requiresAuth: false,
 
           get activeNav() { return getActiveNavForRoute('NodeList'); } 
         }

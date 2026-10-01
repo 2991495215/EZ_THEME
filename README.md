@@ -326,3 +326,12 @@ if (!handleUnauthorizedDomain()) {
      initAntiDebug();
 
 通过上述删除操作，您将移除所有与代码加密、域名检测和反调试相关的功能，恢复到原始的未加密状态。应用将在任何域名上正常运行，且不会阻止开发者工具的使用。
+
+
+## ZINC 线上改动的源码恢复
+
+当前 main-lightweight 包含游客浏览、登录加载状态、八种语言的条款与隐私弹窗，以及后台站名读取。游客使用 XBoard 的公开套餐、教程和节点接口；账户数据、订单与服务器详情仍需登录。
+
+运行 npm install、npm test 和 npm run build。构建会生成 dist/dashboard.blade.php，并将资源路径设为 /theme/Xboard/；部署时使用生成的模板与同一批静态资源，不再手工修改文件哈希、importmap 或另建启动入口。XBoard 的 $title 会注入 window.XBOARD_APP_NAME，未注入时使用源码默认站名。
+
+本次恢复不自动部署。原 API 地址保持 https://sub.trent30.com/api/v1。

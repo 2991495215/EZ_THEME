@@ -77,6 +77,10 @@ export default {
     completed: 'تکمیل شد'
   },
   auth: {
+    continueAsGuest: "ادامه به عنوان مهمان",
+    guestLogin: "حالت مهمان · ورود",
+    guestMachineTitle: "در حالت مهمان در دسترس نیست",
+    guestMachineHint: "برای مشاهده نام و وضعیت سرور وارد شوید.",
     loginTitle: 'به خانه خوش آمدید',
     loginSubtitle: 'لطفا به حساب خود وارد شوید',
     registerTitle: 'ایجاد حساب',

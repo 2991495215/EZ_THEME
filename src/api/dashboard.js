@@ -2,6 +2,7 @@
 
 
 export function getUserInfo() {
+    if (!localStorage.getItem('token')) return Promise.resolve({ data: null });
 
     return request({
 
@@ -15,6 +16,7 @@ export function getUserInfo() {
 
 
 export function getSubscribe() {
+    if (!localStorage.getItem('token')) return Promise.resolve({ data: null });
 
     return request({
 
@@ -28,6 +30,7 @@ export function getSubscribe() {
 
 
 export function getNotices() {
+    if (!localStorage.getItem('token')) return Promise.resolve({ data: null });
 
     return request({
 
@@ -41,6 +44,7 @@ export function getNotices() {
 
 
 export function getUserStats() {
+    if (!localStorage.getItem('token')) return Promise.resolve({ data: null });
 
     return request({
 
@@ -57,7 +61,7 @@ export function getUserConfig() {
 
     return request({
 
-        url: '/user/comm/config',
+        url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/comm/config`,
 
         method: 'get'
 

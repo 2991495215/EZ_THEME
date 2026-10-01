@@ -55,7 +55,10 @@ const publicAuthPaths = [
   '/passport/auth/forget',
   '/passport/auth/token2Login',
   '/passport/comm/sendEmailVerify',
-  '/guest/comm/config'
+  '/guest/comm/config',
+  '/guest/plan/fetch',
+  '/guest/knowledge/fetch',
+  '/guest/server/fetch'
 ];
 
 const shouldAttachAuth = (url) => {
