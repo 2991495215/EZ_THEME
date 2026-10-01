@@ -29,7 +29,7 @@ export const config  = {
         // 支持字符串形式(单个API地址)或数组形式(多个备选API地址)
         // 多个地址时，会按顺序检测可用性，并使用第一个可用的地址
         staticBaseUrl: [
-            'https://sub.trent30.com/api/v1'
+            import.meta.env.DEV ? '/api/v1' : 'https://sub.trent30.com/api/v1'
         ],
       
         // 自动获取模式配置 (urlMode = 'auto'时使用)
@@ -64,10 +64,10 @@ export const config  = {
 
     // ====================  网站基础配置  ====================
     SITE_CONFIG: {
-        siteName: window.XBOARD_APP_NAME || '锌元素',
+        siteName: window.XBOARD_APP_NAME || 'XBoard',
         siteDescription: '哈喽',
         // copyright会自动使用当前年份
-        copyright: `© ${new Date().getFullYear()} ${window.XBOARD_APP_NAME || '锌元素'}. All Rights Reserved.`,
+        copyright: `© ${new Date().getFullYear()} ${window.XBOARD_APP_NAME || 'XBoard'}. All Rights Reserved.`,
 
         // 是否显示标题中的网站Logo (true=显示, false=隐藏)
         showLogo: true,

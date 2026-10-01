@@ -4,6 +4,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import JavaScriptObfuscator from 'javascript-obfuscator';
 
+const LOCAL_BACKEND_URL = 'http://127.0.0.1:7001';
+
 const generateRandomFileName = (length = 8) => {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let name = '';
@@ -15,9 +17,17 @@ const generateRandomFileName = (length = 8) => {
   return `${randomNumber}.${name}.js`;
 };
 
-const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, extraScriptFileName }) => ({
+export const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, extraScriptFileName }) => ({
   name: 'ez-runtime-config',
-  transformIndexHtml(html) {
+  async transformIndexHtml(html, context) {
+    if (context?.server) {
+      const response = await fetch(LOCAL_BACKEND_URL, { signal: AbortSignal.timeout(5000) });
+      if (!response.ok) throw new Error('本地后端站点名称读取失败: HTTP ' + response.status);
+      const title = (await response.text()).match(/<title\b[^>]*>[\s\S]*?<\/title>/i)?.[0];
+      if (!title) throw new Error('本地后端首页缺少站点名称');
+      const encodedTitle = JSON.stringify(title).replace(/</g, '\\u003c');
+      html = html.replace('<head>', '<head>\n<script>window.XBOARD_APP_NAME = new DOMParser().parseFromString(' + encodedTitle + ', \'text/html\').title;</script>');
+    }
     if (!enableConfigJS) {
       return html.replace('<!--EZ_CONFIG_SCRIPT-->', '');
     }
@@ -145,7 +155,10 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: '0.0.0.0',
-      port: 5173
+      port: 5173,
+      proxy: {
+        '/api': LOCAL_BACKEND_URL
+      }
     },
     test: {
       setupFiles: ['tests/setup/localStorage.js']
