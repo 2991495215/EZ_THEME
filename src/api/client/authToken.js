@@ -65,3 +65,35 @@ export const readAuthData = async () => {
 
   return authData || '';
 };
+
+// Requests started under an earlier login must not update or expire the new session.
+let sessionRevision = 0;
+export const getAuthSession = () => JSON.stringify([
+  sessionRevision,
+  localStorage.getItem('token'),
+  localStorage.getItem('auth_data'),
+  localStorage.getItem('cookie_auth_data'),
+  window.authDataInStorage
+]);
+export const invalidateAuthSession = () => { sessionRevision += 1; };
+
+export const clearBrowserAuthState = () => {
+  invalidateAuthSession();
+  window.isUserLoggedIn = false;
+  window.authDataInStorage = null;
+  window.authCookieFailure = false;
+  window._lastLoginCheck = false;
+  window._lastLoginCheckTime = 0;
+  ['token', 'auth_data', 'cookie_auth_data', 'cookie_auth_data_failure',
+    'userInfo', 'is_admin', 'vuex', 'user', 'auth'].forEach(key => {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  });
+  ['auth_data', 'XSRF-TOKEN', 'laravel_session', 'token'].forEach(name => {
+    ['/', '/dashboard', '/user', '/admin'].forEach(path => {
+      const expired = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=' + path + ';';
+      document.cookie = expired;
+      document.cookie = expired + ' domain=' + window.location.hostname + ';';
+    });
+  });
+};

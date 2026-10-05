@@ -17,8 +17,11 @@ const generateRandomFileName = (length = 8) => {
   return `${randomNumber}.${name}.js`;
 };
 
-export const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, extraScriptFileName }) => ({
+export const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, extraScriptFileName }) => {
+  let outputDirectory = path.resolve(__dirname, 'dist');
+  return ({
   name: 'ez-runtime-config',
+  configResolved(config) { outputDirectory = path.resolve(config.root, config.build.outDir); },
   async transformIndexHtml(html, context) {
     if (context?.server) {
       const response = await fetch(LOCAL_BACKEND_URL, { signal: AbortSignal.timeout(5000) });
@@ -35,17 +38,17 @@ export const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, e
     return html.replace('<!--EZ_CONFIG_SCRIPT-->', `<script src="/theme/Xboard/${extraScriptFileName}"></script>`);
   },
   closeBundle() {
-    const indexPath = path.resolve(__dirname, 'dist/index.html');
+    const indexPath = path.join(outputDirectory, 'index.html');
     if (fs.existsSync(indexPath)) {
       const html = fs.readFileSync(indexPath, 'utf-8')
         .replace(/<title>[\s\S]*?<\/title>/, '<title>{{$title}}</title>')
         .replace('<head>', '<head>\n<script>window.XBOARD_APP_NAME = @json($title);</script>');
-      fs.writeFileSync(path.resolve(__dirname, 'dist/dashboard.blade.php'), html);
+      fs.writeFileSync(path.join(outputDirectory, 'dashboard.blade.php'), html);
     }
     if (!enableConfigJS) return;
 
     const configPath = path.resolve(__dirname, 'src/config/index.js');
-    const distPath = path.resolve(__dirname, 'dist', extraScriptFileName);
+    const distPath = path.join(outputDirectory, extraScriptFileName);
 
     try {
       let content = fs.readFileSync(configPath, 'utf-8');
@@ -74,6 +77,7 @@ export const createRuntimeConfigPlugin = ({ enableConfigJS, enableObfuscation, e
     }
   }
 });
+};
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -123,6 +127,8 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: 'static',
+      emptyOutDir: false,
+      manifest: true,
       sourcemap: false,
       minify: 'terser',
       terserOptions: {

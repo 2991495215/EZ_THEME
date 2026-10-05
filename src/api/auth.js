@@ -3,6 +3,7 @@ import request from './request';
 import store from '@/store';
 import { SITE_CONFIG } from '@/utils/baseConfig';
 import { reloadMessages } from '@/i18n';
+import { getAuthSession } from '@/api/client/authToken';
 
 
 const setCookie = (name, value, days) => {
@@ -35,7 +36,9 @@ const setCookie = (name, value, days) => {
   } catch (err) {
   }
   
+  const cookieSession = getAuthSession();
   setTimeout(() => {
+    if (cookieSession !== getAuthSession()) return;
     const checkCookie = getCookie(name);
     const success = !!checkCookie;
     
@@ -99,37 +102,17 @@ export const getCookie = (name) => {
 };
 
 
-const deleteCookie = (name) => {
-  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  
-  try {
-    localStorage.removeItem(`cookie_${name}`);
-    localStorage.removeItem(`cookie_${name}_failure`);
-  } catch (err) {
-  }
-  
-  setTimeout(() => {
-    const checkCookie = getCookie(name);
-    if (checkCookie) {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
-      
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const domain = isLocalhost ? '' : `domain=${window.location.hostname};`;
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${domain} path=/`;
-    }
-  }, 100);
-};
-
-
 export const handleLoginSuccess = (responseData, rememberMe) => {
   try {
+    _clearAllAuthData();
+    window._isLoggingOut = false;
     window.isUserLoggedIn = undefined;
     window.authCookieFailure = false;
     window.authDataInStorage = null;
     
-    store.dispatch('login', responseData.token);
+    store.dispatch('login', responseData.token || responseData.auth_data);
     
-    localStorage.setItem('token', responseData.token);
+    localStorage.setItem('token', responseData.token || responseData.auth_data);
     if (responseData.is_admin === 1) {
       localStorage.setItem('is_admin', '1');
     }
@@ -143,7 +126,9 @@ export const handleLoginSuccess = (responseData, rememberMe) => {
       setCookie('auth_data', responseData.auth_data, days);
     }
     
+    const loginSession = getAuthSession();
     setTimeout(() => {
+      if (loginSession !== getAuthSession()) return;
       const loginCheck = checkLoginStatus();
       
       if (!loginCheck) {
@@ -185,6 +170,7 @@ const normalizeAuthResponse = (response) => {
     responseData.auth_data = responseData.token;
   }
 
+  if (responseData?.auth_data && !responseData.token) responseData.token = responseData.auth_data;
   return responseData;
 };
 
@@ -224,38 +210,12 @@ export function register(data) {
     method: 'post',
     data
   }).then(response => {
-    let responseData = response.data || response;
-    
-    if (responseData.token) {
-      store.dispatch('login', responseData.token);
-      
-      window.isUserLoggedIn = true;
+    const responseData = normalizeAuthResponse(response);
+    if (responseData?.token || responseData?.auth_data) {
+      const handled = handleLoginSuccess(responseData, false);
+      if (!handled.success) throw new Error(handled.error);
     }
-    
-    if (responseData.auth_data) {
-      setCookie('auth_data', responseData.auth_data, 1); 
-      
-      localStorage.setItem('auth_data', responseData.auth_data);
-      
-      window.authDataInStorage = responseData.auth_data;
-    }
-    
-    if (typeof responseData.is_admin !== 'undefined') {
-      localStorage.setItem('is_admin', responseData.is_admin);
-    }
-    
-    console.log('注册成功，准备重新加载语言文件');
-    setTimeout(async () => {
-      try {
-        const result = await reloadMessages();
-        console.log('注册后重新加载语言包结果:', result);
-        
-        window.dispatchEvent(new CustomEvent('languageChanged'));
-      } catch (error) {
-        console.error('注册后重载语言包失败:', error);
-      }
-    }, 100);
-    
+
     return response;
   });
 }
@@ -336,11 +296,6 @@ export function sendEmailVerify(data) {
 
 
 export const checkLoginStatus = () => {
-  const now = Date.now();
-  if (window._lastLoginCheck && (now - window._lastLoginCheckTime < 1000)) {
-    return window._lastLoginCheck;
-  }
-  
   if (window._isLoggingOut === true) {
     _cacheLoginStatus(false);
     return false;
@@ -419,114 +374,8 @@ const _cacheLoginStatus = (status) => {
 };
 
 
-const _clearAllAuthData = () => {
-  window.isUserLoggedIn = false;
-  window.authDataInStorage = null;
-  window.authCookieFailure = false;
-  
-  const authKeys = [
-    'token', 
-    'auth_data', 
-    'cookie_auth_data', 
-    'userInfo', 
-    'is_admin',
-    'vuex',
-    'user',
-    'auth'
-  ];
-  
-  authKeys.forEach(key => {
-    localStorage.removeItem(key);
-  });
-  
-  const sessionKeys = [
-    'token', 
-    'auth_data',
-    'vuex',
-    'user',
-    'auth'
-  ];
-  
-  sessionKeys.forEach(key => {
-    sessionStorage.removeItem(key);
-  });
-  
-  const cookiePaths = ['/', '/dashboard', '/user', '/admin'];
-  const cookieNames = ['auth_data', 'XSRF-TOKEN', 'laravel_session', 'token'];
-  
-  cookieNames.forEach(name => {
-    cookiePaths.forEach(path => {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
-    });
-    
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    deleteCookie(name);
-  });
-  
-  try {
-    if (store && typeof store.commit === 'function') {
-      store.commit('CLEAR_USER');
-    }
-  } catch (e) {
-    console.error('Vuex状态清除失败', e);
-  }
-};
-
-
-export const forceLogout = () => {
-  window.isUserLoggedIn = false;
-  window.authDataInStorage = null;
-  window.authCookieFailure = false;
-  
-  const authKeys = [
-    'token', 
-    'auth_data', 
-    'cookie_auth_data', 
-    'userInfo', 
-    'is_admin',
-    'vuex',
-    'user',
-    'auth'
-  ];
-  
-  authKeys.forEach(key => {
-    localStorage.removeItem(key);
-  });
-  
-  const sessionKeys = [
-    'token', 
-    'auth_data',
-    'vuex',
-    'user',
-    'auth'
-  ];
-  
-  sessionKeys.forEach(key => {
-    sessionStorage.removeItem(key);
-  });
-  
-  const cookiePaths = ['/', '/dashboard', '/user', '/admin'];
-  const cookieNames = ['auth_data', 'XSRF-TOKEN', 'laravel_session', 'token'];
-  
-  cookieNames.forEach(name => {
-    cookiePaths.forEach(path => {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
-    });
-    
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    
-    deleteCookie(name);
-  });
-  
-  try {
-    if (store && typeof store.commit === 'function') {
-      store.commit('CLEAR_USER');
-    }
-  } catch (e) {
-    console.error('Vuex状态清除失败', e);
-  }
-};
-
+const _clearAllAuthData = () => store.commit('CLEAR_USER');
+export const forceLogout = _clearAllAuthData;
 
 export const tokenLogin = (verifyToken, redirect) => {
   return request({

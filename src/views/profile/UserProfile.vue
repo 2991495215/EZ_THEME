@@ -1071,7 +1071,7 @@ const fetchUserInfo = async (showLoading = true) => {
 
   try {
 
-    const response = await getUserInfo();
+    const [response] = await Promise.all([getUserInfo(), fetchSubscribeInfo()]);
 
 
 
@@ -1089,7 +1089,7 @@ const fetchUserInfo = async (showLoading = true) => {
 
 
 
-      await fetchSubscribeInfo();
+
 
     } else {
 
@@ -1205,7 +1205,9 @@ const fetchTelegramInfo = async () => {
 
   try {
 
-    const configResponse = await getCommConfig();
+    const [configResponse, botResponse] = await Promise.all([
+      getCommConfig(), getTelegramBotInfo().catch(() => null)
+    ]);
 
     if (configResponse && configResponse.data) {
 
@@ -1217,7 +1219,7 @@ const fetchTelegramInfo = async () => {
 
     try {
 
-      const botResponse = await getTelegramBotInfo();
+
 
       if (botResponse && botResponse.data) {
 

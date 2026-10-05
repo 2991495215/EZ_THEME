@@ -35,23 +35,10 @@
       </div>
     </div>
 
-    <!-- 路由视图只对内容部分应用过渡效果 -->
     <router-view v-slot="{ Component, route }">
-      <transition 
-        name="page-transition" 
-        mode="out-in"
-        appear
-      >
-        <keep-alive :include="cachedRoutes" :max="5">
-          <component 
-            :is="Component" 
-            :key="route.path"
-            :is-active="true"
-          />
-        </keep-alive>
-      </transition>
+      <component :is="Component" :key="route.matched[0]?.path || route.path" :is-active="true" />
     </router-view>
-    
+
     <!-- 全局Toast通知 - 放在最外层，确保不受页面切换影响 -->
     <Toast />
     
@@ -67,8 +54,6 @@
     <!-- Crisp嵌入组件（第二种客服系统方案） -->
     <CrispEmbed v-if="customerServiceConfig.embedMode === 'embed'" />
     
-    <!-- 资源预加载组件 -->
-    <ResourcePreloader />
     
     <!-- SVG图标定义 -->
     <IconDefinitions />
@@ -94,7 +79,6 @@ import BackToTop from '@/components/common/BackToTop.vue';
 import CustomContextMenu from '@/components/common/CustomContextMenu.vue';
 import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
 import CrispEmbed from '@/components/common/CrispEmbed.vue';
-import ResourcePreloader from '@/components/common/ResourcePreloader.vue';
 import { IconGift } from '@tabler/icons-vue';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -121,7 +105,6 @@ export default {
     CustomContextMenu,
     CustomerServiceIcon,
     CrispEmbed,
-    ResourcePreloader,
     IconGift
   },
   setup() {
@@ -518,3 +501,18 @@ html {
   position: absolute;
 }
 </style> 
+
+<style>
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.skeleton-card, .skeleton-row, .skeleton-row-sm, .skeleton-row-xs, .skeleton-icon,
+.skeleton-content, .skeleton-loading, .skeleton-loading * {
+  animation: none !important;
+}
+</style>

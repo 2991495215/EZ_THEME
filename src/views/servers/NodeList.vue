@@ -161,7 +161,7 @@
 
 <script setup>
 
-import { ref, computed, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -286,38 +286,34 @@ const openNodeDetail = (node) => {
 
 
 
+let detailController;
+let detailSequence = 0;
 const closeNodeDetail = () => {
-
+  detailSequence += 1;
+  detailController?.abort();
   showDetailModal.value = false;
-
-  setTimeout(() => {
-
-    selectedNode.value = null;
-    selectedMachineDetail.value = null;
-    machineDetailError.value = '';
-
-  }, 300);
-
+  machineDetailLoading.value = false;
 };
 
-const fetchNodeMachineDetail = async (node) => {
-  if (!node?.id) {
-    return;
-  }
-
+const fetchNodeMachineDetail = async node => {
+  if (!node?.id) return;
+  detailController?.abort();
+  const controller = new AbortController();
+  detailController = controller;
+  const sequence = ++detailSequence;
   machineDetailLoading.value = true;
-
   try {
-    const result = await fetchNodeMachine(node.id);
-    selectedMachineDetail.value = result?.data || null;
+    const result = await fetchNodeMachine(node.id, { signal: controller.signal });
+    if (sequence === detailSequence && showDetailModal.value) selectedMachineDetail.value = result?.data || null;
   } catch (err) {
-    console.error('Failed to fetch node machine:', err);
-    machineDetailError.value = err.response?.message || (err && err.message ? err.message : '服务器状态加载失败');
+    if (sequence === detailSequence && !controller.signal.aborted && err.code !== 'ERR_CANCELED') {
+      machineDetailError.value = err.response?.message || err.message || '服务器状态加载失败';
+    }
   } finally {
-    machineDetailLoading.value = false;
+    if (sequence === detailSequence) machineDetailLoading.value = false;
   }
 };
-
+onUnmounted(closeNodeDetail);
 
 const fetchNodes = async () => {
 

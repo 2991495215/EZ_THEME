@@ -332,6 +332,17 @@ if (!handleUnauthorizedDomain()) {
 
 当前 main-lightweight 包含游客浏览、登录加载状态、八种语言的条款与隐私弹窗，以及后台站名读取。游客使用 XBoard 的公开套餐、教程和节点接口；账户数据、订单与服务器详情仍需登录。
 
-运行 npm install、npm test 和 npm run build。构建会生成 dist/dashboard.blade.php，并将资源路径设为 /theme/Xboard/；部署时使用生成的模板与同一批静态资源，不再手工修改文件哈希、importmap 或另建启动入口。XBoard 的 $title 会注入 window.XBOARD_APP_NAME，未注入时使用源码默认站名。
+运行 npm ci --ignore-scripts、npm test 和 npm run build。构建会生成 dist/dashboard.blade.php，并将资源路径设为 /theme/Xboard/；部署时使用生成的模板与同一批静态资源，不再手工修改文件哈希、importmap 或另建启动入口。XBoard 的 $title 会注入 window.XBOARD_APP_NAME，未注入时使用源码默认站名。
 
 本次恢复不自动部署。原 API 地址保持 https://sub.trent30.com/api/v1。
+
+
+## 当前构建与发布入口（2026-10-05）
+
+- 当前优化源码：main-lightweight；服务器目录 /opt/ChatGPT/机场/EZ_THEME。不要从 storage/theme/Xboard/static 反向修改压缩代码。
+- package-lock.json 纳入版本控制；使用 npm ci --ignore-scripts --no-audit --no-fund 安装锁定依赖。项目声明 Node 20.19.6；本轮另在 Node 24.18.0 验证，Node 20 尚未复测。
+- 唯一待发布包入口：npm run release:build。先测试，再在全新 build/<UTC时间>-<源码提交> 生成模板、资源、Vite manifest 和 release.json 的完整 SHA256 清单。不会清理旧目录、部署或重启。dirty: true 只用于本地验收，不应当作为正式发布。
+- npm run build 是日常检查入口，dist 不自动清空；不要把累计的 dist 作为发布包。发布只选一次 release:build 的输出目录。
+- 发布前：核对运行容器、实际挂载、线上模板和 public 资源目录；在该次输出上完成 mock 登录回归，并核对 API 域名、后台站名、Logo、游客页面、法律弹窗、节点增强及现有 perf4 行为。源码找回不等于与线上完全一致。
+- 发布时：同一发布包的资源先到位，再切换 dashboard.blade.php；保留上一版入口及资源供回滚，不把两个版本的模板与哈希混用，不给压缩文件加 importmap 补丁。之后校验实际 HTTP、资源 hash 和日志，不能只看容器状态。
+- 本轮未部署；此前线上 20261005-perf4 与本分支存在差异。未完成上述对齐与验证前，禁止覆盖线上，尤其不得混入 sub0.zinc.mom 的独立轻量站。

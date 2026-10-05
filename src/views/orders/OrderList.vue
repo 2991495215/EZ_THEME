@@ -215,7 +215,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
@@ -251,6 +251,7 @@ const checkMobileView = () => {
 };
 
 window.addEventListener('resize', checkMobileView);
+onUnmounted(() => window.removeEventListener('resize', checkMobileView));
 
 const currentPage = ref(1);
 const pageSize = 10; 

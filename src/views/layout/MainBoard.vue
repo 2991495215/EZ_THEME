@@ -11,18 +11,12 @@
 
     <div class="content-area">
 
-      <router-view v-slot="{ Component }">
-
-        <transition name="content-transition" mode="out-in" appear>
-
-          <div class="view-wrapper" :key="$route.path">
-
-            <component :is="Component" />
-
-          </div>
-
-        </transition>
-
+      <router-view v-slot="{ Component, route }">
+        <div class="view-wrapper">
+          <keep-alive :include="['ShopView']" :max="1" :key="authScope">
+            <component :is="Component" :key="route.fullPath" />
+          </keep-alive>
+        </div>
       </router-view>
 
     </div>
@@ -33,44 +27,11 @@
 
 
 
-<script>
-
-import { ref, onMounted } from 'vue';
-
-
-
-import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
-
-
-
-export default {
-
-  name: 'MainBoard',
-
-  components: {
-
-    DomainAuthAlert
-
-  },
-
-  setup() {
-
-
-
-
-    onMounted(() => {
-
-
-    });
-
-
-
-
-
-  }
-
-};
-
+<script setup>
+import { computed } from 'vue';
+import { useAuthStore } from '@/stores';
+const auth = useAuthStore();
+const authScope = computed(() => auth.token || 'guest');
 </script>
 
 

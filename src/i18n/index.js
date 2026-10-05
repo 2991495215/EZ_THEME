@@ -104,134 +104,24 @@ const supportedLocales = ['zh-CN', 'vi-VN', 'en-US', 'zh-TW', 'ja-JP', 'ko-KR', 
 
 
 
-const loadLocaleMessages = async (isLoggedIn) => {
-
-  const messages = {};
-
-  
-
-  try {
-
-    let indexModule = null;
-
-    
-
-    
-
-    try {
-      indexModule = await import('./locales/index.js');
-    } catch (e) {
-    }
-
-    if (indexModule && indexModule.default) {
-
-      for (const locale of supportedLocales) {
-
-        if (indexModule.default[locale]) {
-
-          messages[locale] = indexModule.default[locale];
-
-        }
-
-      }
-
-    }
-
-    
-
-    for (const locale of supportedLocales) {
-
-      if (!messages[locale]) {
-
-        try {
-
-          let module = null;
-
-          
-
-          if (locale === 'zh-CN') {
-
-            module = await import( './locales/zh-CN.js');
-
-          } else if (locale === 'vi-VN') {
-
-            module = await import( './locales/vi-VN.js');
-
-          } else if (locale === 'en-US') {
-
-            module = await import( './locales/en-US.js');
-
-          } else if (locale === 'zh-TW') {
-
-            module = await import( './locales/zh-TW.js');
-
-          } else if (locale === 'ja-JP') {
-
-            module = await import( './locales/ja-JP.js');
-
-          } else if (locale === 'ko-KR') {
-
-            module = await import( './locales/ko-KR.js');
-
-          } else if (locale === 'ru-RU') {
-
-            module = await import( './locales/ru-RU.js');
-
-          } else if (locale === 'fa-IR') {
-
-            module = await import( './locales/fa-IR.js');
-
-          }
-
-          
-
-          if (module && module.default) {
-
-            messages[locale] = module.default;
-
-          }
-
-        } catch (e) {
-
-          
-
-          if (locale !== 'en-US') {
-
-            try {
-
-              const fallbackModule = await import( './locales/en-US.js');
-
-              if (fallbackModule && fallbackModule.default) {
-
-                messages[locale] = fallbackModule.default;
-
-              }
-
-            } catch (fallbackError) {
-
-            }
-
-          }
-
-
-
-        }
-
-      }
-
-    }
-
-  } catch (e) {
-
-  }
-
-  
-
-  return injectSiteName(messages);
-
+const localeLoaders = {
+  'zh-CN': () => import('./locales/zh-CN.js'),
+  'vi-VN': () => import('./locales/vi-VN.js'),
+  'en-US': () => import('./locales/en-US.js'),
+  'zh-TW': () => import('./locales/zh-TW.js'),
+  'ja-JP': () => import('./locales/ja-JP.js'),
+  'ko-KR': () => import('./locales/ko-KR.js'),
+  'ru-RU': () => import('./locales/ru-RU.js'),
+  'fa-IR': () => import('./locales/fa-IR.js')
 };
-
-
+const loadLocaleMessages = async (isLoggedIn, language = getStoredLanguage()) => {
+  const selected = supportedLocales.includes(language) ? language : 'en-US';
+  const entries = await Promise.all([...new Set([selected, 'en-US'])].map(async locale => {
+    const module = await localeLoaders[locale]();
+    return [locale, module.default];
+  }));
+  return injectSiteName(Object.fromEntries(entries));
+};
 
 const i18n = createI18n({
 
@@ -249,7 +139,9 @@ const i18n = createI18n({
 
 
 
+let languageSequence = 0;
 export const setLanguage = async (lang) => {
+  const sequence = ++languageSequence;
 
   if (!supportedLocales.includes(lang)) {
 
@@ -270,7 +162,8 @@ export const setLanguage = async (lang) => {
 
   
 
-  const messages = await loadLocaleMessages(isLoggedIn);
+  const messages = await loadLocaleMessages(isLoggedIn, lang);
+  if (sequence !== languageSequence) return { success: false };
 
   
 
@@ -360,7 +253,7 @@ export const reloadMessages = async () => {
 
   
 
-  const messages = await loadLocaleMessages(isLoggedIn);
+  const messages = await loadLocaleMessages(isLoggedIn, i18n.global.locale.value);
 
   
 

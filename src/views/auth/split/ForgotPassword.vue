@@ -1536,6 +1536,12 @@ export default {
 
 
 
+    const handleWindowFocus = () => {
+      if (configLoaded.value && config.is_recaptcha === 1) {
+        loadCaptchaScript();
+      }
+    };
+
     onMounted(() => {
 
 
@@ -1546,15 +1552,7 @@ export default {
 
 
 
-      window.addEventListener('focus', () => {
-
-        if (configLoaded.value && config.is_recaptcha === 1) {
-
-          loadCaptchaScript();
-
-        }
-
-      });
+      window.addEventListener('focus', handleWindowFocus);
 
 
 
@@ -1683,6 +1681,7 @@ export default {
 
 
     onBeforeUnmount(() => {
+      window.removeEventListener('focus', handleWindowFocus);
 
       isGoogleModalRecaptchaRendered = false;
 

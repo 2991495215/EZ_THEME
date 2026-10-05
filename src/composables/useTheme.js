@@ -21,7 +21,7 @@ export function useTheme() {
       document.body.classList.remove('dark-theme');
     }
     
-    document.body.offsetHeight;
+    root.classList.toggle('dark-theme', selectedTheme === 'dark');
     
     root.style.setProperty('--theme-color', themeVars.primaryColor);
     root.style.setProperty('--theme-color-rgb', themeVars.primaryColorRgb);
@@ -97,4 +97,4 @@ export function useTheme() {
     toggleTheme,
     applyTheme
   };
-} 
+} 

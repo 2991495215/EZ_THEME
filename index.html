@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="icon" type="image/png" href="./images/txz.png?v=0.4.1">
+    <link rel="icon" type="image/png" href="%BASE_URL%images/favicon.png">
     <title>%VUE_APP_TITLE%</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
         try {
             const theme = localStorage.getItem('theme');
@@ -679,7 +676,7 @@
         renderLabels();
         window.addEventListener('hashchange', updateFooter);
         window.addEventListener('languageChanged', renderLabels);
-        new MutationObserver(renderLabels).observe(document.getElementById('app'), { childList: true, subtree: true, attributes: true, attributeFilter: ['alt'] });
+        new MutationObserver(renderLabels).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
     })();
 </script>
 </body>

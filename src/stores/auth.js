@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { clearBrowserAuthState, invalidateAuthSession } from '@/api/client/authToken';
 
 const readStoredUser = () => {
   const userInfo = localStorage.getItem('userInfo');
@@ -23,6 +24,7 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     setToken(token) {
+      invalidateAuthSession();
       this.token = token || '';
       if (this.token) {
         localStorage.setItem('token', this.token);
@@ -41,8 +43,7 @@ export const useAuthStore = defineStore('auth', {
     clearUser() {
       this.user = null;
       this.token = '';
-      localStorage.removeItem('token');
-      localStorage.removeItem('userInfo');
+      clearBrowserAuthState();
     },
     initUserInfo() {
       this.user = readStoredUser();

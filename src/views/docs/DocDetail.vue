@@ -82,7 +82,7 @@
 
         <!-- 文档正文 -->
 
-        <div class="doc-body" v-html="renderedContent"></div>
+        <div class="doc-body" @click="handleDocClick" v-html="renderedContent"></div>
 
       </div>
 
@@ -96,7 +96,7 @@
 
 <script setup>
 
-import { ref, computed, onMounted, inject, nextTick, onUnmounted } from 'vue';
+import { ref, computed, inject, onUnmounted, watch } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -110,7 +110,7 @@ import { fetchKnowledgeDetail } from '@/api/docs';
 
 import MarkdownIt from 'markdown-it';
 
-import DOMPurify from 'dompurify';
+import { sanitizeDocContent } from '@/utils/docContent';
 
 import { SITE_CONFIG } from '@/utils/baseConfig';
 
@@ -227,13 +227,7 @@ const docData = ref({
 
 
 
-const isComplexHtml = (content) => {
 
-  if (!content) return false;
-
-  return /<(div|span|p|h[1-6]|table|tr|td|ul|ol|li|section|article|header|footer|nav|form|button|style|link)[\s>]/i.test(content);
-
-};
 
 
 
@@ -406,288 +400,36 @@ const fallbackCopyToClipboard = (text) => {
 
 
 
-const handleDocClick = (event) => {
-
-  let target = event.target;
-
-  let button = null;
-
-  
-
-  if (target.tagName === 'I' || target.tagName === 'SPAN' || target.tagName === 'SVG') {
-
-    button = target.closest('button');
-
-    if (!button) {
-
-      const link = target.closest('a');
-
-      if (link && !link.classList.contains('eztheme-btn')) {
-
-        return;
-
-      }
-
-    }
-
-  } else if (target.tagName === 'BUTTON') {
-
-    button = target;
-
-  } else {
-
-    button = target.closest('button');
-
+const handleDocClick = event => {
+  const button = event.target.closest('button, a');
+  if (!button || !event.currentTarget.contains(button)) return;
+  const action = button.dataset.originalOnclick || '';
+  const copy = action.match(/^copy\((['"])([^'"]*)\1\);?$/);
+  const jump = action.match(/^jump\((\d+)\);?$/);
+  if (copy) {
+    event.preventDefault();
+    copyToClipboard(copy[2] === '{{subscribeUrl}}' ? getUserSubscribeUrl() : copy[2]);
+    return;
   }
-
-  
-
-  if (button) {
-
-    const buttonText = button.textContent.trim().toLowerCase();
-
-    const isSubscribeButton = buttonText.includes('复制') || 
-
-                           buttonText.includes('订阅') || 
-
-                           buttonText.includes('copy') || 
-
-                           button.querySelector('.fa-copy');
-
-    
-
-    if (button.hasAttribute('onclick')) {
-
-      const onclickValue = button.getAttribute('onclick');
-
-      
-
-      if (onclickValue.includes('copy(')) {
-
-        event.preventDefault(); 
-        event.stopPropagation(); 
-        
-
-        try {
-
-          const match = onclickValue.match(/copy\(['"](.+?)['"]\)/);
-
-          if (match && match[1]) {
-
-            const textToCopy = match[1];
-
-            if (textToCopy === '{{subscribeUrl}}') {
-
-              copyToClipboard(getUserSubscribeUrl());
-
-            } else {
-
-              copyToClipboard(textToCopy);
-
-            }
-
-            return true;
-
-          }
-
-        } catch (e) {
-
-          console.error('处理复制按钮出错:', e);
-
-        }
-
-      }
-
-      
-
-      else if (onclickValue.includes('jump(')) {
-
-        event.preventDefault();
-
-        event.stopPropagation();
-
-        
-
-        try {
-
-          const match = onclickValue.match(/jump\((\d+)\)/);
-
-          if (match && match[1]) {
-
-            const docId = match[1];
-
-            router.push(`/docs/${docId}`);
-
-            return true;
-
-          }
-
-        } catch (e) {
-
-          console.error('处理跳转按钮出错:', e);
-
-        }
-
-      }
-
-      
-
-      return;
-
-    }
-
-    
-
-    if (button.hasAttribute('data-original-onclick')) {
-
-      const onclickValue = button.getAttribute('data-original-onclick');
-
-      event.preventDefault();
-
-      
-
-      if (onclickValue.includes('copy(')) {
-
-        try {
-
-          const match = onclickValue.match(/copy\(['"](.+?)['"]\)/);
-
-          if (match && match[1]) {
-
-            const textToCopy = match[1];
-
-            if (textToCopy === '{{subscribeUrl}}') {
-
-              copyToClipboard(getUserSubscribeUrl());
-
-            } else {
-
-              copyToClipboard(textToCopy);
-
-            }
-
-            return true;
-
-          }
-
-        } catch (e) {
-
-          console.error('处理复制按钮出错:', e);
-
-        }
-
-      }
-
-      
-
-      else if (onclickValue.includes('jump(')) {
-
-        try {
-
-          const match = onclickValue.match(/jump\((\d+)\)/);
-
-          if (match && match[1]) {
-
-            const docId = match[1];
-
-            router.push(`/docs/${docId}`);
-
-            return true;
-
-          }
-
-        } catch (e) {
-
-          console.error('处理跳转按钮出错:', e);
-
-        }
-
-      }
-
-    }
-
-    
-
-    if (isSubscribeButton) {
-
-      event.preventDefault();
-
-      const subscribeUrl = getUserSubscribeUrl();
-
-      if (subscribeUrl) {
-
-        copyToClipboard(subscribeUrl);
-
-        return true;
-
-      }
-
-    }
-
-    
-
-    if (button.hasAttribute('data-href')) {
-
-      event.preventDefault();
-
-      const href = button.getAttribute('data-href');
-
-      const target = button.getAttribute('data-target');
-
-      
-
-      if (href) {
-
-        if (target === '_blank') {
-
-          window.open(href, '_blank');
-
-        } else if (href.startsWith('/') || href.startsWith('./') || href.startsWith('../')) {
-
-          router.push(href);
-
-        } else {
-
-          const externalHref = href.match(/^https?:/);
-          window.open(externalHref, target || '_blank');
-
-        }
-
-        return true;
-
-      }
-
-    }
-
+  if (jump) {
+    event.preventDefault();
+    router.push('/docs/' + jump[1]);
+    return;
   }
-
-  
-
-  if (event.target.textContent && 
-
-      (event.target.textContent.includes('复制') || 
-
-      event.target.textContent.includes('copy') ||
-
-      event.target.textContent.includes('订阅'))) {
-
-    const subscribeUrl = getUserSubscribeUrl();
-
-    if (subscribeUrl) {
-
-      event.preventDefault();
-
-      copyToClipboard(subscribeUrl);
-
-      return true;
-
-    }
-
+  if (/复制|订阅|copy/i.test(button.textContent)) {
+    const url = getUserSubscribeUrl();
+    if (url) { event.preventDefault(); copyToClipboard(url); return; }
   }
-
+  const href = button.dataset.href || button.getAttribute('href') || button.querySelector('a')?.getAttribute('href');
+  if (!href) return;
+  event.preventDefault();
+  if (/^\/(?!\/)/.test(href)) { router.push(href); return; }
+  try {
+    const url = new URL(href, window.location.href);
+    if (!['http:', 'https:'].includes(url.protocol)) return;
+    window.open(url.href, '_blank', 'noopener,noreferrer');
+  } catch { /* malformed URL */ }
 };
-
-
 
 // 构建“无访问权限”卡片 HTML（仪表盘同款结构）
 const buildNoAccessCardHtml = () => {
@@ -719,425 +461,20 @@ const buildNoAccessCardHtml = () => {
 
 
 const renderedContent = computed(() => {
-  let content = docData.value.body || '';
+  const content = processTemplateVariables(docData.value.body || '');
   if (!content) return '';
-
   try {
-
-    content = processTemplateVariables(content);
-
-    
-
-    let renderedMd = '';
-
-    try {
-
-      renderedMd = md.render(content);
-
-    } catch (mdError) {
-
-      console.error('Markdown渲染失败:', mdError);
-
-      renderedMd = content;
-      
-    }
-
-
-
-    if (isComplexHtml(content) || isComplexHtml(renderedMd)) {     
-
-      let processedContent = renderedMd;
-
-
-
-      const styleTagRegex = /<style[\s\S]*?<\/style>/gi;
-
-      const styleMatches = [];
-
-      let match;
-
-      while ((match = styleTagRegex.exec(content)) !== null) {
-
-        styleMatches.push(match[0]);
-
-      }
-
-      
-
-      nextTick(() => {
-
-        const scriptElement = document.createElement('script');
-
-        scriptElement.innerHTML = `
-
-          function copy(text) {
-
-            if (text === '{{subscribeUrl}}') {
-
-              let subscribeUrl = '';
-
-              try {
-
-                const userPlan = localStorage.getItem('userPlan');
-
-                if (userPlan) {
-
-                  const parsedPlan = JSON.parse(userPlan);
-
-                  if (parsedPlan && parsedPlan.subscribeUrl) {
-
-                    subscribeUrl = parsedPlan.subscribeUrl;
-
-                  }
-
-                } else if (window.userPlan && window.userPlan.subscribeUrl) {
-
-                  subscribeUrl = window.userPlan.subscribeUrl;
-
-                }
-
-              } catch (e) {
-
-                console.error('获取订阅链接失败:', e);
-
-              }
-
-              
-
-              navigator.clipboard.writeText(subscribeUrl)
-
-                .then(() => {
-
-                  if (window.$toast && typeof window.$toast.success === 'function') {
-
-                    window.$toast.success('已复制到剪贴板');
-
-                  } else {
-
-                    const event = new CustomEvent('eztheme-toast', { 
-
-                      detail: { message: '已复制到剪贴板', type: 'success' } 
-
-                    });
-
-                    document.dispatchEvent(event);
-
-                  }
-
-                })
-
-                .catch(() => {
-
-                  const ta = document.createElement('textarea');
-
-                  ta.value = subscribeUrl;
-
-                  ta.style.position = 'fixed';
-
-                  document.body.appendChild(ta);
-
-                  ta.focus();
-
-                  ta.select();
-
-                  document.execCommand('copy');
-
-                  document.body.removeChild(ta);
-
-                  
-
-                  if (window.$toast && typeof window.$toast.success === 'function') {
-
-                    window.$toast.success('已复制到剪贴板');
-
-                  } else {
-
-                    const event = new CustomEvent('eztheme-toast', { 
-
-                      detail: { message: '已复制到剪贴板', type: 'success' } 
-
-                    });
-
-                    document.dispatchEvent(event);
-
-                  }
-
-                });
-
-            } else {
-
-              navigator.clipboard.writeText(text)
-
-                .then(() => {
-
-                  if (window.$toast && typeof window.$toast.success === 'function') {
-
-                    window.$toast.success('已复制到剪贴板');
-
-                  } else {
-
-                    const event = new CustomEvent('eztheme-toast', { 
-
-                      detail: { message: '已复制到剪贴板', type: 'success' } 
-
-                    });
-
-                    document.dispatchEvent(event);
-
-                  }
-
-                })
-
-                .catch(() => {
-
-                  const ta = document.createElement('textarea');
-
-                  ta.value = text;
-
-                  ta.style.position = 'fixed';
-
-                  document.body.appendChild(ta);
-
-                  ta.focus();
-
-                  ta.select();
-
-                  document.execCommand('copy');
-
-                  document.body.removeChild(ta);
-
-                  
-
-                  if (window.$toast && typeof window.$toast.success === 'function') {
-
-                    window.$toast.success('已复制到剪贴板');
-
-                  } else {
-
-                    const event = new CustomEvent('eztheme-toast', { 
-
-                      detail: { message: '已复制到剪贴板', type: 'success' } 
-
-                    });
-
-                    document.dispatchEvent(event);
-
-                  }
-
-                });
-
-            }
-
-          }
-
-          
-
-          function jump(docId) {
-
-            window.location.href = '/#/docs/' + docId;
-
-          }
-
-        `;
-
-        document.head.appendChild(scriptElement);
-
-        
-
-        document.addEventListener('eztheme-toast', function(e) {
-
-          if (e.detail && e.detail.message) {
-
-            if (window.showToast) {
-
-              window.showToast(e.detail.message, e.detail.type || 'success');
-
-            } 
-
-            else if (window.$toast) {
-
-              const type = e.detail.type || 'success';
-
-              if (typeof window.$toast[type] === 'function') {
-
-                window.$toast[type](e.detail.message);
-
-              }
-
-            }
-
-          }
-
-        });
-
-        
-
-        const docBody = document.querySelector('.doc-body');
-
-        if (docBody) {
-
-          docBody.removeEventListener('click', handleDocClick);
-
-          docBody.addEventListener('click', handleDocClick);
-
-        }
-
-      });
-
-      
-
-      processedContent = DOMPurify.sanitize(processedContent, {
-
-        ADD_TAGS: ['script', 'style', 'link', 'button', 'a', 'img', 'iframe', 'div', 'span'],
-
-        ADD_ATTR: [
-
-          'onclick', 'class', 'style', 'type', 'rel', 'href', 'target', 
-
-          'src', 'alt', 'title', 'width', 'height', 'frameborder', 'allowfullscreen',
-
-          'data-original-onclick', 'data-href', 'data-target', 'data-*'
-
-        ],
-
-        ALLOW_DATA_ATTR: true,
-
-        WHOLE_DOCUMENT: false,
-
-        FORCE_BODY: false,
-
-        FORBID_TAGS: [],
-
-        FORBID_ATTR: [],
-
-        ALLOW_UNKNOWN_PROTOCOLS: true,
-
-        ALLOW_ARIA_ATTR: true
-
-      });
-
-      
-
-      if (styleMatches.length > 0) {
-
-        const tempDiv = document.createElement('div');
-
-        tempDiv.innerHTML = processedContent;
-
-        styleMatches.forEach(styleTag => {
-
-          tempDiv.insertAdjacentHTML('beforeend', styleTag);
-
-        });
-
-        processedContent = tempDiv.innerHTML;
-
-      }
-
-      
-
-      const tempDiv = document.createElement('div');
-
-      tempDiv.innerHTML = processedContent;
-
-      
-
-      const buttons = tempDiv.querySelectorAll('button');
-
-      buttons.forEach(button => {
-
-        if (!button.classList.contains('eztheme-btn')) {
-
-          button.classList.add('eztheme-btn');
-
-        }
-
-        
-
-        const buttonText = button.textContent.trim().toLowerCase();
-
-        if ((buttonText.includes('复制') || buttonText.includes('copy')) && 
-
-            !button.hasAttribute('onclick')) {
-
-          button.setAttribute('onclick', "copy('{{subscribeUrl}}')");
-
-        }
-
-        
-
-        if (button.hasAttribute('href')) {
-
-          button.setAttribute('data-href', button.getAttribute('href'));
-
-        }
-
-        
-
-        const childLink = button.querySelector('a');
-
-        if (childLink && childLink.hasAttribute('href')) {
-
-          button.setAttribute('data-href', childLink.getAttribute('href'));
-
-          if (childLink.hasAttribute('target')) {
-
-            button.setAttribute('data-target', childLink.getAttribute('target'));
-
-          }
-
-        }
-
-      });
-
-      
-
-      const links = tempDiv.querySelectorAll('a');
-
-      links.forEach(link => {
-
-        if (link.textContent.trim().toLowerCase().includes('复制') || 
-
-            link.textContent.trim().toLowerCase().includes('订阅') || 
-
-            link.textContent.trim().toLowerCase().includes('copy')) {
-
-          link.classList.add('eztheme-btn');
-
-        }
-
-      });
-
-      
-
-      // 3) 检测并替换 v2board-no-access 块为美化卡片
-      const noAccessEls = tempDiv.querySelectorAll('.v2board-no-access');
-      if (noAccessEls && noAccessEls.length > 0) {
-        const cardHtml = buildNoAccessCardHtml();
-        noAccessEls.forEach(el => {
-          el.outerHTML = cardHtml;
-        });
-      }
-
-      return tempDiv.innerHTML;
-
-    } else {
-
-      return renderedMd;
-
-    }
-
-  } catch (err) {
-
-    console.error('Error processing content:', err);
-    
-    return `<p class="error-message">${t('docs.contentFormatError')}</p>`;
-
+    const template = document.createElement('template');
+    template.innerHTML = sanitizeDocContent(md.render(content));
+    template.content.querySelectorAll('button').forEach(button => button.classList.add('eztheme-btn'));
+    template.content.querySelectorAll('.v2board-no-access').forEach(element => {
+      element.outerHTML = buildNoAccessCardHtml();
+    });
+    return sanitizeDocContent(template.innerHTML);
+  } catch {
+    return sanitizeDocContent('<p>' + t('docs.contentFormatError') + '</p>');
   }
-
 });
-
-
 
 const formatDate = (timestamp) => {
 
@@ -1157,97 +494,31 @@ const formatDate = (timestamp) => {
 
 
 
+let docController;
+let docSequence = 0;
 const fetchDocDetail = async () => {
-
+  docController?.abort();
+  const controller = new AbortController();
+  docController = controller;
+  const sequence = ++docSequence;
   const docId = route.params.id;
-
-  
-
-  if (!docId) {
-
-    error.value = t('docs.invalidDocId');
-
-    loading.value = false;
-
-    return;
-
-  }
-
-  
-
+  if (!docId) { error.value = t('docs.invalidDocId'); loading.value = false; return; }
   loading.value = true;
-
   error.value = '';
-
-
-
   try {
-
-    const result = await fetchKnowledgeDetail(docId, locale.value);
-
-    
-
-    if (result && result.data) {
-
-      docData.value = result.data;
-
-      
-
-      if (!docData.value.body && docData.value.content) {
-
-        docData.value.body = docData.value.content;
-
-      }
-
-    } else {
-
-      throw new Error(t('docs.docNotFound'));
-
-    }
-
+    const result = await fetchKnowledgeDetail(docId, locale.value, { signal: controller.signal });
+    if (sequence !== docSequence) return;
+    if (!result?.data) throw new Error(t('docs.docNotFound'));
+    docData.value = { ...result.data, body: result.data.body || result.data.content };
   } catch (err) {
-
-    console.error('Failed to fetch document detail:', err);
-
-    error.value = err && err.message ? err.message : t('docs.unknownError');
-
-    
-
-    if ($toast) {
-
-      $toast.error(error.value);
-
-    }
-
+    if (sequence !== docSequence || controller.signal.aborted || err.code === 'ERR_CANCELED') return;
+    error.value = err.message || t('docs.unknownError');
   } finally {
-
-    loading.value = false;
-
+    if (sequence === docSequence) loading.value = false;
   }
-
 };
-
-
-
-onMounted(() => {
-
-  fetchDocDetail();
-
-});
-
-
-
-onUnmounted(() => {
-
-  const docBody = window.document.querySelector('.doc-body');
-
-  if (docBody) {
-
-    docBody.removeEventListener('click', handleDocClick);
-
-  }
-
-});
+watch(() => [route.params.id, locale.value], fetchDocDetail, { immediate: true });
+onUnmounted(() => { docSequence += 1; docController?.abort(); });
 
 </script>
 

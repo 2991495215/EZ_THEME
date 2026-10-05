@@ -6,32 +6,6 @@ const getStores = () => ({
   app: useAppStore(pinia)
 });
 
-const clearBrowserAuthState = () => {
-  window.isUserLoggedIn = false;
-  window.authDataInStorage = null;
-  window.authCookieFailure = false;
-
-  [
-    'token',
-    'auth_data',
-    'cookie_auth_data',
-    'userInfo',
-    'is_admin',
-    'vuex',
-    'user',
-    'auth'
-  ].forEach(key => {
-    localStorage.removeItem(key);
-    sessionStorage.removeItem(key);
-  });
-
-  ['auth_data', 'XSRF-TOKEN', 'laravel_session', 'token'].forEach(name => {
-    ['/', '/dashboard', '/user', '/admin'].forEach(path => {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
-    });
-  });
-};
-
 const legacyStore = {
   get state() {
     const { auth, theme, app } = getStores();
@@ -73,7 +47,6 @@ const legacyStore = {
       login: () => auth.setToken(payload),
       logout: async () => {
         auth.clearUser();
-        clearBrowserAuthState();
       },
       setUser: () => auth.setUser(payload),
       toggleTheme: () => theme.toggleTheme(),

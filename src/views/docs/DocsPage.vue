@@ -75,7 +75,7 @@
 
       <!-- 加载状态 -->
 
-      <div v-if="loading" class="docs-loading">
+      <div v-if="loading && !hasDocuments" class="docs-loading">
 
         <LoadingSpinner />
 
@@ -87,7 +87,7 @@
 
       <!-- 错误提示 -->
 
-      <div v-else-if="error" class="docs-error">
+      <div v-if="error" class="docs-error">
 
         <IconAlertTriangle :size="48" class="error-icon" />
 
@@ -101,7 +101,7 @@
 
       <!-- 文档列表 -->
 
-      <div v-else-if="hasDocuments && Object.keys(filteredDocs).length > 0" class="docs-content">
+      <div v-if="hasDocuments && Object.keys(filteredDocs).length > 0" class="docs-content">
 
         <!-- 遍历每个分类 -->
 
@@ -141,7 +141,7 @@
 
       <!-- 空状态 - 增强版 -->
 
-      <div v-else class="docs-empty">
+      <div v-else-if="!loading && !error" class="docs-empty">
 
         <IconFileSearch :size="48" class="empty-icon" />
 
@@ -187,7 +187,7 @@
 
 <script setup name="DocsPage">
 
-import { ref, computed, onMounted, inject, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject, watch } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -358,9 +358,15 @@ const goToDocument = (id) => {
 
 
 
+let listController;
+let listSequence = 0;
 const fetchKnowledge = async () => {
 
-  loading.value = true;
+  listController?.abort();
+  const controller = new AbortController();
+  listController = controller;
+  const sequence = ++listSequence;
+  loading.value = !Object.keys(documents.value).length;
 
   error.value = '';
 
@@ -368,7 +374,8 @@ const fetchKnowledge = async () => {
 
   try {
 
-    const result = await fetchKnowledgeList(locale.value);
+    const result = await fetchKnowledgeList(locale.value, { signal: controller.signal });
+    if (sequence !== listSequence) return;
 
     
 
@@ -383,6 +390,7 @@ const fetchKnowledge = async () => {
     }
 
   } catch (err) {
+    if (sequence !== listSequence || controller.signal.aborted || err.code === 'ERR_CANCELED') return;
 
     console.error('Failed to fetch knowledge list:', err);
 
@@ -398,13 +406,15 @@ const fetchKnowledge = async () => {
 
   } finally {
 
-    loading.value = false;
+    if (sequence === listSequence) loading.value = false;
 
   }
 
 };
 
 
+
+onUnmounted(() => { listSequence += 1; listController?.abort(); });
 
 watch(locale, () => {
 

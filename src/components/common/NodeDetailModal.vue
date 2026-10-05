@@ -240,12 +240,11 @@ import {
   IconServer2,
   IconX
 } from '@tabler/icons-vue';
-import { use, init } from 'echarts/core';
-import { LineChart } from 'echarts/charts';
-import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
-
-use([LineChart, GridComponent, LegendComponent, TooltipComponent, CanvasRenderer]);
+let chartInit;
+let chartLoader;
+const loadCharts = () => chartLoader ||= import('@/utils/nodeCharts').then(module => {
+  chartInit = module.init;
+}).catch(error => { chartLoader = null; throw error; });
 
 const props = defineProps({
   show: {
@@ -583,10 +582,13 @@ function scheduleCharts() {
   });
 }
 
-function renderCharts() {
-  if (!hasHistory.value || chartElements.size === 0) {
+async function renderCharts() {
+  if (!props.show || !hasHistory.value || chartElements.size === 0) {
     return;
   }
+
+  try { await loadCharts(); } catch { return; }
+  if (!props.show || !hasHistory.value || !chartElements.size) return;
 
   const firstElement = chartElements.values().next().value;
   const overlay = firstElement?.closest('.node-detail-modal-overlay');
@@ -744,7 +746,7 @@ function renderCharts() {
     let instance = chartInstances.get(key);
 
     if (!instance) {
-      instance = init(element);
+      instance = chartInit(element);
       chartInstances.set(key, instance);
     }
 

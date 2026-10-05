@@ -307,7 +307,7 @@
             :force="0.4"
             :stageWidth="window.innerWidth"
             :stageHeight="window.innerHeight"
-            :colors="['#355cc2', '#42A5F5', '#8b5cf6', '#26A65B', '#3b82f6', '#9C27B0']"
+            :colors="['#355cc2', '#42A5F5', '#8b5cf6', '#26A65B', '#3b82f6', '#9C27B0']"
           />
         </div>
       </div>
@@ -408,12 +408,12 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast';
 import { useRoute, useRouter } from 'vue-router';
 import { getOrderDetail, getPaymentMethods, checkOrderStatus, cancelOrder, checkoutOrder } from '@/api/shop';
-import { PAYMENT_CONFIG } from '@/utils/baseConfig';
-import {
-  calculateHandlingFee,
-  formatPaymentAmount,
-  formatPaymentDate,
-  formatPaymentTraffic
+import { PAYMENT_CONFIG } from '@/utils/baseConfig';
+import {
+  calculateHandlingFee,
+  formatPaymentAmount,
+  formatPaymentDate,
+  formatPaymentTraffic
 } from './composables/paymentFormatters';
 import QrcodeVue from 'qrcode.vue';
 import ConfettiExplosion from 'vue-confetti-explosion';
@@ -485,11 +485,9 @@ export default {
     const paymentQRCode = ref(null);
     const paymentLink = ref(null);
     
-    const handleFeeAmount = computed(() => {
-
-      const method = paymentMethods.value.find(m => m.id === selectedMethod.value);
-
-      return calculateHandlingFee(method, orderDetail.value.total_amount);
+    const handleFeeAmount = computed(() => {
+      const method = paymentMethods.value.find(m => m.id === selectedMethod.value);
+      return calculateHandlingFee(method, orderDetail.value.total_amount);
     });
     
     const totalWithFee = computed(() => {
@@ -571,7 +569,7 @@ export default {
     
     const formatDate = formatPaymentDate;
     
-    const formatAmount = formatPaymentAmount;
+    const formatAmount = formatPaymentAmount;
     
     const formatPeriod = (period) => {
       if (period === 'reset_price' || period === 'deposit') {
@@ -590,7 +588,7 @@ export default {
       return periodMap[period] || period;
     };
     
-    const formatTraffic = formatPaymentTraffic;
+    const formatTraffic = formatPaymentTraffic;
     
     const formatFee = (method) => {
       let feeText = '';
@@ -664,6 +662,7 @@ export default {
             let checkCount = 0;
             
             paymentCheckTimer.value = setInterval(() => {
+              if (paymentCheckPending || document.hidden) return;
               checkCount++;
               
               performPaymentCheck();
@@ -680,6 +679,7 @@ export default {
           } else {
             let checkCount = 0;
             paymentCheckTimer.value = setInterval(() => {
+              if (paymentCheckPending || document.hidden) return;
               checkCount++;
               
               performPaymentCheck();
@@ -702,14 +702,20 @@ export default {
       }
     };
     
+    let paymentDisposed = false;
+    let paymentCheckPending = false;
     const performPaymentCheck = async (suppressToast = false) => {
+      if (paymentDisposed || paymentCheckPending || paymentSuccessful.value) return;
+      paymentCheckPending = true;
       try {
         const response = await checkOrderStatus(orderDetail.value.trade_no);
+        if (paymentDisposed) return;
         
         if (response.data === 1) {
           orderDetail.value.status = response.data;
           
           setTimeout(() => {
+            if (paymentDisposed) return;
             const statusElement = document.querySelector('.order-status-notice');
             if (statusElement) {
               statusElement.classList.add('status-transition');
@@ -751,6 +757,8 @@ export default {
           loading.checking = false;
           loading.paying = false;
         }
+      } finally {
+        paymentCheckPending = false;
       }
     };
     
@@ -942,6 +950,7 @@ export default {
       loading.checking = true;
       try {
         const response = await checkOrderStatus(orderDetail.value.trade_no);
+        if (paymentDisposed) return;
         
         if (response.data === 0) {
           showToast(t('payment.payment_pending'), 'info');
@@ -1056,6 +1065,7 @@ export default {
     });
     
     onBeforeUnmount(() => {
+      paymentDisposed = true;
       if (paymentCheckTimer.value) {
         clearInterval(paymentCheckTimer.value);
       }
@@ -1831,11 +1841,11 @@ export default {
           transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
           
           &.warning {
-            background-color: rgba(var(--warning-color-rgb), 0.15);
-            color: var(--warning-color);
+            background-color: rgba(var(--warning-color-rgb), 0.15);
+            color: var(--warning-color);
             
             svg {
-              filter: drop-shadow(0 2px 8px rgba(var(--warning-color-rgb), 0.3));
+              filter: drop-shadow(0 2px 8px rgba(var(--warning-color-rgb), 0.3));
             }
           }
           
@@ -2057,12 +2067,12 @@ export default {
     margin: 24px auto 0;
     width: 48px;
     height: 48px;
-    background-color: rgba(var(--warning-color-rgb), 0.12);
+    background-color: rgba(var(--warning-color-rgb), 0.12);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--warning-color);
+    color: var(--warning-color);
   }
   
   .cancel-modal-header {
@@ -2211,15 +2221,15 @@ export default {
   }
   
   &.status-pending {
-    background-color: rgba(var(--warning-color-rgb), 0.12);
-    border: 1px solid rgba(var(--warning-color-rgb), 0.2);
+    background-color: rgba(var(--warning-color-rgb), 0.12);
+    border: 1px solid rgba(var(--warning-color-rgb), 0.2);
     
     .status-icon {
-      color: var(--warning-color);
+      color: var(--warning-color);
     }
     
     h3 {
-      color: var(--warning-color);
+      color: var(--warning-color);
     }
   }
   
@@ -2317,6 +2327,5 @@ export default {
     opacity: 1;
   }
 }
-</style> 
-
-
+</style> 
+

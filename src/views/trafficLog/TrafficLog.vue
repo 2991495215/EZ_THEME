@@ -665,7 +665,7 @@ const initChart = () => {
 
   
 
-  window.addEventListener('resize', handleResize);
+
 
 };
 

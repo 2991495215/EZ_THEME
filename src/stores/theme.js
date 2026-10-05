@@ -3,7 +3,7 @@ import { THEME_CONFIG } from '@/utils/baseConfig';
 
 export const useThemeStore = defineStore('theme', {
   state: () => ({
-    theme: localStorage.getItem('theme') || THEME_CONFIG.defaultTheme
+    theme: localStorage.getItem('theme') || (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : THEME_CONFIG.defaultTheme)
   }),
   getters: {
     currentTheme: state => state.theme,

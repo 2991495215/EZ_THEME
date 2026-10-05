@@ -593,6 +593,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    detailSequence += 1;
     window.removeEventListener('resize', checkScreenSize);
 
     clearRefreshInterval();
@@ -678,7 +679,12 @@ const closeModal = () => {
     }
 };
 
+let detailSequence = 0;
+const pendingTicketReads = new Map();
 const fetchTicketDetail = async (ticketId, isAutoRefresh = false) => {
+    if (pendingTicketReads.has(ticketId) && isAutoRefresh) return;
+    pendingTicketReads.set(ticketId, (pendingTicketReads.get(ticketId) || 0) + 1);
+    const sequence = ++detailSequence;
     if (!isAutoRefresh) {
         loadingMessages.value = true;
 
@@ -687,6 +693,7 @@ const fetchTicketDetail = async (ticketId, isAutoRefresh = false) => {
 
     try {
         const data = await getTicketDetail(ticketId);
+        if (sequence !== detailSequence || selectedTicket.value?.id !== ticketId) return;
 
         if (data.data) {
             if (data.data.message && Array.isArray(data.data.message)) {
@@ -710,6 +717,7 @@ const fetchTicketDetail = async (ticketId, isAutoRefresh = false) => {
             }
         }
     } catch (error) {
+        if (sequence !== detailSequence || selectedTicket.value?.id !== ticketId || error.code === 'ERR_CANCELED') return;
         console.error('Failed to fetch ticket details:', error);
 
         showToast(
@@ -719,7 +727,10 @@ const fetchTicketDetail = async (ticketId, isAutoRefresh = false) => {
             'error'
         );
     } finally {
-        if (!isAutoRefresh) {
+        const remaining = pendingTicketReads.get(ticketId) - 1;
+        if (remaining) pendingTicketReads.set(ticketId, remaining);
+        else pendingTicketReads.delete(ticketId);
+        if (sequence === detailSequence && !isAutoRefresh) {
             loadingMessages.value = false;
         }
     }
@@ -739,7 +750,7 @@ const setupRefreshInterval = (ticketId) => {
     if (selectedTicket.value && selectedTicket.value.status === 0) {
         refreshInterval.value = setInterval(() => {
             if (selectedTicket.value && selectedTicket.value.id === ticketId) {
-                fetchTicketDetail(ticketId, true);
+                if (!document.hidden) fetchTicketDetail(ticketId, true);
             } else {
                 clearRefreshInterval();
             }
@@ -754,7 +765,7 @@ const selectTicket = async (ticket) => {
 
     await fetchTicketDetail(ticket.id);
 
-    if (ticket.status === 0) {
+    if (selectedTicket.value?.id === ticket.id && ticket.status === 0) {
         setupRefreshInterval(ticket.id);
     }
 };
@@ -767,8 +778,9 @@ const backToList = () => {
     if (detailElement) {
         detailElement.classList.add('closing');
 
+        const closingTicketId = selectedTicket.value?.id;
         setTimeout(() => {
-            selectedTicket.value = null;
+            if (selectedTicket.value?.id === closingTicketId) selectedTicket.value = null;
         }, 280);
     } else {
         selectedTicket.value = null;

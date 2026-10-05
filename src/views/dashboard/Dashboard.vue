@@ -1,6 +1,10 @@
 <template>
   <div class="dashboard-container">
     <div class="dashboard-inner">
+      <div v-if="Object.values(errors).some(Boolean)" class="dashboard-load-error" role="alert">
+        <p v-for="(message, block) in errors" :key="block" v-show="message">{{ message }}</p>
+        <button class="btn btn-secondary" @click="retryFailed">{{ $t('common.retry') }}</button>
+      </div>
       <AppCard v-if="false" class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.welcome') }}</h2>
@@ -382,7 +386,7 @@
       </transition>
 
       <div class="stats-grid">
-        <template v-if="loading.userStats">
+        <template v-if="(loading.userStats && !loadedReads.userStats) || (loading.userInfo && !loadedReads.userInfo) || (loading.subscribe && !loadedReads.subscribe)">
           <AppCard v-for="i in 4" :key="i" class="stats-card skeleton-card" variant="stats" no-padding>
             <div class="skeleton-icon"></div>
             <div class="skeleton-content">
@@ -392,7 +396,7 @@
           </AppCard>
         </template>
 
-        <template v-else-if="!hasPlan">
+        <template v-else-if="!hasPlan && loadedReads.userInfo && !errors.userInfo">
           <!-- 没有套餐时显示的提示卡片 -->
           <AppCard class="dashboard-card stats-card no-plan-card" :class="{'card-animate': !loading.userStats}"
                style="animation-delay: 0.5s; grid-column: span 4; margin: 0 auto; max-width: 1200px; width: 100%;" variant="stats" hoverable no-padding>
@@ -417,7 +421,7 @@
           </AppCard>
         </template>
 
-        <template v-else>
+        <template v-else-if="hasPlan && loadedReads.userInfo && loadedReads.subscribe && loadedReads.userStats">
           <AppCard class="stats-card"
                :class="{
               'card-animate': !loading.userStats,
@@ -997,6 +1001,17 @@ export default {
       subscribe: true
     });
 
+    const errors = reactive({ userInfo: '', subscribe: '', notices: '', userStats: '', config: '' });
+    const pendingReads = new Set();
+    const loadedReads = reactive({ userInfo: false, subscribe: false, notices: false, userStats: false });
+    const retryFailed = () => {
+      if (errors.userInfo) fetchUserInfo();
+      if (errors.subscribe) fetchSubscribe();
+      if (errors.notices) fetchNotices();
+      if (errors.userStats) fetchUserStats();
+      if (errors.config) fetchUserConfig();
+    };
+
     const waterAnimationState = reactive({
       canAnimate: false,
       initialized: false
@@ -1148,11 +1163,15 @@ export default {
       if (!localStorage.getItem('token')) {
         hasPlan.value = false;
         loading.userInfo = false;
+        loadedReads.userInfo = true;
         return;
       }
-      if (loading.userInfo === false && Object.keys(userPlan.value).length > 0) return;
+      if (loadedReads.userInfo && !errors.userInfo) return;
 
-      loading.userInfo = true;
+      if (pendingReads.has('userInfo')) return;
+      pendingReads.add('userInfo');
+      errors.userInfo = '';
+      loading.userInfo = !loadedReads.userInfo;
       try {
         const response = await getUserInfo();
         if (response.data) {
@@ -1192,9 +1211,12 @@ export default {
             userStats.isRemainingDaysPermanent = true;
           }
         }
+        loadedReads.userInfo = true;
       } catch (error) {
+        if (error.code !== 'ERR_CANCELED') errors.userInfo = error.response?.message || error.message || t('common.networkError');
         console.error('获取用户信息失败:', error);
       } finally {
+        pendingReads.delete('userInfo');
         loading.userInfo = false;
       }
     };
@@ -1285,10 +1307,13 @@ export default {
       //   if (loading.subscribe === true) return;
       // } else {
       // 正常的缓存逻辑
-      if (loading.subscribe === false && userPlan.value.subscribeUrl) return;
+      if (loadedReads.subscribe && !errors.subscribe) return;
       // }
 
-      loading.subscribe = true;
+      if (pendingReads.has('subscribe')) return;
+      pendingReads.add('subscribe');
+      errors.subscribe = '';
+      loading.subscribe = !loadedReads.subscribe;
       try {
         const response = await getSubscribe();
         allowNewPeriod.value = response.data?.allow_new_period;
@@ -1362,17 +1387,23 @@ export default {
             userStats.isRemainingDaysPermanent = true;
           }
         }
+        loadedReads.subscribe = true;
       } catch (error) {
+        if (error.code !== 'ERR_CANCELED') errors.subscribe = error.response?.message || error.message || t('common.networkError');
         console.error('获取订阅信息失败:', error);
       } finally {
+        pendingReads.delete('subscribe');
         loading.subscribe = false;
       }
     };
 
     const fetchNotices = async () => {
-      if (loading.notices === false && notices.value.data && notices.value.data.length > 0) return;
+      if (loadedReads.notices && !errors.notices) return;
 
-      loading.notices = true;
+      if (pendingReads.has('notices')) return;
+      pendingReads.add('notices');
+      errors.notices = '';
+      loading.notices = !loadedReads.notices;
       try {
         const response = await getNotices();
         if (response && response.data) {
@@ -1380,8 +1411,11 @@ export default {
 
           checkForPopupNotices();
         }
+        loadedReads.notices = true;
       } catch (error) {
+        if (error.code !== 'ERR_CANCELED') errors.notices = error.response?.message || error.message || t('common.networkError');
       } finally {
+        pendingReads.delete('notices');
         loading.notices = false;
       }
     };
@@ -1409,9 +1443,12 @@ export default {
     };
 
     const fetchUserStats = async () => {
-      if (loading.userStats === false && userStats.remainingTraffic !== '0 GB') return;
+      if (loadedReads.userStats && !errors.userStats) return;
 
-      loading.userStats = true;
+      if (pendingReads.has('userStats')) return;
+      pendingReads.add('userStats');
+      errors.userStats = '';
+      loading.userStats = !loadedReads.userStats;
       try {
         const response = await getUserStats();
         if (response.data && Array.isArray(response.data) && response.data.length >= 2) {
@@ -1419,9 +1456,12 @@ export default {
           userStats.pendingOrders = stats[0];
           userStats.pendingTickets = stats[1];
         }
+        loadedReads.userStats = true;
       } catch (error) {
+        if (error.code !== 'ERR_CANCELED') errors.userStats = error.response?.message || error.message || t('common.networkError');
         console.error('获取统计数据失败:', error);
       } finally {
+        pendingReads.delete('userStats');
         loading.userStats = false;
       }
     };
@@ -1650,6 +1690,9 @@ export default {
     };
 
     const fetchUserConfig = async () => {
+      if (pendingReads.has('config')) return;
+      pendingReads.add('config');
+      errors.config = '';
       try {
         const response = await getUserConfig();
         if (response.data) {
@@ -1661,18 +1704,20 @@ export default {
           }
         }
       } catch (error) {
-        console.error('获取用户配置失败:', error);
+        if (error.code !== 'ERR_CANCELED') errors.config = error.response?.message || error.message;
+      } finally {
+        pendingReads.delete('config');
       }
     };
 
     const updateAccountBalanceDisplay = () => {
-      if (userBalance.value) {
+      if (userBalance.value !== null && userBalance.value !== undefined) {
         userStats.accountBalance = `${currencySymbol.value}${(parseFloat(userBalance.value) / 100).toFixed(2)}`;
       }
     };
 
-    onMounted(async () => {
-      await fetchUserConfig();
+    onMounted(() => {
+      fetchUserConfig();
 
       fetchUserInfo();
 
@@ -1833,6 +1878,9 @@ export default {
       clientConfig,
       notices,
       loading,
+      errors,
+      loadedReads,
+      retryFailed,
       languageChangedSignal,
       goToShop,
       openDocumentation,

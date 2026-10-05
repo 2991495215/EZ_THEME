@@ -4,9 +4,10 @@ import { API_BASE_URL, getApiBaseUrl, isXiaoV2board, isXboard, CUSTOM_HEADERS_CO
 import { mapApiPath } from './utils/pathMapper';
 import { getAvailableApiUrl } from '@/utils/apiAvailabilityChecker';
 import { getEncrypUrl, randomIv } from "@/api/utils/encryption";
-import { readAuthData } from '@/api/client/authToken';
+import { readAuthData, getAuthSession } from '@/api/client/authToken';
 import { applyCustomHeaders } from '@/api/client/headers';
 import { normalizeRequestError } from '@/api/client/errors';
+import { pinia, useAuthStore } from '@/stores';
 
 const isEncrypted = window.EZ_CONFIG &&
   window.EZ_CONFIG.API_MIDDLEWARE_ENABLED &&
@@ -23,30 +24,16 @@ const request = axios.create({
   }
 });
 
-const clearExpiredAuthState = () => {
-  window.isUserLoggedIn = false;
-  window.authDataInStorage = null;
-  window.authCookieFailure = false;
+const expireCurrentSession = (config) => {
+  if (!config?._authData || config._authSession !== getAuthSession()) return;
+  useAuthStore(pinia).clearUser();
+  window.location.href = '/#/login';
+};
 
-  [
-    'token',
-    'auth_data',
-    'cookie_auth_data',
-    'userInfo',
-    'is_admin',
-    'vuex',
-    'user',
-    'auth'
-  ].forEach(key => {
-    localStorage.removeItem(key);
-    sessionStorage.removeItem(key);
-  });
-
-  ['auth_data', 'XSRF-TOKEN', 'laravel_session', 'token'].forEach(name => {
-    ['/', '/dashboard', '/user', '/admin'].forEach(path => {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
-    });
-  });
+const rejectStaleSession = (config) => {
+  if (config?._authSession !== undefined && config._authSession !== getAuthSession()) {
+    throw new axios.CanceledError('登录状态已改变，忽略旧请求');
+  }
 };
 
 const publicAuthPaths = [
@@ -71,6 +58,8 @@ const shouldAttachAuth = (url) => {
 request.interceptors.request.use(
   async config => {
       const originalUrl = config.url;
+      config._authSession ??= getAuthSession();
+      rejectStaleSession(config);
       config.baseURL = getApiBaseUrl();
     
     if (window.EZ_CONFIG && window.EZ_CONFIG.API_MIDDLEWARE_ENABLED) {
@@ -106,6 +95,8 @@ request.interceptors.request.use(
     
     const authData = shouldAttachAuth(originalUrl) ? await readAuthData() : '';
     
+    rejectStaleSession(config);
+    config._authData = authData;
     if (authData) {
       config.headers['Authorization'] = authData;
     }
@@ -125,28 +116,36 @@ request.interceptors.request.use(
 );
 
 request.interceptors.response.use(
-  async response => {
-    try {
-      const res = response.data;
-      
-      if (res && res.message === '未登录或登陆已过期') {
-        console.log('检测到登录已过期，执行登出操作');
-        clearExpiredAuthState();
-        window.location.href = '/#/login';
-        return Promise.reject(new Error(res.message));
-      }
-      
-      return res;
-    } catch (err) {
-      console.error('响应数据处理错误:', err);
-      return Promise.reject(new Error('响应数据处理错误'));
+  response => {
+    rejectStaleSession(response.config);
+    const res = response.data;
+    if (res?.message === '未登录或登陆已过期') {
+      expireCurrentSession(response.config);
+      return Promise.reject(new Error(res.message));
     }
+    return res;
   },
   error => {
-    console.error('请求错误:', error);
-    
+    rejectStaleSession(error.config);
+    if (error.response?.status === 401) expireCurrentSession(error.config);
     return Promise.reject(normalizeRequestError(error));
   }
 );
 
-export default request;
+// Only combine identical concurrent configuration reads. No private/payment response cache.
+const pendingConfig = new Map();
+const sendRequest = config => {
+  const scopedConfig = { ...config, _authSession: getAuthSession() };
+  if ((config.method || 'get').toLowerCase() !== 'get' ||
+      !/^\/(guest|user)\/comm\/config$/.test(config.url) ||
+      config.signal || config.cancelToken) return request(scopedConfig);
+
+  const key = JSON.stringify([getApiBaseUrl(), scopedConfig._authSession,
+    localStorage.getItem('language'), config.url, config.params, config.headers]);
+  if (pendingConfig.has(key)) return pendingConfig.get(key);
+  const pending = request(scopedConfig).finally(() => pendingConfig.delete(key));
+  pendingConfig.set(key, pending);
+  return pending;
+};
+
+export default sendRequest;
