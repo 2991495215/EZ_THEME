@@ -86,9 +86,9 @@ import pageCache from '@/utils/pageCache';
 import { useToast } from '@/composables/useToast';
 
 NProgress.configure({ 
-  showSpinner: true,   
+  showSpinner: false,
   easing: 'ease',      
-  speed: 400,          
+  speed: 120,
   minimum: 0.2         
 });
 
@@ -169,12 +169,6 @@ export default {
     const onLanguageChanged = () => {
       languageChangedSignal.value++;
       
-      setTimeout(() => {
-        document.body.classList.add('language-transitioning');
-        setTimeout(() => {
-          document.body.classList.remove('language-transitioning');
-        }, 300);
-      }, 0);
     };
     
     const handleVisibilityChange = () => {
@@ -319,8 +313,17 @@ body.dark-theme .app-shell {
   top: 20px;
   right: 25px;
   display: flex;
+  align-items: center;
   gap: 12px;
   z-index: 110;
+
+  .guest-login-btn {
+    box-sizing: border-box;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    background-color: var(--card-background);
+  }
   
   .gift-btn {
     display: flex;

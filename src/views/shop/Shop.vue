@@ -410,7 +410,7 @@
 
 <script>
 
-import { ref, reactive, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 
 import { useI18n } from 'vue-i18n';
 
@@ -706,7 +706,7 @@ export default {
 
     const fetchPlanData = async () => {
 
-      loading.plans = true;
+      loading.plans = plans.value.length === 0;
 
       try {
 
@@ -720,7 +720,8 @@ export default {
 
           Object.keys(selectedPriceType).forEach(key => {
 
-            delete selectedPriceType[key];
+            const plan = plans.value.find(plan => String(plan.id) === key);
+            if (!plan || plan[selectedPriceType[key]] == null) delete selectedPriceType[key];
 
           });
 
@@ -733,6 +734,7 @@ export default {
             nextTick(() => {
 
               plans.value.forEach(plan => {
+                if (selectedPriceType[plan.id]) return;
 
                 const priceTypes = SHOP_CONFIG.periodOrder || ['three_year_price', 'two_year_price', 'year_price', 'half_year_price', 'quarter_price', 'month_price', 'onetime_price'];
 
@@ -784,7 +786,7 @@ export default {
 
     const fetchConfig = async () => {
 
-      loading.config = true;
+      loading.config = plans.value.length === 0;
 
       try {
 
@@ -1104,15 +1106,27 @@ export default {
 
     
 
+    let lastLoad = 0;
+    let refreshing = false;
+    const refreshShop = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        await Promise.all([fetchPlanData(), fetchConfig()]);
+        lastLoad = Date.now();
+      } finally {
+        refreshing = false;
+      }
+    };
+    onActivated(() => {
+      if (Date.now() - lastLoad > 30000) refreshShop();
+    });
+
     onMounted(async () => {
 
       try {
 
-        loading.plans = true;
-
-        await Promise.all([fetchPlanData(), fetchConfig()]);
-
-        loading.plans = false;
+        await refreshShop();
 
         
 
@@ -2960,4 +2974,3 @@ export default {
 }
 
 </style> 
-

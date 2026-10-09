@@ -7,7 +7,7 @@
 
     
 
-    <div class="docs-inner">
+    <div class="docs-inner" :aria-busy="loading">
 
       <!-- 欢迎卡片 -->
 
@@ -366,7 +366,7 @@ const fetchKnowledge = async () => {
   const controller = new AbortController();
   listController = controller;
   const sequence = ++listSequence;
-  loading.value = !Object.keys(documents.value).length;
+  loading.value = true;
 
   error.value = '';
 

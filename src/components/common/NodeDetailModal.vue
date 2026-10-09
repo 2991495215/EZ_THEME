@@ -41,6 +41,11 @@
           </div>
 
           <template v-if="machine">
+            <div v-if="chartLoading" class="probe-inline-state" role="status">正在加载图表...</div>
+            <div v-else-if="chartError" class="probe-inline-state is-error" role="alert">
+              图表加载失败，请重试。
+              <button type="button" @click="renderCharts">{{ t('common.retry') }}</button>
+            </div>
             <section class="probe-summary">
               <div class="probe-server-head">
                 <div class="probe-server-identity">
@@ -220,7 +225,8 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import chartModuleUrl from 'virtual:node-chart-url';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores';
 const { t } = useI18n();
@@ -242,9 +248,13 @@ import {
 } from '@tabler/icons-vue';
 let chartInit;
 let chartLoader;
-const loadCharts = () => chartLoader ||= import('@/utils/nodeCharts').then(module => {
+let chartRetries = 0;
+const loadCharts = () => chartLoader ||= import(/* @vite-ignore */ chartModuleUrl + (chartRetries ? '?retry=' + chartRetries : '')).then(module => {
   chartInit = module.init;
-}).catch(error => { chartLoader = null; throw error; });
+}).catch(error => { chartLoader = null; chartRetries++; throw error; });
+const chartLoading = ref(false);
+const chartError = ref(false);
+let active = true;
 
 const props = defineProps({
   show: {
@@ -583,12 +593,21 @@ function scheduleCharts() {
 }
 
 async function renderCharts() {
-  if (!props.show || !hasHistory.value || chartElements.size === 0) {
+  if (!active || !props.show || !hasHistory.value || chartElements.size === 0) {
     return;
   }
 
-  try { await loadCharts(); } catch { return; }
-  if (!props.show || !hasHistory.value || !chartElements.size) return;
+  chartLoading.value = true;
+  chartError.value = false;
+  try {
+    await loadCharts();
+  } catch {
+    if (active && props.show) chartError.value = true;
+    return;
+  } finally {
+    if (active) chartLoading.value = false;
+  }
+  if (!active || !props.show || !hasHistory.value || !chartElements.size) return;
 
   const firstElement = chartElements.values().next().value;
   const overlay = firstElement?.closest('.node-detail-modal-overlay');
@@ -762,6 +781,7 @@ watch(
   () => [props.show, props.machineDetail],
   () => {
     if (!props.show) {
+      chartError.value = false;
       disposeCharts();
       return;
     }
@@ -780,6 +800,7 @@ watch(hasHistory, () => {
 window.addEventListener('resize', handleResize);
 
 onBeforeUnmount(() => {
+  active = false;
   window.removeEventListener('resize', handleResize);
   disposeCharts();
 });

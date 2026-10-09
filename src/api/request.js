@@ -7,6 +7,7 @@ import { getEncrypUrl, randomIv } from "@/api/utils/encryption";
 import { readAuthData, getAuthSession } from '@/api/client/authToken';
 import { applyCustomHeaders } from '@/api/client/headers';
 import { normalizeRequestError } from '@/api/client/errors';
+import { applyGuestCache, guestCacheTTL } from '@/api/client/guestCache';
 import { pinia, useAuthStore } from '@/stores';
 
 const isEncrypted = window.EZ_CONFIG &&
@@ -107,6 +108,11 @@ request.interceptors.request.use(
       console.error('应用自定义标头失败:', error);
     }
     
+    if (guestCacheTTL[originalUrl]) {
+      const authenticated = localStorage.getItem('token') || await readAuthData();
+      rejectStaleSession(config);
+      applyGuestCache(config, originalUrl, authenticated);
+    }
     return config;
   },
   error => {
@@ -132,12 +138,12 @@ request.interceptors.response.use(
   }
 );
 
-// Only combine identical concurrent configuration reads. No private/payment response cache.
+// Private configuration only merges concurrent reads; it never persists responses.
 const pendingConfig = new Map();
 const sendRequest = config => {
   const scopedConfig = { ...config, _authSession: getAuthSession() };
   if ((config.method || 'get').toLowerCase() !== 'get' ||
-      !/^\/(guest|user)\/comm\/config$/.test(config.url) ||
+      config.url !== '/user/comm/config' ||
       config.signal || config.cancelToken) return request(scopedConfig);
 
   const key = JSON.stringify([getApiBaseUrl(), scopedConfig._authSession,

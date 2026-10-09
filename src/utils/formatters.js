@@ -2,7 +2,26 @@
 
 const trafficCache = new Map();
 
+const nodeFlags = import.meta.glob('../assets/i18N/*.svg', { eager: true, query: '?url', import: 'default' });
+
+export function formatNodeName(name = '') {
+    const prefix = name.match(/^(?:([\u{1F1E6}-\u{1F1FF}]{2})|([A-Za-z]{2})(?=\s))/u);
+    const code = prefix?.[1]
+        ? [...prefix[1]].map(char => String.fromCharCode(char.codePointAt(0) - 0x1F1E6 + 65)).join('')
+        : prefix?.[2]?.toUpperCase();
+    const flag = nodeFlags[`../assets/i18N/${code}.svg`];
+    return { flag, label: flag ? name.slice(prefix[0].length).trimStart() : name };
+}
+
 const MAX_CACHE_SIZE = 100;
+
+// 2026-10-09 IPv4 上海三网回程笔记；CN2 不代表 GIA，S16 电信为 163＋CN2 混合路径。
+const nodeRouteTags = { 12: ['CN2', 'CMIN2'], 16: ['CN2', '9929', 'CMIN2'] };
+
+export function formatNodeTags(node) {
+    const server = formatNodeName(node.name).label.match(/^美国S(12|16)(?=$|[\s｜|])/i)?.[1];
+    return [...new Set([...(node.tags || []), ...(nodeRouteTags[server] || [])])];
+}
 
 
 

@@ -761,7 +761,6 @@ router.beforeEach(async (to, from, next) => {
 
   } else {
 
-    document.body.classList.add('page-transitioning');
 
     
 
@@ -785,15 +784,6 @@ router.beforeEach(async (to, from, next) => {
 
 
 
-router.afterEach(() => {
-
-  setTimeout(() => {
-
-    document.body.classList.remove('page-transitioning');
-
-  }, 400);
-
-});
 
 
 

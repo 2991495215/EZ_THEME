@@ -80,21 +80,19 @@
 
         <div class="node-items">
 
-          <div v-for="node in nodes" :key="node.id" class="node-item">
+          <div v-for="node in displayNodes" :key="node.id" class="node-item">
             <div class="node-card-top">
               <div class="node-meta">
-                <div class="node-status" :title="node.is_online === 1 ? 'Online' : 'Offline'">
+                <div class="node-status" :class="{ offline: node.is_online !== 1 }" :title="node.is_online === 1 ? 'Online' : 'Offline'">
                   <div class="status-indicator" :class="{ 'online': node.is_online === 1 }"></div>
                 </div>
 
-                <div class="node-tags">
-                  <span class="node-tag rate-tag" v-if="showNodeRate">x{{ node.rate }}</span>
-                  <span class="node-tag type-tag">{{ node.type }}</span>
-                  <template v-if="node.tags && node.tags.length > 0">
-                    <span v-for="(tag, index) in node.tags" :key="index" class="node-tag">
-                      {{ tag }}
-                    </span>
-                  </template>
+                <div class="node-info">
+                  <h3 class="node-name" :title="node.displayName.label">
+                    <img v-if="node.displayName.flag" :src="node.displayName.flag" alt="" class="node-flag">
+                    {{ node.displayName.label }}
+                  </h3>
+                  <p class="node-host" v-if="showNodeDetails">{{ node.host }}:{{ node.port }}</p>
                 </div>
               </div>
 
@@ -105,9 +103,12 @@
               </div>
             </div>
 
-            <div class="node-info">
-              <h3 class="node-name">{{ node.name }}</h3>
-              <p class="node-host" v-if="showNodeDetails">{{ node.host }}:{{ node.port }}</p>
+            <div class="node-tags">
+              <span class="node-tag rate-tag" v-if="showNodeRate">x{{ node.rate }}</span>
+              <span class="node-tag type-tag">{{ node.type }}</span>
+              <span v-for="(tag, index) in node.tags" :key="index" class="node-tag">
+                {{ tag }}
+              </span>
             </div>
           </div>
 
@@ -185,6 +186,7 @@ import { fetchNodeMachine, fetchServerNodes } from '@/api/servers';
 
 
 import { NODES_CONFIG } from '@/utils/baseConfig';
+import { formatNodeName, formatNodeTags } from '@/utils/formatters';
 
 import NodeDetailModal from '@/components/common/NodeDetailModal.vue';
 
@@ -201,6 +203,9 @@ const loading = ref(true);
 const error = ref('');
 
 const nodes = ref([]);
+const displayNodes = computed(() => nodes.value.map(node => ({
+  ...node, displayName: formatNodeName(node.name), tags: formatNodeTags(node)
+})));
 
 const showNodeDetails = ref(NODES_CONFIG.showNodeDetails); 
 const showNodeRate = ref(NODES_CONFIG.showNodeRate);
@@ -1018,19 +1023,19 @@ onMounted(() => {
 
   0% {
 
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+    box-shadow: 0 0 0 0 rgba(var(--status-pulse-rgb, 76, 175, 80), 0.4);
 
   }
 
   70% {
 
-    box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+    box-shadow: 0 0 0 8px rgba(var(--status-pulse-rgb, 76, 175, 80), 0);
 
   }
 
   100% {
 
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    box-shadow: 0 0 0 0 rgba(var(--status-pulse-rgb, 76, 175, 80), 0);
 
   }
 
@@ -1282,27 +1287,28 @@ onMounted(() => {
 .nodes-container .node-item {
   position: relative !important;
   display: flex !important;
-  min-height: 132px;
-  padding: 20px 48px 20px 20px;
+  min-height: 0;
+  padding: 16px;
   flex-direction: column !important;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: stretch !important;
-  gap: 22px;
-  border-radius: 18px;
+  gap: 14px;
+  border-radius: 14px;
   background-color: var(--card-background);
 }
 
 .nodes-container .node-card-top {
   display: flex !important;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  justify-content: space-between;
   width: 100%;
   min-width: 0;
 }
 
 .nodes-container .node-meta {
   display: flex !important;
-  align-items: center;
+  flex: 1;
+  align-items: flex-start;
   min-width: 0;
   gap: 10px;
 }
@@ -1334,12 +1340,23 @@ onMounted(() => {
   box-shadow: none;
 }
 
+.nodes-container .node-status.offline {
+  border-color: rgba(239, 68, 68, 0.22);
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.nodes-container .node-status.offline .status-indicator {
+  --status-pulse-rgb: 239, 68, 68;
+  background-color: #ef4444;
+  animation: pulse 2s infinite;
+}
+
 .nodes-container .node-tags {
   display: flex !important;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
-  min-height: 28px;
+  min-height: 24px;
   margin: 0;
   flex-wrap: wrap;
 }
@@ -1348,11 +1365,11 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
-  min-height: 26px;
-  padding: 0 10px;
-  border-radius: 7px;
-  font-size: 12px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -1374,9 +1391,8 @@ onMounted(() => {
 }
 
 .nodes-container .node-actions {
-  position: absolute !important;
-  top: 17px;
-  right: 16px;
+  position: static !important;
+  flex: 0 0 32px;
   display: flex !important;
   align-items: center;
   justify-content: center;
@@ -1410,20 +1426,30 @@ onMounted(() => {
 
 .nodes-container .node-info {
   display: block !important;
+  flex: 1;
   min-width: 0;
   padding: 0;
 }
 
-.nodes-container .node-name {
+.nodes-container .node-item .node-name {
   display: block;
   margin: 0;
   color: var(--heading-color, var(--text-color));
   font-size: 16px;
   font-weight: 650;
   line-height: 1.45;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.nodes-container .node-flag {
+  width: 24px;
+  height: 16px;
+  margin-inline-end: 6px;
+  vertical-align: -2px;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 .nodes-container .node-host {
@@ -1439,9 +1465,7 @@ onMounted(() => {
 
 @media (max-width: 767px) {
   .nodes-container .node-item {
-    min-height: 118px;
-    padding: 18px 46px 18px 18px;
-    gap: 18px;
+    gap: 12px;
   }
 }
 

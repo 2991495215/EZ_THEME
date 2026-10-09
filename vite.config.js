@@ -90,6 +90,17 @@ export default defineConfig(({ mode }) => {
     base: isProd ? '/theme/Xboard/' : './',
     plugins: [
       vue(),
+      {
+        name: 'node-chart-url',
+        resolveId(id) { if (id === 'virtual:node-chart-url') return '\0node-chart-url'; },
+        load(id) {
+          if (id !== '\0node-chart-url') return;
+          if (!isProd) return 'export default "/src/utils/nodeCharts.js"';
+          // Keep init on the real charts chunk, not a facade whose failed dependency cannot retry.
+          const reference = this.emitFile({ type: 'chunk', id: path.resolve(__dirname, 'src/utils/nodeCharts.js'), preserveSignature: 'allow-extension' });
+          return `export default import.meta.ROLLUP_FILE_URL_${reference}`;
+        }
+      },
       createRuntimeConfigPlugin({
         enableConfigJS,
         enableObfuscation,
@@ -132,6 +143,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       minify: 'terser',
       terserOptions: {
+        maxWorkers: 1,
         compress: {
           drop_console: isProd,
           drop_debugger: true
@@ -145,6 +157,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.endsWith('/src/utils/nodeCharts.js')) return 'charts';
             if (!id.includes('node_modules')) return undefined;
 
             // 這些依賴只在特定頁面使用，拆包可降低首屏主包壓力。
