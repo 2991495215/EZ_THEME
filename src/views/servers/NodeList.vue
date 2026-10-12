@@ -68,7 +68,7 @@
           </span>
           <a
             class="node-probe-link"
-            href="https://k.zinc.run/"
+            href="https://m.zinc.run"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="打开探针"

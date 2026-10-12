@@ -16,7 +16,7 @@
           <div class="modal-header-actions">
             <a
               class="modal-probe-link"
-              href="https://k.zinc.run/"
+              href="https://m.zinc.run"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="前往探针"
