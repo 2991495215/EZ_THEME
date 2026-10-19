@@ -192,7 +192,7 @@
 
                 v-model="formData.verificationCode"
 
-                :placeholder="$t('auth.codePlaceholder')"
+                :placeholder="$t('common.enterVerificationCode')"
 
                 required
 

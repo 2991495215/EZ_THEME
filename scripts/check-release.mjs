@@ -69,7 +69,7 @@ try {
         return route.abort();
       }
       if (endpoint.endsWith('/plan/fetch')) data = [{ ...plan, name: 'Test plan ' + planVersion }];
-      else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') data = { currency: 'CNY', currency_symbol: '¥', is_email_verify: false };
+      else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') data = { currency: 'CNY', currency_symbol: '¥', is_email_verify: 1 };
       else if (endpoint.endsWith('/server/fetch')) data = nodes;
       else if (endpoint.endsWith('/server/machine')) data = machine;
       else if (endpoint.endsWith('/knowledge/fetch')) {
@@ -116,6 +116,12 @@ try {
   assert((await page.title()).endsWith('ZINC regression'));
   assert.equal(new Set(requests.filter(url => /(?:zh-CN|en-US|vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(url))).size, 2);
   assert(!requests.some(url => /txz\.png|fonts\.googleapis/.test(url)));
+  for (const route of ['/register', '/forgot-password']) {
+    await navigate(route);
+    await page.locator('#verificationCode').waitFor();
+    assert.equal(await page.locator('#verificationCode').getAttribute('placeholder'), '请输入验证码');
+  }
+  await navigate('/login');
   await page.locator('.legal-link').first().click();
   await page.locator('.legal-dialog[open]').waitFor();
   await page.locator('.legal-dialog-close').click();
