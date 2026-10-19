@@ -134,7 +134,7 @@
 
         <div class="form-group">
 
-          <label for="newPassword">{{ $t('auth.newPassword') }} <span class="required">*</span></label>
+          <label for="newPassword">{{ $t('profile.newPassword') }} <span class="required">*</span></label>
 
           <div class="input-with-icon">
 

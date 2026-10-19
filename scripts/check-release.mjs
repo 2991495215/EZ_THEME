@@ -120,6 +120,7 @@ try {
     await navigate(route);
     await page.locator('#verificationCode').waitFor();
     assert.equal(await page.locator('#verificationCode').getAttribute('placeholder'), '请输入验证码');
+    if (route === '/forgot-password') assert.match(await page.locator('label[for="newPassword"]').textContent(), /新密码/);
   }
   await navigate('/login');
   await page.locator('.legal-link').first().click();
