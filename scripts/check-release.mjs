@@ -299,6 +299,9 @@ try {
   const changeLanguage = async label => {
     await page.locator('.language-btn').click();
     await page.getByText(label, { exact: true }).last().click();
+    const locale = label === 'English' ? 'en-US' : 'zh-CN';
+    await page.waitForFunction(locale => localStorage.getItem('language') === locale
+      && document.documentElement.lang === locale, locale);
   };
   await navigate('/dashboard');
   await changeLanguage('English');
