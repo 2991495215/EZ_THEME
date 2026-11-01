@@ -1,6 +1,6 @@
 // Production-package regression checks. Every request is local or mocked; no real login/payment writes.
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
 import { createHash } from 'node:crypto';
@@ -25,6 +25,8 @@ if (existsSync(liveRoot)) {
 }
 if (process.argv[2] === '--live-only') process.exit(0);
 const output = path.resolve(process.argv[2] || 'dist');
+assert(!readdirSync(path.join(output, 'static')).some(file => /^(?:vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(file)),
+  'release must only contain Chinese and English locale chunks');
 const html = readFileSync(path.join(output, 'dashboard.blade.php'), 'utf8')
   .replace(/@json\(\$title\)/g, JSON.stringify('ZINC regression'))
   .replace(/\{\{\$title\}\}/g, 'ZINC regression');
@@ -136,6 +138,9 @@ try {
   await page.locator('.auth-form').waitFor();
   await page.waitForFunction(() => !document.getElementById('appBootState'));
   assert((await page.title()).endsWith('ZINC regression'));
+  await page.locator('.language-btn').click();
+  assert.deepEqual(await page.locator('.language-item .lang-name').allTextContents(), ['简体中文', 'English']);
+  await page.locator('.language-btn').click();
   assert.equal(new Set(requests.filter(url => /(?:zh-CN|en-US|vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(url))).size, 2);
   assert(!requests.some(url => /txz\.png|fonts\.googleapis/.test(url)));
   for (const route of ['/register', '/forgot-password']) {
@@ -306,6 +311,10 @@ try {
   await navigate('/dashboard');
   await changeLanguage('English');
   await page.getByText('Current exit IP check', { exact: true }).waitFor();
+  await page.locator('[data-legal-doc=terms]').click();
+  await page.getByRole('heading', { name: 'Terms of Service', exact: true }).waitFor();
+  assert(!/[\u3400-\u9fff]/u.test(await page.locator('.legal-dialog').innerText()));
+  await page.locator('.legal-dialog-close').click();
   assert.equal(await page.locator('.client-guide-tabs').getAttribute('aria-label'), 'Select operating system');
   assert(!/[\u3400-\u9fff]/u.test(await page.locator('.client-guide-section').innerText()));
   await page.getByText('VPS buying guide', { exact: true }).waitFor();
@@ -349,9 +358,18 @@ try {
   await page.locator('.modal-close-btn').click();
   await changeLanguage('简体中文');
   await page.getByText('美国S12', { exact: true }).waitFor();
+  for (const previous of ['zh-TW', 'ja-JP', 'ko-KR', 'ru-RU', 'fa-IR', 'vi-VN', 'invalid']) {
+    const expected = previous.startsWith('zh') ? 'zh-CN' : 'en-US';
+    await page.evaluate(previous => localStorage.setItem('language', previous), previous);
+    await page.reload();
+    await page.waitForFunction(expected => localStorage.getItem('language') === expected
+      && document.documentElement.lang === expected, expected);
+    await page.getByText(expected === 'zh-CN' ? '美国S12' : 'United States S12', { exact: true }).waitFor();
+  }
+  assert(!requests.some(url => /\/(?:vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(url)));
   assert.deepEqual(errors, []);
   assert.deepEqual(unexpected, []);
-  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, chart failure/retry, Chinese/English dashboard/notice/shop/order/payment/nodes and locale persistence');
+  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, chart failure/retry, Chinese/English dashboard/notice/shop/order/payment/nodes, two-language menu, legal copy and legacy locale migration');
 } finally {
   releaseStats?.();
   releaseDashboard?.();

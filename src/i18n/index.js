@@ -32,87 +32,24 @@ const injectSiteName = (messages) => {
 
 
 
-const getBrowserLanguage = () => {
+const normalizeLanguage = language => language?.startsWith('zh') ? 'zh-CN' : 'en-US';
 
-  const browserLang = navigator.language || navigator.userLanguage;
-
-  if (browserLang === 'zh-CN') return 'zh-CN';
-
-  if (browserLang === 'vi-VN' || browserLang === 'vi') return 'vi-VN';
-
-  if (browserLang === 'zh-TW' || browserLang === 'zh-HK') return 'zh-TW';
-
-  if (browserLang === 'ja' || browserLang === 'ja-JP') return 'ja-JP';
-
-  if (browserLang === 'ko' || browserLang === 'ko-KR') return 'ko-KR';
-
-  if (browserLang === 'ru' || browserLang === 'ru-RU') return 'ru-RU';
-
-  if (browserLang === 'fa' || browserLang === 'fa-IR') return 'fa-IR';
-
-  
-
-  if (browserLang.startsWith('zh')) return 'zh-CN';
-
-  if (browserLang.startsWith('vi')) return 'vi-VN';
-
-  if (browserLang.startsWith('ja')) return 'ja-JP';
-
-  if (browserLang.startsWith('ko')) return 'ko-KR';
-
-  if (browserLang.startsWith('ru')) return 'ru-RU';
-
-  if (browserLang.startsWith('fa')) return 'fa-IR';
-
-  
-
-  return 'en-US';
-
-};
-
-
+const getBrowserLanguage = () => normalizeLanguage(
+  navigator.language || navigator.userLanguage || DEFAULT_CONFIG.defaultLanguage
+);
 
 const getStoredLanguage = () => {
-
   const storedLanguage = localStorage.getItem('language');
-
-  if (storedLanguage) {
-
-    return storedLanguage;
-
-  }
-
-  
-
-  const browserLanguage = getBrowserLanguage();
-
-  if (browserLanguage) {
-
-    return browserLanguage;
-
-  }
-
-  
-
-  return DEFAULT_CONFIG.defaultLanguage;
-
+  const language = storedLanguage ? normalizeLanguage(storedLanguage) : getBrowserLanguage();
+  if (storedLanguage && storedLanguage !== language) localStorage.setItem('language', language);
+  return language;
 };
 
-
-
-const supportedLocales = ['zh-CN', 'vi-VN', 'en-US', 'zh-TW', 'ja-JP', 'ko-KR', 'ru-RU', 'fa-IR'];
-
-
+const supportedLocales = ['zh-CN', 'en-US'];
 
 const localeLoaders = {
   'zh-CN': () => import('./locales/zh-CN.js'),
-  'vi-VN': () => import('./locales/vi-VN.js'),
   'en-US': () => import('./locales/en-US.js'),
-  'zh-TW': () => import('./locales/zh-TW.js'),
-  'ja-JP': () => import('./locales/ja-JP.js'),
-  'ko-KR': () => import('./locales/ko-KR.js'),
-  'ru-RU': () => import('./locales/ru-RU.js'),
-  'fa-IR': () => import('./locales/fa-IR.js')
 };
 const loadLocaleMessages = async (isLoggedIn, language = getStoredLanguage()) => {
   const selected = supportedLocales.includes(language) ? language : 'en-US';
@@ -143,10 +80,7 @@ let languageSequence = 0;
 export const setLanguage = async (lang) => {
   const sequence = ++languageSequence;
 
-  if (!supportedLocales.includes(lang)) {
-
-    lang = 'en-US';
-  }
+  lang = normalizeLanguage(lang);
 
   
 
@@ -328,6 +262,7 @@ export const reloadMessages = async () => {
     
 
     i18n.global.locale.value = initialLang;
+    document.documentElement.lang = initialLang;
 
     
 
