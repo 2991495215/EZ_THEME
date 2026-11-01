@@ -37,7 +37,7 @@ const browser = await chromium.launch({
 });
 const origin = 'https://theme.test/';
 const now = Math.floor(Date.now() / 1000);
-const plan = { id: 1, name: 'Test plan', transfer_enable: 100, capacity_limit: null, content: '',
+const plan = { id: 1, name: 'Test plan', transfer_enable: 100, capacity_limit: null, content: JSON.stringify([{ feature: '📦 每月 1000 GB 流量', support: true }, { feature: '📱 支持 10 台设备同时在线', support: true }, { feature: '⭐ 包含三网优化线路', support: true }]),
   month_price: 1000, quarter_price: 2500, half_year_price: null, year_price: null,
   two_year_price: null, three_year_price: null, onetime_price: null };
 const nodes = ['US 美国S12', 'US 美国S16', 'HK 香港S1'].map((name, index) => ({
@@ -49,6 +49,7 @@ const machine = { machine: { id: 1, name: 'Test server', is_active: true, last_s
     disk_used: 1, disk_total: 8, net_in_speed: 100, net_out_speed: 50 })) };
 const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light', viewport: { width: 1440, height: 900 } });
 const requests = [], errors = [], unexpected = [];
+let languageRegression = false;
 let chartAttempts = 0, failCharts = false, planVersion = 1, docVersion = 0, releaseEnglish, releaseCharts;
 let dashboardVersion = 1, holdDashboard = false, releaseDashboard, failSubscribe = false, releaseStats;
 const initialStats = new Promise(resolve => { releaseStats = resolve; });
@@ -57,7 +58,7 @@ let sawChartRetry;
 const chartRetryRequested = new Promise(resolve => { sawChartRetry = resolve; });
 try {
   await context.addInitScript(() => {
-    localStorage.setItem('language', 'zh-CN');
+    if (!localStorage.getItem('language')) localStorage.setItem('language', 'zh-CN');
     window.testNow = Date.now();
     Date.now = () => window.testNow;
   });
@@ -71,7 +72,10 @@ try {
         unexpected.push(request.method() + ' ' + endpoint);
         return route.abort();
       }
-      if (endpoint.endsWith('/plan/fetch')) data = [{ ...plan, name: 'Test plan ' + planVersion }];
+      if (endpoint.endsWith('/plan/fetch')) {
+        const selectedPlan = { ...plan, name: languageRegression ? 'Standard 标准' : 'Test plan ' + planVersion };
+        data = url.searchParams.has('id') ? selectedPlan : [selectedPlan];
+      }
       else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') data = { currency: 'CNY', currency_symbol: '¥', is_email_verify: 1 };
       else if (endpoint.endsWith('/server/fetch')) data = nodes;
       else if (endpoint.endsWith('/server/machine')) data = machine;
@@ -81,6 +85,7 @@ try {
           data = { Test: [{ id: 1, title: 'Stale English', updated_at: now }] };
         } else data = { Test: [{ id: 1, title: ++docVersion === 1 ? '中文初始文档' : '中文最新文档', updated_at: now }] };
       }
+      else if (endpoint === '/user/checkLogin') data = { is_login: true };
       else if (endpoint === '/passport/auth/login') data = { token: 'regression-only', auth_data: 'regression-only' };
       else if (endpoint === '/user/info') {
         if (holdDashboard) await dashboardRefresh;
@@ -97,8 +102,8 @@ try {
           u: 100000000, d: 100000000, subscribe_url: 'https://theme.test/mock' };
       }
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
-      else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: 'Stable announcement', content: 'Notice', created_at: now }];
-      else if (endpoint === '/user/order/detail') data = { trade_no: 'mock', status: 0, total_amount: 1000, period: 'month_price', plan, created_at: now };
+      else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now }];
+      else if (endpoint === '/user/order/detail') data = { trade_no: 'mock', status: 0, total_amount: 1000, period: 'month_price', plan: { ...plan, name: languageRegression ? 'Standard 标准' : plan.name }, created_at: now };
       else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
       else data = [];
       return route.fulfill({ json: { data } });
@@ -287,9 +292,63 @@ try {
   await page.locator('.more-btn').first().click();
   await page.locator('.probe-chart-canvas canvas').first().waitFor();
   assert.equal(chartAttempts, 2);
+  languageRegression = true;
+  failCharts = false;
+  // Reload clears the intentionally failed module URL before independent locale checks.
+  await page.reload();
+  const changeLanguage = async label => {
+    await page.locator('.language-btn').click();
+    await page.getByText(label, { exact: true }).last().click();
+  };
+  await navigate('/dashboard');
+  await changeLanguage('English');
+  await page.getByText('Current exit IP check', { exact: true }).waitFor();
+  assert.equal(await page.locator('.client-guide-tabs').getAttribute('aria-label'), 'Select operating system');
+  assert(!/[\u3400-\u9fff]/u.test(await page.locator('.client-guide-section').innerText()));
+  await page.getByText('VPS buying guide', { exact: true }).waitFor();
+  await page.locator('.notice-item .btn-notice').nth(1).click();
+  await page.getByText('Open the server monitor from the Nodes page to view server status.', { exact: true }).waitFor();
+  await page.locator('.notice-modal .popup-close-btn').click();
+  await changeLanguage('简体中文');
+  await page.getByText('当前出口检测', { exact: true }).waitFor();
+  await page.getByText('服务器购买建议', { exact: true }).waitFor();
+  await changeLanguage('English');
+  await page.evaluate(() => { window.testNow += 31000; });
+  await navigate('/shop');
+  await page.locator('.plan-card .card-title').filter({ hasText: /^Standard$/ }).waitFor();
+  await page.getByText('📦 1000 GB monthly data', { exact: true }).waitFor();
+  assert(!/[\u3400-\u9fff]/u.test(await page.locator('.plan-card').first().innerText()));
+  await changeLanguage('简体中文');
+  await page.getByText('Standard 标准', { exact: true }).waitFor();
+  await page.getByText('📦 每月 1000 GB 流量', { exact: true }).waitFor();
+  await changeLanguage('English');
+  await navigate('/order-confirm?id=1&period=month_price');
+  await page.locator('.plan-card .card-title').filter({ hasText: /^Standard$/ }).waitFor();
+  await page.getByText('📦 1000 GB monthly data', { exact: true }).waitFor();
+  await changeLanguage('简体中文');
+  await page.getByText('Standard 标准', { exact: true }).waitFor();
+  await changeLanguage('English');
+  await navigate('/payment?trade_no=mock');
+  await page.locator('.product-info .info-value').filter({ hasText: /^Standard$/ }).waitFor();
+  await changeLanguage('简体中文');
+  await page.getByText('Standard 标准', { exact: true }).waitFor();
+  await changeLanguage('English');
+  await page.reload();
+  assert.equal(await page.evaluate(() => localStorage.getItem('language')), 'en-US');
+  await navigate('/dashboard');
+  await page.getByText('Current exit IP check', { exact: true }).waitFor();
+  await navigate('/nodes');
+  await page.getByText('United States S12', { exact: true }).waitFor();
+  await page.getByText('Open server monitor', { exact: true }).waitFor();
+  await page.locator('.more-btn').first().click();
+  await page.locator('.probe-chart-canvas canvas').first().waitFor();
+  assert(!/[\u3400-\u9fff]/u.test(await page.locator('.node-detail-modal-container').innerText()));
+  await page.locator('.modal-close-btn').click();
+  await changeLanguage('简体中文');
+  await page.getByText('美国S12', { exact: true }).waitFor();
   assert.deepEqual(errors, []);
   assert.deepEqual(unexpected, []);
-  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, chart failure/retry');
+  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, chart failure/retry, Chinese/English dashboard/notice/shop/order/payment/nodes and locale persistence');
 } finally {
   releaseStats?.();
   releaseDashboard?.();

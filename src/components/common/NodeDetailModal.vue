@@ -8,8 +8,8 @@
               <IconServer :size="20" />
             </span>
             <div class="modal-title-copy">
-              <h3 class="modal-title">{{ node.name || '节点状态' }}</h3>
-              <p class="modal-subtitle">节点详情</p>
+              <h3 class="modal-title">{{ translateContent(node.name) || t('site.nodeStatus') }}</h3>
+              <p class="modal-subtitle">{{ t('site.nodeDetails') }}</p>
             </div>
           </div>
 
@@ -19,13 +19,13 @@
               href="https://m.zinc.run"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="前往探针"
+              :aria-label="t('site.openProbe')"
             >
               <IconExternalLink :size="16" />
-              前往探针
+              {{ t('site.openProbe') }}
             </a>
 
-            <button class="modal-close-btn" @click="close" aria-label="关闭">
+            <button class="modal-close-btn" @click="close" :aria-label="t('site.close')">
               <IconX :size="20" />
             </button>
           </div>
@@ -33,7 +33,7 @@
 
         <div class="node-detail-modal-body">
           <div v-if="machineLoading" class="probe-inline-state">
-            正在同步服务器状态...
+            {{ t('site.syncing') }}
           </div>
 
           <div v-else-if="machineError" class="probe-inline-state is-error">
@@ -41,40 +41,40 @@
           </div>
 
           <template v-if="machine">
-            <div v-if="chartLoading" class="probe-inline-state" role="status">正在加载图表...</div>
+            <div v-if="chartLoading" class="probe-inline-state" role="status">{{ t('site.chartLoading') }}</div>
             <div v-else-if="chartError" class="probe-inline-state is-error" role="alert">
-              图表加载失败，请重试。
+              {{ t('site.chartError') }}
               <button type="button" @click="renderCharts">{{ t('common.retry') }}</button>
             </div>
             <section class="probe-summary">
               <div class="probe-server-head">
                 <div class="probe-server-identity">
-                  <span class="probe-server-label">承载服务器</span>
+                  <span class="probe-server-label">{{ t('site.hostServer') }}</span>
                   <div class="probe-server-name">
                     <IconServer2 :size="18" />
-                    <span>{{ machine.name || '未命名服务器' }}</span>
+                    <span>{{ translateContent(machine.name) || t('site.unnamedServer') }}</span>
                   </div>
                 </div>
                 <span class="probe-status-badge" :class="statusClass">
-                  服务器{{ statusText }}
+                  {{ t('site.serverStatus', { status: statusText }) }}
                 </span>
               </div>
 
               <div class="probe-meta-grid">
                 <div class="probe-meta-item">
-                  <span>节点名称</span>
-                  <strong>{{ node.name || '未命名节点' }}</strong>
+                  <span>{{ t('site.nodeName') }}</span>
+                  <strong>{{ translateContent(node.name) || t('site.unnamedNode') }}</strong>
                 </div>
                 <div class="probe-meta-item">
-                  <span>节点协议</span>
+                  <span>{{ t('site.protocol') }}</span>
                   <strong>{{ node.type || '-' }}</strong>
                 </div>
                 <div class="probe-meta-item">
-                  <span>流量倍率</span>
+                  <span>{{ t('site.rate') }}</span>
                   <strong>{{ rateText }}</strong>
                 </div>
                 <div class="probe-meta-item">
-                  <span>服务器心跳</span>
+                  <span>{{ t('site.heartbeat') }}</span>
                   <strong>{{ heartbeatText }}</strong>
                 </div>
               </div>
@@ -85,7 +85,7 @@
                 <div class="probe-panel-head">
                   <div>
                     <IconChartLine :size="18" />
-                    <h4>服务器资源趋势</h4>
+                    <h4>{{ t('site.resourceTrends') }}</h4>
                   </div>
                   <span>{{ historyRangeText }}</span>
                 </div>
@@ -93,7 +93,7 @@
                 <div v-if="hasHistory" class="probe-chart-grid">
                   <article class="probe-chart-card">
                     <div class="probe-chart-title">
-                      <span><IconCpu :size="15" />CPU 占用</span>
+                      <span><IconCpu :size="15" />{{ t('site.cpuUsage') }}</span>
                       <strong>{{ percentText(cpuUsage) }}</strong>
                     </div>
                     <div :ref="element => setChartRef('cpu', element)" class="probe-chart-canvas"></div>
@@ -101,7 +101,7 @@
 
                   <article class="probe-chart-card">
                     <div class="probe-chart-title">
-                      <span><IconDeviceDesktop :size="15" />内存占用</span>
+                      <span><IconDeviceDesktop :size="15" />{{ t('site.memoryUsage') }}</span>
                       <strong>{{ percentText(memoryUsage) }}</strong>
                     </div>
                     <div :ref="element => setChartRef('memory', element)" class="probe-chart-canvas"></div>
@@ -109,7 +109,7 @@
 
                   <article class="probe-chart-card">
                     <div class="probe-chart-title">
-                      <span><IconDatabase :size="15" />磁盘占用</span>
+                      <span><IconDatabase :size="15" />{{ t('site.diskUsage') }}</span>
                       <strong>{{ percentText(diskUsage) }}</strong>
                     </div>
                     <div :ref="element => setChartRef('disk', element)" class="probe-chart-canvas"></div>
@@ -117,13 +117,13 @@
 
                   <article class="probe-chart-card">
                     <div class="probe-chart-title">
-                      <span><IconActivity :size="15" />实时网速</span>
+                      <span><IconActivity :size="15" />{{ t('site.networkSpeed') }}</span>
                       <strong>{{ speedText(netInSpeed) }} / {{ speedText(netOutSpeed) }}</strong>
                     </div>
                     <div :ref="element => setChartRef('network', element)" class="probe-chart-canvas"></div>
                   </article>
                 </div>
-                <div v-else class="probe-trend-empty">暂无趋势数据</div>
+                <div v-else class="probe-trend-empty">{{ t('site.noTrends') }}</div>
               </section>
 
               <div class="probe-side-stack">
@@ -131,7 +131,7 @@
                   <div class="probe-panel-head">
                     <div>
                       <IconActivity :size="18" />
-                      <h4>服务器当前负载</h4>
+                      <h4>{{ t('site.currentLoad') }}</h4>
                     </div>
                   </div>
 
@@ -147,7 +147,7 @@
 
                   <div class="probe-metric-row">
                     <div class="probe-metric-head">
-                      <span><IconDeviceDesktop :size="16" />内存</span>
+                      <span><IconDeviceDesktop :size="16" />{{ t('site.memory') }}</span>
                       <strong>{{ bytePairText(memoryMetric) }}</strong>
                     </div>
                     <div class="probe-meter">
@@ -157,7 +157,7 @@
 
                   <div class="probe-metric-row">
                     <div class="probe-metric-head">
-                      <span><IconDatabase :size="16" />磁盘</span>
+                      <span><IconDatabase :size="16" />{{ t('site.disk') }}</span>
                       <strong>{{ bytePairText(diskMetric) }}</strong>
                     </div>
                     <div class="probe-meter">
@@ -167,11 +167,11 @@
 
                   <div class="probe-speed-row">
                     <div>
-                      <span><IconArrowDown :size="15" />下行</span>
+                      <span><IconArrowDown :size="15" />{{ t('site.downloadSpeed') }}</span>
                       <strong>{{ speedText(netInSpeed) }}</strong>
                     </div>
                     <div>
-                      <span><IconArrowUp :size="15" />上行</span>
+                      <span><IconArrowUp :size="15" />{{ t('site.uploadSpeed') }}</span>
                       <strong>{{ speedText(netOutSpeed) }}</strong>
                     </div>
                   </div>
@@ -181,9 +181,9 @@
                   <div class="probe-panel-head">
                     <div>
                       <IconAffiliate :size="18" />
-                      <h4>同服务器节点</h4>
+                      <h4>{{ t('site.relatedNodes') }}</h4>
                     </div>
-                    <span>{{ normalizedRelatedNodes.length }} 个</span>
+                    <span>{{ t('site.nodeCount', { count: normalizedRelatedNodes.length }) }}</span>
                   </div>
 
                   <div v-if="normalizedRelatedNodes.length > 0" class="probe-related-list">
@@ -195,8 +195,8 @@
                     >
                       <div class="probe-related-main">
                         <span class="probe-related-dot" :class="{ online: isNodeOnline(item) }"></span>
-                        <strong>{{ item.name || '未命名节点' }}</strong>
-                        <span v-if="isCurrentNode(item)" class="probe-current-label">当前节点</span>
+                        <strong>{{ translateContent(item.name) || t('site.unnamedNode') }}</strong>
+                        <span v-if="isCurrentNode(item)" class="probe-current-label">{{ t('site.currentNode') }}</span>
                       </div>
                       <div class="probe-related-meta">
                         <span>{{ item.type || '-' }}</span>
@@ -206,7 +206,7 @@
                     </div>
                   </div>
 
-                  <div v-else class="probe-related-empty">暂无关联节点</div>
+                  <div v-else class="probe-related-empty">{{ t('site.noRelated') }}</div>
                 </section>
               </div>
             </div>
@@ -215,8 +215,8 @@
 
           <section v-else class="probe-empty">
             <IconAlertCircle :size="36" />
-            <h4>{{ auth.isLoggedIn ? '未绑定服务器' : t('auth.guestMachineTitle') }}</h4>
-            <p>{{ auth.isLoggedIn ? '后台服务器管理绑定后，这里会显示当前节点所处服务器名称和状态。' : t('auth.guestMachineHint') }}</p>
+            <h4>{{ auth.isLoggedIn ? t('site.unbound') : t('auth.guestMachineTitle') }}</h4>
+            <p>{{ auth.isLoggedIn ? t('site.bindingHint') : t('auth.guestMachineHint') }}</p>
           </section>
         </div>
       </div>
@@ -225,11 +225,13 @@
 </template>
 
 <script setup>
+import { localizeText } from '@/utils/localizedContent';
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import chartModuleUrl from 'virtual:node-chart-url';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores';
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const translateContent = value => localizeText(value, locale.value);
 const auth = useAuthStore();
 import {
   IconActivity,
@@ -376,10 +378,10 @@ const isOnline = computed(() => {
 
 const statusText = computed(() => {
   if (!isMachineActive.value) {
-    return '已停用';
+    return t('site.disabled');
   }
 
-  return isOnline.value ? '在线' : '离线';
+  return isOnline.value ? t('site.online') : t('site.offline');
 });
 
 const statusClass = computed(() => ({
@@ -395,18 +397,18 @@ const heartbeatText = computed(() => {
   const diff = Math.max(0, Math.floor(Date.now() / 1000) - lastSeenAt.value);
 
   if (diff < 60) {
-    return `${diff || 1}秒前`;
+    return t('site.secondsAgo', { count: diff || 1 });
   }
 
   if (diff < 3600) {
-    return `${Math.floor(diff / 60)}分钟前`;
+    return t('site.minutesAgo', { count: Math.floor(diff / 60) });
   }
 
   if (diff < 86400) {
-    return `${Math.floor(diff / 3600)}小时前`;
+    return t('site.hoursAgo', { count: Math.floor(diff / 3600) });
   }
 
-  return `${Math.floor(diff / 86400)}天前`;
+  return t('site.daysAgo', { count: Math.floor(diff / 86400) });
 });
 
 const rateText = computed(() => {
@@ -563,7 +565,7 @@ function nodeOnlineText(item) {
     return '';
   }
 
-  return `${Math.floor(Math.max(0, value))} 在线`;
+  return t('site.onlineCount', { count: Math.floor(Math.max(0, value)) });
 }
 
 function disposeCharts() {
@@ -691,8 +693,8 @@ async function renderCharts() {
   });
   const chartOptions = {
     cpu: percentageOption('CPU', chartColors.cpu, historyRows.value.map(row => row.cpu)),
-    memory: percentageOption('内存', chartColors.memory, historyRows.value.map(row => row.memory)),
-    disk: percentageOption('磁盘', chartColors.disk, historyRows.value.map(row => row.disk)),
+    memory: percentageOption(t('site.memory'), chartColors.memory, historyRows.value.map(row => row.memory)),
+    disk: percentageOption(t('site.disk'), chartColors.disk, historyRows.value.map(row => row.disk)),
     network: {
       animation: false,
       color: [chartColors.netIn, chartColors.netOut],
@@ -710,7 +712,7 @@ async function renderCharts() {
           color: mutedColor,
           fontSize: 10
         },
-        data: ['下行', '上行']
+        data: [t('site.downloadSpeed'), t('site.uploadSpeed')]
       },
       grid: {
         top: 30,
@@ -736,7 +738,7 @@ async function renderCharts() {
       },
       series: [
         {
-          name: '下行',
+          name: t('site.downloadSpeed'),
           type: 'line',
           smooth: 0.25,
           showSymbol: false,
@@ -744,7 +746,7 @@ async function renderCharts() {
           data: historyRows.value.map(row => row.netIn)
         },
         {
-          name: '上行',
+          name: t('site.uploadSpeed'),
           type: 'line',
           smooth: 0.25,
           showSymbol: false,
@@ -778,7 +780,7 @@ function handleResize() {
 }
 
 watch(
-  () => [props.show, props.machineDetail],
+  () => [props.show, props.machineDetail, locale.value],
   () => {
     if (!props.show) {
       chartError.value = false;

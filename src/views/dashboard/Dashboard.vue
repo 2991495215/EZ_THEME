@@ -70,7 +70,7 @@
         <div v-else-if="notices?.data?.length" class="card-body">
           <transition name="fade-slide" mode="out-in">
             <div class="notice-item" v-if="notices.data[currentNoticeIndex]" :key="currentNoticeIndex">
-              <div class="notice-title">{{ notices.data[currentNoticeIndex].title }}</div>
+              <div class="notice-title">{{ translateContent(notices.data[currentNoticeIndex].title) }}</div>
               <div class="notice-footer">
                 <div class="notice-date">{{ formatDate(notices.data[currentNoticeIndex].created_at) }}</div>
                 <div class="notice-nav">
@@ -107,7 +107,7 @@
           <transition name="popup-slide">
             <div v-if="showNoticeDetails" class="notice-modal" :style="noticeModalStyle" @click.stop>
               <div class="notice-modal-header">
-                <h2 class="popup-title">{{ notices.data[currentNoticeIndex].title }}</h2>
+                <h2 class="popup-title">{{ translateContent(notices.data[currentNoticeIndex].title) }}</h2>
                 <button class="popup-close-btn" @click="closeNoticeModal">
                   <IconX :size="20"/>
                 </button>
@@ -144,7 +144,7 @@
             <div class="subscription-info">
               <div class="info-item">
                 <span class="info-label">{{ $t('dashboard.planName') }}</span>
-                <span class="info-value">{{ userPlan.name || $t('dashboard.noSubscription') }}</span>
+                <span class="info-value">{{ translateContent(userPlan.name) || $t('dashboard.noSubscription') }}</span>
               </div>
               <div class="info-item">
                 <span class="info-label">{{ $t('dashboard.expiryDate') }}</span>
@@ -553,24 +553,24 @@
            hoverable no-padding>
         <div class="card-header ip-check-header">
           <div>
-            <h2 class="card-title">当前出口检测</h2>
-            <div class="ip-check-subtitle">实时查看当前 IP、归属地与风险状态</div>
+            <h2 class="card-title">{{ $t('site.exitTitle') }}</h2>
+            <div class="ip-check-subtitle">{{ $t('site.exitSubtitle') }}</div>
           </div>
           <a class="ip-check-action" href="https://ip.net.coffee/ip/" target="_blank" rel="noopener noreferrer">
-            查看评分
+            {{ $t('site.viewScore') }}
             <IconChevronRight :size="16"/>
           </a>
         </div>
         <div class="card-body ip-check-body">
           <div class="ip-check-copy">
-            <div class="ip-check-title">确认你的代理出口是否生效</div>
-            <div class="ip-check-desc">切换节点后快速确认出口位置、ASN 归属和风险画像。</div>
+            <div class="ip-check-title">{{ $t('site.exitConfirm') }}</div>
+            <div class="ip-check-desc">{{ $t('site.exitDescription') }}</div>
           </div>
           <div class="ip-card-display">
             <img
                 class="ip-card-image"
                 src="https://card.net.coffee/v1/card.svg?style=aurora&sticker=rainbow&w=480"
-                alt="当前出口 IP 信息"
+                :alt="$t('site.exitAlt')"
                 loading="lazy"
             />
           </div>
@@ -578,7 +578,7 @@
       </AppCard>
 
       <section class="dashboard-card client-guide-section">
-        <div class="client-guide-tabs" aria-label="选择系统" role="tablist">
+        <div class="client-guide-tabs" :aria-label="$t('site.selectPlatform')" role="tablist">
           <button
               v-for="guidePlatform in clientGuidePlatforms"
               :key="guidePlatform.id"
@@ -590,7 +590,7 @@
               @click="activeClientGuidePlatform = guidePlatform.id"
           >
             <component :is="guidePlatform.icon" :size="guidePlatform.iconSize"/>
-            <span>{{ guidePlatform.label }}</span>
+            <span>{{ $t(guidePlatform.label) }}</span>
           </button>
         </div>
         <div class="client-download-list">
@@ -611,7 +611,7 @@
             </span>
             <span class="client-download-action">
               <IconDownload :size="18"/>
-              <span>下载客户端</span>
+              <span>{{ $t('site.download') }}</span>
             </span>
           </a>
         </div>
@@ -678,6 +678,7 @@
 </template>
 
 <script>
+import { localizeText, localizeHtml } from '@/utils/localizedContent';
 import {
   computed,
   inject,
@@ -938,10 +939,10 @@ export default {
     const activeClientGuidePlatform = ref(detectUserPlatform());
 
     const clientGuidePlatforms = [
-      {id: 'android', label: '安卓手机', icon: 'IconBrandAndroid', iconSize: 24},
-      {id: 'ios', label: '苹果手机', icon: 'IconBrandApple', iconSize: 21},
-      {id: 'windows', label: 'Win电脑', icon: 'IconBrandWindows', iconSize: 18},
-      {id: 'macos', label: 'Mac电脑', icon: 'IconBrandApple', iconSize: 21}
+      {id: 'android', label: 'site.android', icon: 'IconBrandAndroid', iconSize: 24},
+      {id: 'ios', label: 'site.ios', icon: 'IconBrandApple', iconSize: 21},
+      {id: 'windows', label: 'site.windows', icon: 'IconBrandWindows', iconSize: 18},
+      {id: 'macos', label: 'site.macos', icon: 'IconBrandApple', iconSize: 21}
     ];
 
     const clientGuideGroups = computed(() => ({
@@ -1753,9 +1754,9 @@ export default {
           }
         });
 
-        return tempDiv.innerHTML;
+        return localizeHtml(tempDiv.innerHTML, locale.value);
       } else {
-        return md.render(content);
+        return localizeHtml(md.render(content), locale.value);
       }
     });
 
@@ -1854,6 +1855,7 @@ export default {
     )));
 
     return {
+      translateContent: value => localizeText(value, locale.value),
       userStats,
       userBalance,
       currencySymbol,

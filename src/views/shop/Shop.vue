@@ -206,7 +206,7 @@
 
           <div class="card-header">
 
-            <h2 class="card-title">{{ plan.name }}</h2>
+            <h2 class="card-title">{{ translateContent(plan.name) }}</h2>
 
             <div class="card-badge glassmorphism stock-plenty" v-if="plan.capacity_limit >= SHOP_CONFIG.lowStockThreshold || plan.capacity_limit === null">
 
@@ -338,7 +338,7 @@
 
                   <IconX v-else class="feature-icon disabled" />
 
-                  <span :class="{ 'disabled-text': !feature.support }">{{ feature.feature }}</span>
+                  <span :class="{ 'disabled-text': !feature.support }">{{ translateContent(feature.feature) }}</span>
 
                 </div>
 
@@ -348,7 +348,7 @@
 
               <!-- HTML格式内容 -->
 
-              <div v-else class="html-content" v-html="plan.content"></div>
+              <div v-else class="html-content" v-html="translateHtml(plan.content)"></div>
 
             </div>
 
@@ -409,6 +409,7 @@
 
 
 <script>
+import { localizeText, localizeHtml } from '@/utils/localizedContent';
 
 import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 
@@ -1223,6 +1224,8 @@ export default {
     
 
     return {
+      translateContent: value => localizeText(value, locale.value),
+      translateHtml: value => localizeHtml(value, locale.value),
 
       plans,
 

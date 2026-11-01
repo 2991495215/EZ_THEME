@@ -63,7 +63,7 @@
         <div class="node-summary-bar" aria-live="polite">
           <span v-if="hasOnlineCount" class="node-summary-tag">
             <IconUsers :size="16" />
-            当前在线账号
+            {{ $t('site.onlineAccounts') }}
             <span class="node-summary-count">{{ currentOnlineCount }}</span>
           </span>
           <a
@@ -71,10 +71,10 @@
             href="https://m.zinc.run"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="打开探针"
+            :aria-label="$t('site.openProbe')"
           >
             <IconExternalLink :size="16" />
-            前往探针
+            {{ $t('site.openProbe') }}
           </a>
         </div>
 
@@ -97,7 +97,7 @@
               </div>
 
               <div v-if="showNodeRate && allowViewNodeInfo" class="node-actions">
-                <button class="more-btn" @click="openNodeDetail(node)" aria-label="查看服务器状态">
+                <button class="more-btn" @click="openNodeDetail(node)" :aria-label="$t('site.viewStatus')">
                   <IconDotsVertical :size="18" />
                 </button>
               </div>
@@ -161,6 +161,7 @@
 
 
 <script setup>
+import { localizeText } from '@/utils/localizedContent';
 
 import { ref, computed, onMounted, onUnmounted, inject } from 'vue';
 
@@ -192,7 +193,8 @@ import NodeDetailModal from '@/components/common/NodeDetailModal.vue';
 
 
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const translateContent = value => localizeText(value, locale.value);
 
 const $toast = inject('$toast');
 
@@ -204,7 +206,7 @@ const error = ref('');
 
 const nodes = ref([]);
 const displayNodes = computed(() => nodes.value.map(node => ({
-  ...node, displayName: formatNodeName(node.name), tags: formatNodeTags(node)
+  ...node, displayName: formatNodeName(translateContent(node.name)), tags: formatNodeTags(node)
 })));
 
 const showNodeDetails = ref(NODES_CONFIG.showNodeDetails); 
@@ -312,7 +314,7 @@ const fetchNodeMachineDetail = async node => {
     if (sequence === detailSequence && showDetailModal.value) selectedMachineDetail.value = result?.data || null;
   } catch (err) {
     if (sequence === detailSequence && !controller.signal.aborted && err.code !== 'ERR_CANCELED') {
-      machineDetailError.value = err.response?.message || err.message || '服务器状态加载失败';
+      machineDetailError.value = err.response?.message || err.message || t('site.statusError');
     }
   } finally {
     if (sequence === detailSequence) machineDetailLoading.value = false;

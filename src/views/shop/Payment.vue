@@ -32,7 +32,7 @@
               <div v-else>
                 <div class="info-row">
                   <div class="info-label">{{ $t('payment.plan_name') }}</div>
-                  <div class="info-value">{{ orderDetail.plan?.name || '-' }}</div>
+                  <div class="info-value">{{ translateContent(orderDetail.plan?.name) || '-' }}</div>
                 </div>
                 <div class="info-row">
                   <div class="info-label">{{ $t('payment.period') }}</div>
@@ -403,6 +403,7 @@
 </template>
 
 <script>
+import { localizeText } from '@/utils/localizedContent';
 import { ref, reactive, onMounted, computed, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast';
@@ -457,7 +458,7 @@ export default {
     IconHelp
   },
   setup() {
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
     const { showToast } = useToast();
     const route = useRoute();
     const router = useRouter();
@@ -1072,6 +1073,7 @@ export default {
     });
     
     return {
+      translateContent: value => localizeText(value, locale.value),
       loading,
       orderDetail,
       paymentMethods,

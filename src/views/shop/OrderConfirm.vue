@@ -86,7 +86,7 @@
 
             <div class="card-header">
 
-              <h3 class="card-title">{{ plan.name }}</h3>
+              <h3 class="card-title">{{ translateContent(plan.name) }}</h3>
 
               <div class="card-badge" :class="getStockBadgeClass(plan)">
 
@@ -124,7 +124,7 @@
 
                     <IconX v-else class="feature-icon disabled" />
 
-                    <span :class="{ 'disabled-text': !feature.support }">{{ feature.feature }}</span>
+                    <span :class="{ 'disabled-text': !feature.support }">{{ translateContent(feature.feature) }}</span>
 
                   </div>
 
@@ -134,7 +134,7 @@
 
                 <!-- HTML格式内容 -->
 
-                <div v-else class="html-content" v-html="plan.content"></div>
+                <div v-else class="html-content" v-html="translateHtml(plan.content)"></div>
 
               </div>
 
@@ -462,6 +462,7 @@
 
 
 <script>
+import { localizeText, localizeHtml } from '@/utils/localizedContent';
 
 import { ref, reactive, onMounted, computed } from 'vue';
 
@@ -525,7 +526,7 @@ export default {
 
   setup() {
 
-    const { t } = useI18n();
+    const { t, locale } = useI18n();
 
     const { showToast } = useToast();
 
@@ -1248,6 +1249,8 @@ export default {
     
 
     return {
+      translateContent: value => localizeText(value, locale.value),
+      translateHtml: value => localizeHtml(value, locale.value),
 
       plan,
 
