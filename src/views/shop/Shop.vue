@@ -772,7 +772,7 @@ export default {
 
       } catch (error) {
 
-        showToast('获取套餐数据失败', 'error');
+        showToast('获取共享方案数据失败', 'error');
 
       } finally {
 

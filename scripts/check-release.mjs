@@ -50,6 +50,9 @@ const machine = { machine: { id: 1, name: 'Test server', is_active: true, last_s
 const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light', viewport: { width: 1440, height: 900 } });
 const requests = [], errors = [], unexpected = [];
 let chartAttempts = 0, failCharts = false, planVersion = 1, docVersion = 0, releaseEnglish, releaseCharts;
+let dashboardVersion = 1, holdDashboard = false, releaseDashboard, failSubscribe = false, releaseStats;
+const initialStats = new Promise(resolve => { releaseStats = resolve; });
+let dashboardRefresh;
 let sawChartRetry;
 const chartRetryRequested = new Promise(resolve => { sawChartRetry = resolve; });
 try {
@@ -79,8 +82,22 @@ try {
         } else data = { Test: [{ id: 1, title: ++docVersion === 1 ? '中文初始文档' : '中文最新文档', updated_at: now }] };
       }
       else if (endpoint === '/passport/auth/login') data = { token: 'regression-only', auth_data: 'regression-only' };
-      else if (endpoint === '/user/info') data = { email: 'test@example.test', balance: 0, transfer_enable: 1000000000, u: 0, d: 0 };
-      else if (endpoint === '/user/getSubscribe') data = { plan, subscribe_url: 'https://theme.test/mock' };
+      else if (endpoint === '/user/info') {
+        if (holdDashboard) await dashboardRefresh;
+        data = { plan_id: dashboardVersion === 0 ? null : 1, email: 'test@example.test', balance: dashboardVersion * 100, transfer_enable: 1000000000, u: 0, d: 0 };
+      }
+      else if (endpoint === '/user/getSubscribe') {
+        if (holdDashboard) await dashboardRefresh;
+        if (failSubscribe) {
+          failSubscribe = false;
+          return route.fulfill({ status: 503, json: { message: 'Dashboard retry check' } });
+        }
+        data = { plan: dashboardVersion === 0 ? null : { ...plan, name: 'Dashboard plan ' + dashboardVersion },
+          transfer_enable: dashboardVersion === 4 ? 0 : 1000000000,
+          u: 100000000, d: 100000000, subscribe_url: 'https://theme.test/mock' };
+      }
+      else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
+      else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: 'Stable announcement', content: 'Notice', created_at: now }];
       else if (endpoint === '/user/order/detail') data = { trade_no: 'mock', status: 0, total_amount: 1000, period: 'month_price', plan, created_at: now };
       else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
       else data = [];
@@ -179,6 +196,70 @@ try {
   await page.locator('input[type=password]').fill('mock-password');
   await page.locator('button[type=submit]').click();
   await page.waitForURL('**/#/dashboard');
+  await page.getByText('Dashboard plan 1', { exact: true }).waitFor();
+  assert.equal(await page.locator('.stats-grid .stats-card').count(), 4, 'slow pending-items API must not block account cards');
+  assert.equal(await page.locator('.dashboard-container .skeleton-card').count(), 0);
+  assert(!requests.some(url => /qrcode-.*\.js/.test(url)), 'closed QR dialog must not load encoder');
+  await page.evaluate(() => { window.testDashboard = document.querySelector('.dashboard-container'); });
+  releaseStats();
+  for (const width of [1440, 768, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'dashboard overflow: ' + width);
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.mouse.move(0, 0);
+  assert(await page.evaluate(() => !document.querySelector('.dashboard-container').getAnimations({ subtree: true })
+    .some(animation => animation.effect.getTiming().iterations === Infinity)), 'dashboard must not run decorative loops');
+  if (process.env.REGRESSION_SCREENSHOT) await page.screenshot({ path: process.env.REGRESSION_SCREENSHOT, fullPage: true });
+  await page.locator('.subscription-actions button').filter({ hasText: '导入订阅' }).click();
+  await page.locator('.qrcode-action').click();
+  await page.locator('.qrcode-modal img').waitFor();
+  assert((await page.locator('.qrcode-modal img').getAttribute('src')).startsWith('data:image/png'));
+  await page.locator('.qrcode-modal .close-btn').click();
+  await navigate('/nodes');
+  await page.locator('.node-item').first().waitFor();
+  dashboardVersion = 2;
+  holdDashboard = true;
+  dashboardRefresh = new Promise(resolve => { releaseDashboard = resolve; });
+  const refreshRequested = page.waitForRequest(request => new URL(request.url()).pathname === '/api/v1/user/getSubscribe');
+  await navigate('/dashboard');
+  await refreshRequested;
+  assert(await page.evaluate(() => document.querySelector('.dashboard-container') === window.testDashboard), 'dashboard must reuse DOM on return');
+  assert(await page.getByText('Dashboard plan 1', { exact: true }).isVisible(), 'retain data during refresh');
+  assert.equal(await page.locator('.dashboard-container .skeleton-card, .dashboard-container .skeleton-loading').count(), 0);
+  holdDashboard = false;
+  releaseDashboard();
+  await page.getByText('Dashboard plan 2', { exact: true }).waitFor();
+  await navigate('/nodes');
+  await page.locator('.node-item').first().waitFor();
+  failSubscribe = true;
+  dashboardVersion = 3;
+  await navigate('/dashboard');
+  await page.locator('.dashboard-load-error button').waitFor();
+  assert(await page.getByText('Dashboard plan 2', { exact: true }).isVisible(), 'failed refresh must retain data');
+  await page.locator('.dashboard-load-error button').click();
+  await page.getByText('Dashboard plan 3', { exact: true }).waitFor();
+  assert.equal(await page.locator('.dashboard-load-error').count(), 0);
+  await navigate('/nodes');
+  await page.locator('.node-item').first().waitFor();
+  dashboardVersion = 0;
+  await navigate('/dashboard');
+  await page.locator('.no-plan-card').waitFor();
+  assert.equal(await page.locator('.subscription-card').count(), 0);
+  await navigate('/nodes');
+  await page.locator('.node-item').first().waitFor();
+  dashboardVersion = 4;
+  await navigate('/dashboard');
+  await page.getByText('Dashboard plan 4', { exact: true }).waitFor();
+  assert.equal(await page.locator('.stats-grid .stats-value').first().textContent(), '0 B', 'zero quota must replace cached traffic');
+  assert.equal(await page.locator('.water-progress').evaluate(el => el.style.height), '0%');
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+  for (let attempt = 0; attempt < 3 && !(await page.locator('body.dark-theme').count()); attempt++) {
+    await page.locator('.theme-toggle').click();
+  }
+  await page.locator('body.dark-theme').waitFor();
+  assert(await page.evaluate(() => document.querySelector('.dashboard-container').getAnimations({ subtree: true }).length === 0));
+  await page.emulateMedia({ reducedMotion: 'no-preference', colorScheme: 'light' });
   await navigate('/payment?trade_no=mock');
   await page.locator('.method-icon img').waitFor();
   for (const [width, expected] of [[1440, 270], [375, 180]]) {
@@ -208,8 +289,10 @@ try {
   assert.equal(chartAttempts, 2);
   assert.deepEqual(errors, []);
   assert.deepEqual(unexpected, []);
-  console.log('PASS: production package, mock login, legal, locales, cache/refresh, docs race, flags/tags/layout, motion, payment icons, chart failure/retry');
+  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, chart failure/retry');
 } finally {
+  releaseStats?.();
+  releaseDashboard?.();
   releaseEnglish?.();
   releaseCharts?.();
   await context.close();

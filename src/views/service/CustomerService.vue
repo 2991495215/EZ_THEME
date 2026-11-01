@@ -160,7 +160,7 @@ export default {
             console.warn('无法获取用户邮箱，跳过设置邮箱和昵称');
           }
 
-          let planName = "未知套餐";
+          let planName = "未知方案";
           if (userSubscribe.value && userSubscribe.value.plan && userSubscribe.value.plan.name) {
             planName = userSubscribe.value.plan.name;
           } else if (userSubscribe.value && userSubscribe.value.data && userSubscribe.value.data.plan && userSubscribe.value.data.plan.name) {

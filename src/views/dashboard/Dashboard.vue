@@ -5,7 +5,7 @@
         <p v-for="(message, block) in errors" :key="block" v-show="message">{{ message }}</p>
         <button class="btn btn-secondary" @click="retryFailed">{{ $t('common.retry') }}</button>
       </div>
-      <AppCard v-if="false" class="dashboard-card welcome-card" :class="{'card-animate': !loading.userInfo}" hoverable no-padding>
+      <AppCard v-if="false" class="dashboard-card welcome-card" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.welcome') }}</h2>
         </div>
@@ -21,7 +21,7 @@
       <!-- 通知区域 -->
       <!-- 待处理事项提示 -->
       <AppCard v-if="hasPendingItems" class="dashboard-card pending-items-card"
-           :class="{'card-animate': !loading.userStats}" style="animation-delay: 0.1s" hoverable no-padding>
+           hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.pendingItems') }}</h2>
         </div>
@@ -54,11 +54,11 @@
         </div>
       </AppCard>
 
-      <AppCard class="dashboard-card notice-card" :class="{'card-animate': !loading.notices}"
-           v-if="notices && notices.data && notices.data.length > 0" style="animation-delay: 0.2s" hoverable no-padding>
+      <AppCard class="dashboard-card notice-card"
+           v-if="loading.notices || notices?.data?.length > 0" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.siteAnnouncement') }}</h2>
-          <div class="notice-counter">
+          <div v-if="notices?.data?.length" class="notice-counter">
             {{ $t('common.noticeCount', {current: currentNoticeIndex + 1, total: notices.data.length}) }}
           </div>
         </div>
@@ -67,7 +67,7 @@
           <div class="skeleton-row"></div>
           <div class="skeleton-row"></div>
         </div>
-        <div v-else class="card-body">
+        <div v-else-if="notices?.data?.length" class="card-body">
           <transition name="fade-slide" mode="out-in">
             <div class="notice-item" v-if="notices.data[currentNoticeIndex]" :key="currentNoticeIndex">
               <div class="notice-title">{{ notices.data[currentNoticeIndex].title }}</div>
@@ -126,9 +126,9 @@
       </transition>
 
       <!-- 套餐信息卡片 -->
-      <AppCard v-if="hasPlan" class="dashboard-card subscription-card" :class="{'card-animate': !loading.userInfo}"
-           style="animation-delay: 0.3s" hoverable no-padding>
-        <div v-if="loading.userInfo" class="skeleton-card">
+      <AppCard v-if="hasPlan" class="dashboard-card subscription-card"
+           hoverable no-padding>
+        <div v-if="(loading.userInfo && !loadedReads.userInfo) || (loading.subscribe && !loadedReads.subscribe)" class="skeleton-card">
           <div class="skeleton-header"></div>
           <div class="skeleton-body">
             <div class="skeleton-row"></div>
@@ -386,7 +386,7 @@
       </transition>
 
       <div class="stats-grid">
-        <template v-if="(loading.userStats && !loadedReads.userStats) || (loading.userInfo && !loadedReads.userInfo) || (loading.subscribe && !loadedReads.subscribe)">
+        <template v-if="(loading.userInfo && !loadedReads.userInfo) || (loading.subscribe && !loadedReads.subscribe)">
           <AppCard v-for="i in 4" :key="i" class="stats-card skeleton-card" variant="stats" no-padding>
             <div class="skeleton-icon"></div>
             <div class="skeleton-content">
@@ -398,8 +398,8 @@
 
         <template v-else-if="!hasPlan && loadedReads.userInfo && !errors.userInfo">
           <!-- 没有套餐时显示的提示卡片 -->
-          <AppCard class="dashboard-card stats-card no-plan-card" :class="{'card-animate': !loading.userStats}"
-               style="animation-delay: 0.5s; grid-column: span 4; margin: 0 auto; max-width: 1200px; width: 100%;" variant="stats" hoverable no-padding>
+          <AppCard class="dashboard-card stats-card no-plan-card"
+               style="grid-column: span 4; margin: 0 auto; max-width: 1200px; width: 100%;" variant="stats" hoverable no-padding>
             <div class="no-plan-content">
               <div class="no-plan-icon">
                 <IconShoppingCart :size="45" class="icon-cart"/>
@@ -421,14 +421,13 @@
           </AppCard>
         </template>
 
-        <template v-else-if="hasPlan && loadedReads.userInfo && loadedReads.subscribe && loadedReads.userStats">
+        <template v-else-if="hasPlan && loadedReads.userInfo && loadedReads.subscribe">
           <AppCard class="stats-card"
                :class="{
-              'card-animate': !loading.userStats,
               'warning-card': isLowTraffic && !isTrafficDepleted,
               'danger-card': isTrafficDepleted
             }"
-               style="animation-delay: 0.5s" variant="stats" hoverable no-padding>
+               variant="stats" hoverable no-padding>
             <div class="stats-icon">
               <IconTransferVertical :size="32"/>
             </div>
@@ -440,19 +439,17 @@
             <!-- 水流进度条效果 -->
             <div class="water-container">
               <div class="water-progress"
-                   :class="{'animate-water': waterAnimationState.canAnimate}"
-                   :style="{ height: waterAnimationState.canAnimate ? `${trafficPercentage}%` : '0%' }">
+                   :style="{ height: `${trafficPercentage}%` }">
               </div>
             </div>
           </AppCard>
 
           <AppCard class="stats-card"
                :class="{
-              'card-animate': !loading.userStats,
               'warning-card': isExpiringSoon && !isExpired,
               'danger-card': isExpired
             }"
-               style="animation-delay: 0.6s" variant="stats" hoverable no-padding>
+               variant="stats" hoverable no-padding>
             <div class="stats-icon">
               <IconCalendar :size="32"/>
             </div>
@@ -467,8 +464,7 @@
           </AppCard>
 
           <AppCard class="stats-card"
-               :class="{'card-animate': !loading.userStats, 'balance-card': true, 'clickable': isXiaoPanel}"
-               style="animation-delay: 0.7s"
+               :class="{'balance-card': true, 'clickable': isXiaoPanel}"
                @click="isXiaoPanel ? navigateToDeposit() : null"
                :style="isXiaoPanel ? { cursor: 'pointer' } : {}" variant="stats" :hoverable="isXiaoPanel" no-padding>
             <div class="stats-icon">
@@ -484,9 +480,8 @@
           </AppCard>
 
           <AppCard class="stats-card doc-card"
-               :class="{'card-animate': !loading.userStats}"
                @click="openDocumentation"
-               style="animation-delay: 0.8s" variant="stats" hoverable no-padding>
+               variant="stats" hoverable no-padding>
             <div class="stats-icon">
               <IconFileText :size="32"/>
             </div>
@@ -502,8 +497,8 @@
       </div>
 
       <!-- 官方客户端下载区域（已隐藏） -->
-      <AppCard class="dashboard-card download-card" :class="{'card-animate': !loading.userInfo}"
-           v-if="false" style="animation-delay: 0.9s" hoverable no-padding>
+      <AppCard class="dashboard-card download-card"
+           v-if="false" hoverable no-padding>
         <div class="card-header">
           <h2 class="card-title">{{ $t('dashboard.officialClients') }}</h2>
         </div>
@@ -554,8 +549,8 @@
         </div>
       </AppCard>
 
-      <AppCard class="dashboard-card ip-check-card" :class="{'card-animate': !loading.userInfo}"
-           style="animation-delay: 0.95s" hoverable no-padding>
+      <AppCard class="dashboard-card ip-check-card"
+           hoverable no-padding>
         <div class="card-header ip-check-header">
           <div>
             <h2 class="card-title">当前出口检测</h2>
@@ -582,7 +577,7 @@
         </div>
       </AppCard>
 
-      <section class="dashboard-card client-guide-section" :class="{'card-animate': !loading.userInfo}" style="animation-delay: 1s">
+      <section class="dashboard-card client-guide-section">
         <div class="client-guide-tabs" aria-label="选择系统" role="tablist">
           <button
               v-for="guidePlatform in clientGuidePlatforms"
@@ -1012,20 +1007,6 @@ export default {
       if (errors.config) fetchUserConfig();
     };
 
-    const waterAnimationState = reactive({
-      canAnimate: false,
-      initialized: false
-    });
-
-    watch(() => [loading.userStats, loading.userInfo], ([userStatsLoading, userInfoLoading]) => {
-      if (!userStatsLoading && !userInfoLoading) {
-        setTimeout(() => {
-          waterAnimationState.canAnimate = true;
-          waterAnimationState.initialized = true;
-        }, 500);
-      }
-    }, {immediate: false, flush: 'post'});
-
     watch(() => locale.value, () => {
       if (userPlan.value.isExpireDatePermanent) {
         userPlan.value.expireDate = t('dashboard.permanent');
@@ -1097,7 +1078,7 @@ export default {
         const response = await setNextPeriod()
         console.log(response)
         if (response.data) {
-          await fetchSubscribe()
+          await fetchSubscribe(true)
           showToast(t('dashboard.nextPeriodSuccess'), 'success');
           showPopup.value = false;
         }
@@ -1159,14 +1140,14 @@ export default {
       }
     };
 
-    const fetchUserInfo = async () => {
+    const fetchUserInfo = async (force = false) => {
       if (!localStorage.getItem('token')) {
         hasPlan.value = false;
         loading.userInfo = false;
         loadedReads.userInfo = true;
         return;
       }
-      if (loadedReads.userInfo && !errors.userInfo) return;
+      if (!force && loadedReads.userInfo && !errors.userInfo) return;
 
       if (pendingReads.has('userInfo')) return;
       pendingReads.add('userInfo');
@@ -1300,14 +1281,14 @@ export default {
     });
 
 
-    const fetchSubscribe = async () => {
+    const fetchSubscribe = async (force = false) => {
       // 如果showResetTrafficButton为true，强制执行（跳过缓存逻辑）
       // if (showResetTrafficButton.value) {
       //   // 强制执行，但仍要防止并发
       //   if (loading.subscribe === true) return;
       // } else {
       // 正常的缓存逻辑
-      if (loadedReads.subscribe && !errors.subscribe) return;
+      if (!force && loadedReads.subscribe && !errors.subscribe) return;
       // }
 
       if (pendingReads.has('subscribe')) return;
@@ -1347,10 +1328,10 @@ export default {
             userStats.remainingDays = null;
             userStats.isRemainingDaysPermanent = true;
           }
-          if (subscribe.transfer_enable) {
+          if (subscribe.transfer_enable != null) {
             userPlan.value.totalTraffic = formatTraffic(subscribe.transfer_enable);
           }
-          if (subscribe.transfer_enable && subscribe.u !== undefined && subscribe.d !== undefined) {
+          if (subscribe.transfer_enable != null && subscribe.u !== undefined && subscribe.d !== undefined) {
             const usedTraffic = subscribe.u + subscribe.d;
             const remainingTraffic = Math.max(0, subscribe.transfer_enable - usedTraffic);
             userStats.remainingTraffic = formatTraffic(remainingTraffic);
@@ -1397,8 +1378,8 @@ export default {
       }
     };
 
-    const fetchNotices = async () => {
-      if (loadedReads.notices && !errors.notices) return;
+    const fetchNotices = async (force = false) => {
+      if (!force && loadedReads.notices && !errors.notices) return;
 
       if (pendingReads.has('notices')) return;
       pendingReads.add('notices');
@@ -1408,6 +1389,7 @@ export default {
         const response = await getNotices();
         if (response && response.data) {
           notices.value = response;
+          currentNoticeIndex.value = Math.min(currentNoticeIndex.value, Math.max(0, response.data.length - 1));
 
           checkForPopupNotices();
         }
@@ -1442,8 +1424,8 @@ export default {
       }
     };
 
-    const fetchUserStats = async () => {
-      if (loadedReads.userStats && !errors.userStats) return;
+    const fetchUserStats = async (force = false) => {
+      if (!force && loadedReads.userStats && !errors.userStats) return;
 
       if (pendingReads.has('userStats')) return;
       pendingReads.add('userStats');
@@ -1726,12 +1708,10 @@ export default {
       fetchNotices();
 
       fetchUserStats();
-
-      updateQRCodeUrl();
     });
 
-    watch(() => userPlan.value.subscribeUrl, () => {
-      updateQRCodeUrl();
+    watch([showQrCode, () => userPlan.value.subscribeUrl], ([visible]) => {
+      if (visible) updateQRCodeUrl();
     });
 
     const processedNoticeContent = computed(() => {
@@ -1800,10 +1780,6 @@ export default {
       }
     };
 
-    onMounted(() => {
-      window.addEventListener('resize', handleResize);
-    });
-
     onBeforeUnmount(() => {
       window.removeEventListener('resize', handleResize);
     });
@@ -1841,11 +1817,13 @@ export default {
     };
 
     onActivated(() => {
-      console.log('Dashboard组件被激活');
+      handleResize();
+      window.addEventListener('resize', handleResize);
       if (needRefreshData.value) {
-        fetchUserInfo();
-        fetchUserStats();
-        fetchNotices();
+        fetchUserInfo(true);
+        fetchSubscribe(true);
+        fetchUserStats(true);
+        fetchNotices(true);
         needRefreshData.value = false;
       }
 
@@ -1853,13 +1831,18 @@ export default {
     });
 
     onDeactivated(() => {
-      console.log('Dashboard组件被停用');
+      window.removeEventListener('resize', handleResize);
+      showQrCode.value = false;
+      showNoticeDetails.value = false;
+      showPopup.value = false;
+      closeResetTrafficModal();
       needRefreshData.value = true;
 
       cleanupResources(timers, listeners);
     });
 
     onUnmounted(() => {
+      closeResetTrafficModal();
       cleanupResources(timers, listeners);
     });
 
@@ -1966,7 +1949,6 @@ export default {
       showDeviceLimit,
       needRefreshData,
       trafficPercentage,
-      waterAnimationState,
       DASHBOARD_CONFIG,
       allowNewPeriod,
       showImportSubscription,
@@ -2169,10 +2151,6 @@ export default {
         transition: none;
         border-radius: 0 0 16px 16px;
         height: 0;
-
-        &.animate-water {
-          transition: height 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
 
         &:after {
           content: '';
@@ -2795,32 +2773,6 @@ export default {
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(var(--theme-color-rgb), 0.25);
     }
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 50%;
-      height: 100%;
-      background: linear-gradient(
-              to right,
-              rgba(255, 255, 255, 0) 0%,
-              rgba(255, 255, 255, 0.2) 50%,
-              rgba(255, 255, 255, 0) 100%
-      );
-      animation: card-shimmer 3s infinite;
-      transform: skewX(-25deg);
-    }
-  }
-}
-
-@keyframes card-shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 200%;
   }
 }
 
@@ -2994,31 +2946,7 @@ export default {
   color: var(--theme-color);
 }
 
-.stats-card.doc-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-          to right,
-          rgba(255, 255, 255, 0) 0%,
-          rgba(255, 255, 255, 0.2) 50%,
-          rgba(255, 255, 255, 0) 100%
-  );
-  animation: card-shimmer 3s infinite;
-  transform: skewX(-25deg);
-}
 
-@keyframes card-shimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 200%;
-  }
-}
 
 
 .btn-active {

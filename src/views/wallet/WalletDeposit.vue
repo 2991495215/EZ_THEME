@@ -7,7 +7,7 @@
           <h2 class="card-title">{{ $t('wallet.welcome.title') || '账户充值' }}</h2>
         </div>
         <div class="card-body">
-          <p>{{ $t('wallet.welcome.description') || '在这里您可以轻松地为您的账户充值，选择预设金额或输入自定义金额进行充值。充值后的余额将立即到账并可用于购买我们的服务。' }}</p>
+          <p>{{ $t('wallet.welcome.description') || '在这里您可以轻松地为您的账户充值，选择预设金额或输入自定义金额进行充值。充值后的余额将立即到账并可用于加入共享方案。' }}</p>
         </div>
       </div>
 

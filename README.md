@@ -334,7 +334,7 @@ if (!handleUnauthorizedDomain()) {
 
 运行 npm ci --ignore-scripts、npm test 和 npm run build。构建会生成 dist/dashboard.blade.php，并将资源路径设为 /theme/Xboard/；部署时使用生成的模板与同一批静态资源，不再手工修改文件哈希、importmap 或另建启动入口。XBoard 的 $title 会注入 window.XBOARD_APP_NAME，未注入时使用源码默认站名。
 
-本次恢复不自动部署。原 API 地址保持 https://sub.trent30.com/api/v1。
+本次恢复不自动部署。API 使用同域相对地址 /api/v1；sub.trent30.com 已 308 跳转且不带 CORS 头，浏览器会拦截跨域请求。
 
 
 ## 当前构建与发布入口（2026-10-05）

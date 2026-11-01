@@ -223,7 +223,7 @@ export default {
     };
     
     const extractPlanName = () => {
-      let planName = "未知套餐";
+      let planName = "未知方案";
       
       if (userSubscribe.value && userSubscribe.value.plan && userSubscribe.value.plan.name) {
         planName = userSubscribe.value.plan.name;

@@ -13,7 +13,7 @@
 
       <router-view v-slot="{ Component, route }">
         <div class="view-wrapper">
-          <keep-alive :include="['ShopView']" :max="1" :key="authScope">
+          <keep-alive :include="['ShopView', 'UserDashboard']" :max="2" :key="authScope">
             <component :is="Component" :key="route.fullPath" />
           </keep-alive>
         </div>

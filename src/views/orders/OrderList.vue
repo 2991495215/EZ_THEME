@@ -469,7 +469,7 @@ const headerTexts = computed(() => {
     viewDetail: t('orders.viewDetail', '查看详情'),
     cancel: t('orders.cancel', '取消订单'),
     noOrders: t('orders.noOrders', '暂无订单'),
-    goShopping: t('orders.goShopping', '去购买套餐'),
+    goShopping: t('orders.goShopping', '加入共享'),
     loading: t('orders.loading', '正在加载订单...'),
     cancelConfirmTitle: t('orders.cancelConfirmTitle', '确认取消订单'),
     cancelConfirmText: t('orders.cancelConfirmText', '您确定要取消此订单吗？此操作无法撤销。')

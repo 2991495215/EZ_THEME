@@ -7,12 +7,19 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 process.chdir(root);
 const run = (command, args) => {
-  const result = spawnSync(command, args, { stdio: 'inherit', env: {
+  const runner = '/usr/local/bin/s3-build-run';
+  const isolated = process.platform === 'linux' && existsSync(runner)
+    && !readFileSync('/proc/self/cgroup', 'utf8').includes('/s3build.slice/');
+  const result = spawnSync(isolated ? runner : command, isolated ? [command, ...args] : args, { stdio: 'inherit', env: {
     ...process.env, NODE_OPTIONS: process.env.NODE_OPTIONS || '--max-old-space-size=768'
   } });
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 };
+if (process.argv[2] === '--build-only') {
+  run(process.execPath, ['node_modules/vite/bin/vite.js', 'build', ...process.argv.slice(3)]);
+  process.exit(0);
+}
 const revision = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const dirty = !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim();
 const builtAt = new Date().toISOString();

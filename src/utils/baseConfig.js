@@ -462,7 +462,7 @@ const DEFAULT_ORDER_CONFIG = {
     // 是否启用二次确认
     confirmOrder: false,
     // 二次确认内容
-    confirmOrderContent: "<p>您确定要购买该套餐吗？</p>",
+    confirmOrderContent: "<p>您确定要加入该共享方案吗？</p>",
 };
 export const ORDER_CONFIG = mergeDeep(DEFAULT_ORDER_CONFIG, getConfig('ORDER_CONFIG'));
 

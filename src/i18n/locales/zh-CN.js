@@ -187,30 +187,30 @@ export default {
         welcome: '欢迎回来',
         welcomeDesc: '查看您的服务和使用情况',
         siteAnnouncement: '网站公告',
-        subscriptionInfo: '套餐信息',
-        planName: '套餐名称',
+        subscriptionInfo: '方案信息',
+        planName: '共享方案',
         expiryDate: '到期时间',
-        planTraffic: '套餐流量',
+        planTraffic: '方案流量',
         remainingTraffic: '剩余流量',
         remainingDays: '剩余天数',
         accountBalance: '账户余额',
         permanent: '永久',
         none: '无',
         days: '天',
-        noPlanPrompt: '您目前没有有效的套餐，请购买套餐以使用服务',
+        noPlanPrompt: '您目前没有有效的共享方案，请加入共享以使用服务',
         importSubscription: '导入订阅',
-        purchasePlan: '购买套餐',
+        purchasePlan: '加入共享',
         resetTraffic: '重置流量',
         activateDataCycleInAdvance: '提前开启流量周期',
         resetDataCycleNotice:'点击「我知道了」将会扣除当前流量周期剩余订阅时长（按月重置时扣除本周期剩余订阅时长，每月1号重置时扣除整月时间30天，年周期同理），系统将会重置您的已使用流量。',
         nextPeriodError:'提前开启下月失败',
         nextPeriodSuccess:'提前开启下月成功',
-        renewPlan: '续费套餐',
-        noPlanToRenew: '没有可续费的套餐',
+        renewPlan: '续费方案',
+        noPlanToRenew: '没有可续费的方案',
         resetTrafficConfirm: '确认重置流量',
-        resetTrafficDesc: '此操作将重置已使用的流量但不会增加套餐时长，是否继续？',
+        resetTrafficDesc: '此操作将重置已使用的流量但不会增加方案时长，是否继续？',
         resetTrafficSuccess: '成功创建重置流量订单',
-        resetTrafficWarning: '重置仅影响已使用流量，不会延长套餐有效期',
+        resetTrafficWarning: '重置仅影响已使用流量，不会延长方案有效期',
         ticketSupport: '工单支持',
         viewHelp: '查看帮助',
         documentation: '使用文档',
@@ -311,7 +311,7 @@ export default {
         viewDetail: '查看详情',
         cancel: '取消订单',
         noOrders: '暂无订单',
-        goShopping: '去购买套餐',
+        goShopping: '加入共享',
         cancelConfirmTitle: '确认取消订单',
         cancelConfirmText: '您确定要取消此订单吗？此操作无法撤销。',
         cancelSuccess: '订单已取消',
@@ -403,7 +403,7 @@ export default {
         basicInfo: '基本信息',
         email: '邮箱账号',
         userId: '用户ID',
-        planId: '套餐ID',
+        planId: '方案ID',
         balance: '余额',
         commission: '佣金',
         createdAt: '创建时间',
@@ -415,7 +415,7 @@ export default {
         autoRenewal: '自动续费',
         expireRemindDesc: '接收账户到期提醒邮件',
         trafficRemindDesc: '接收流量用尽提醒邮件',
-        autoRenewalDesc: '到期时自动续费套餐',
+        autoRenewalDesc: '到期时自动续费方案',
         security: '安全设置',
         changePassword: '修改密码',
         changePasswordTitle: '修改账户密码',
@@ -494,19 +494,19 @@ export default {
         back: '返回'
     },
     shop: {
-        title: '商店',
-        description: '查看并购买可用的套餐',
-        loading: '正在加载套餐...',
+        title: '共享方案',
+        description: '选择方案，加入共享',
+        loading: '正在加载共享方案...',
         filter: {
             all: '全部',
             recurring: '周期性',
             onetime: '一次性'
         },
-        no_plans_found: '未找到符合条件的套餐',
+        no_plans_found: '未找到符合条件的共享方案',
         try_different_filter: '请尝试其他筛选条件',
         reset_filter: '重置筛选',
         plan: {
-            purchase: '购买',
+            purchase: '加入共享',
             sold_out_btn: '已售罄',
             stock: {
                 plenty: '库存充足',
@@ -548,7 +548,7 @@ export default {
             devices: '多设备支持',
             devices_desc: '同时支持多台设备使用'
         },
-        config_error: '获取商店配置失败',
+        config_error: '获取共享方案配置失败',
         popup: {
             close_btn: '我知道了',
             wait_close_btn: '请等待 {seconds} 秒'
@@ -557,8 +557,8 @@ export default {
     order: {
         title: '确认订单',
         description: '请确认您的订单信息并完成支付',
-        existing_plan_warning_title: '您已有一个有效套餐',
-        existing_plan_warning_desc: '购买新套餐将替换您当前的有效套餐',
+        existing_plan_warning_title: '您已有一个有效共享方案',
+        existing_plan_warning_desc: '加入新的共享方案将替换您当前的有效方案',
         select_period: '选择计费周期',
         coupon: '优惠码',
         enter_coupon: '输入优惠码（如有）',
@@ -574,21 +574,21 @@ export default {
         subtotal: '小计',
         discount: '优惠',
         total: '总计',
-        back_to_shop: '返回商店',
+        back_to_shop: '返回共享方案',
         place_order: '提交订单',
         order_success: '订单创建成功',
         order_failed: '订单创建失败',
-        no_plan_selected: '未选择套餐',
-        plan_not_found: '套餐不存在',
-        failed_to_fetch_plan: '获取套餐信息失败',
+        no_plan_selected: '未选择共享方案',
+        plan_not_found: '共享方案不存在',
+        failed_to_fetch_plan: '获取方案信息失败',
         confirm_order_title: '确认订单',
-        confirm_purchase: '确认购买',
+        confirm_purchase: '确认加入',
     },
     payment: {
         title: '支付订单',
         description: '请选择您的支付方式完成订单',
         product_info: '产品信息',
-        plan_name: '套餐名称',
+        plan_name: '共享方案',
         period: '周期',
         period_types: {
             reset_price: '重置流量包',
@@ -598,7 +598,7 @@ export default {
         order_info: '订单信息',
         trade_no: '订单号',
         created_at: '创建时间',
-        total_price: '套餐金额',
+        total_price: '方案金额',
         total_amount: '应付金额',
         discount_amount: '优惠金额',
         balance_amount: '使用余额',
@@ -681,8 +681,8 @@ export default {
                 desc: '好友完成注册'
             },
             purchase: {
-                title: '3. 购买',
-                desc: '好友购买套餐'
+                title: '3. 加入共享',
+                desc: '好友加入共享'
             },
             commission: {
                 title: '4. 返佣',
@@ -791,7 +791,7 @@ export default {
     docs: {
         title: '文档中心',
         searchPlaceholder: '搜索文档...',
-        noAccessPrompt: '您目前没有有效的套餐，购买套餐后即可查看该区域的内容',
+        noAccessPrompt: '您目前没有有效的共享方案，加入共享后即可查看该区域的内容',
         loading: '正在加载文档...',
         retry: '重试',
         clearSearch: '清除搜索',
@@ -878,7 +878,7 @@ export default {
         },
         welcome: {
             title: '账户充值',
-            description: '在这里您可以轻松地为您的账户充值，选择预设金额或输入自定义金额进行充值。充值后的余额将立即到账并可用于购买我们的服务。'
+            description: '在这里您可以轻松地为您的账户充值，选择预设金额或输入自定义金额进行充值。充值后的余额将立即到账并可用于加入共享方案。'
         }
     }
 }; 

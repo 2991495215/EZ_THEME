@@ -254,7 +254,7 @@ export function formatUserInfoForTicket(userInfo, ipInfo, userSubscribe = null) 
 
 
 
-    let planName = "未知套餐";
+    let planName = "未知方案";
 
     if (sData && sData.plan && sData.plan.name) {
 
@@ -268,7 +268,7 @@ export function formatUserInfoForTicket(userInfo, ipInfo, userSubscribe = null) 
 
 
 
-    if (planName === "未知套餐" || planName.startsWith("ID:")) {
+    if (planName === "未知方案" || planName.startsWith("ID:")) {
 
         if (uData.plan_name && uData.plan_name.trim() !== '') {
 
@@ -341,7 +341,7 @@ export function formatUserInfoForTicket(userInfo, ipInfo, userSubscribe = null) 
 
 注册时间：${formatDate(uData.created_at)}
 
-套餐名称：${planName}
+共享方案：${planName}
 
 到期时间：${expireDate}
 
