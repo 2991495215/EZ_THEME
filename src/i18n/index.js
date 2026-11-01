@@ -73,6 +73,7 @@ const i18n = createI18n({
   missingWarn: false,
   fallbackWarn: false
 });
+document.documentElement.lang = i18n.global.locale.value;
 
 
 
@@ -262,7 +263,6 @@ export const reloadMessages = async () => {
     
 
     i18n.global.locale.value = initialLang;
-    document.documentElement.lang = initialLang;
 
     
 
