@@ -485,10 +485,10 @@
             },
         };
 
-        const languageByLabel = { '简体中文': 'zh-CN', English: 'en-US' };
         const getLanguage = () => {
-            const selectedLabel = document.querySelector('.language-btn img[alt]')?.alt;
-            return languageByLabel[selectedLabel] || (legalCopy[localStorage.getItem('language')] ? localStorage.getItem('language') : 'en-US');
+            const storedLanguage = localStorage.getItem('language');
+            return legalCopy[storedLanguage] ? storedLanguage
+                : (document.documentElement.lang.startsWith('zh') ? 'zh-CN' : 'en-US');
         };
         const getCopy = () => legalCopy[getLanguage()];
 

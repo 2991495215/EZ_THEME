@@ -311,6 +311,7 @@ try {
   await navigate('/dashboard');
   await changeLanguage('English');
   await page.getByText('Current exit IP check', { exact: true }).waitFor();
+  assert.equal(await page.locator('#termsLabel').textContent(), 'Terms of Service');
   await page.locator('[data-legal-doc=terms]').click();
   await page.getByRole('heading', { name: 'Terms of Service', exact: true }).waitFor();
   assert(!/[\u3400-\u9fff]/u.test(await page.locator('.legal-dialog').innerText()));
