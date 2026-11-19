@@ -172,8 +172,16 @@ try {
   await page.locator('.legal-link').first().click();
   await page.locator('.legal-dialog[open]').waitFor();
   await page.locator('.legal-dialog-close').click();
+  // Login and registration can cache the guest config before the shop opens.
+  const guestConfigPath = '/api/v1/guest/comm/config';
+  const guestConfigRequests = () => requests.filter(url => new URL(url).pathname === guestConfigPath).length;
+  const previousGuestConfigRequests = guestConfigRequests();
+  await page.evaluate(() => { window.testNow += 61000; });
   shopCurrencyGate = holdCurrency();
-  await navigate('/shop');
+  await Promise.all([
+    page.waitForRequest(request => new URL(request.url()).pathname === guestConfigPath),
+    navigate('/shop')
+  ]);
   await page.locator('.plan-card').waitFor();
   assert.equal(await page.locator('.plan-card .price-display').count(), 0);
   assert(await page.locator('.plan-card .btn-purchase').isDisabled());
@@ -211,7 +219,7 @@ try {
   await navigate('/shop');
   await page.getByText('Test plan 2', { exact: true }).waitFor();
   assert.equal(await page.locator('.period-tag.active').innerText(), selectedPeriod);
-  assert.equal(requests.filter(url => url.includes('/guest/comm/config')).length, 1);
+  assert.equal(guestConfigRequests(), previousGuestConfigRequests + 1);
   assert(await page.evaluate(() => document.querySelector('.main-board') === window.testLayout && !document.body.classList.contains('page-transitioning')));
   await navigate('/docs');
   await page.getByText('中文初始文档', { exact: true }).waitFor();
