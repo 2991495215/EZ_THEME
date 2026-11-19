@@ -146,7 +146,7 @@
 
           <!-- 周期选择 -->
 
-          <div class="section-wrapper" v-if="!loading.plan">
+          <div class="section-wrapper" v-if="!loading.plan && currencySymbol">
 
             <div class="section-title">
 
@@ -182,9 +182,7 @@
 
                     <div class="period-price">
 
-                      <span class="currency">{{ currencySymbol }}</span>
-
-                      <span class="amount">{{ (price / 100).toFixed(2) }}</span>
+                      <span class="amount">{{ currencySymbol }}{{ (price / 100).toFixed(2) }}</span>
 
                     </div>
 
@@ -199,6 +197,11 @@
           </div>
 
           
+
+          <div class="section-wrapper" v-else-if="!loading.plan && !currencyLoading" role="alert">
+            <p>{{ $t('shop.config_error') }}</p>
+            <button class="btn-back" type="button" @click="fetchCurrency">{{ $t('common.retry') }}</button>
+          </div>
 
           <!-- 周期选择骨架屏 -->
 
@@ -322,7 +325,7 @@
 
               <!-- 骨架屏 -->
 
-              <div v-if="loading.plan">
+              <div v-if="loading.plan || currencyLoading">
 
                 <div class="summary-row skeleton">
 
@@ -348,7 +351,7 @@
 
               <!-- 实际内容 -->
 
-              <div v-else>
+              <div v-else-if="currencySymbol">
 
                 <div class="summary-row">
 
@@ -422,7 +425,7 @@
 
               @click="submitOrder"
 
-              :disabled="!selectedPriceType || loading.submitting || loading.plan"
+              :disabled="!currencySymbol || !selectedPriceType || loading.submitting || loading.plan"
 
             >
 
@@ -472,7 +475,8 @@ import { useToast } from '@/composables/useToast';
 
 import { useRoute, useRouter } from 'vue-router';
 
-import { getCommConfig, fetchPlanById, verifyCoupon as checkCoupon, submitOrder as createOrder } from '@/api/shop';
+import { fetchPlanById, verifyCoupon as checkCoupon, submitOrder as createOrder } from '@/api/shop';
+import { usePricingCurrency } from './composables/usePricingCurrency';
 
 import { getUserInfo } from '@/api/dashboard';
 
@@ -552,9 +556,7 @@ export default {
 
     const userInfo = ref(null);
 
-    const currency = ref('CNY');
-
-    const currencySymbol = ref('¥');
+    const { currencySymbol, currencyLoading, fetchCurrency } = usePricingCurrency();
 
     
 
@@ -956,7 +958,7 @@ export default {
 
     const submitOrder = async () => {
 
-      if (!selectedPriceType.value || loading.submitting) return;
+      if (!currencySymbol.value || !selectedPriceType.value || loading.submitting) return;
 
       
 
@@ -1178,33 +1180,6 @@ export default {
 
     
 
-    const fetchConfig = async () => {
-
-      try {
-
-        const response = await getCommConfig();
-
-        if (response.data) {
-
-          currency.value = response.data.currency || 'CNY';
-
-          currencySymbol.value = response.data.currency_symbol || '¥';
-
-        } else if (response.message) {
-
-          showToast(response.message, 'warning');
-
-        }
-
-      } catch (error) {
-
-        console.error('获取系统配置失败:', error);
-
-        showToast(error.response?.message || error.message || t('shop.config_error'), 'error');
-
-      }
-
-    };
 
     
 
@@ -1242,7 +1217,7 @@ export default {
 
     onMounted(async () => {
 
-      await Promise.all([fetchPlanData(), fetchUserInfo(), fetchConfig()]);
+      await Promise.all([fetchPlanData(), fetchUserInfo(), fetchCurrency()]);
 
     });
 
@@ -1258,9 +1233,9 @@ export default {
 
       loading,
 
-      currency,
-
       currencySymbol,
+      currencyLoading,
+      fetchCurrency,
 
       selectedPriceType,
 

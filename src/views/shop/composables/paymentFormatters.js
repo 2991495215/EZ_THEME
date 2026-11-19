@@ -4,9 +4,9 @@ export const formatPaymentDate = (timestamp) => {
   return date.toLocaleString();
 };
 
-export const formatPaymentAmount = (amount) => {
+export const formatPaymentAmount = (amount, symbol) => {
   if (amount === null || amount === undefined) return '-';
-  return `¥${(amount / 100).toFixed(2)}`;
+  return `${symbol}${(amount / 100).toFixed(2)}`;
 };
 
 export const formatPaymentPeriod = (period) => {

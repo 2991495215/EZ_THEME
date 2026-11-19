@@ -642,6 +642,8 @@ export default {
         confirm_purchase: '确认加入',
     },
     payment: {
+        previous_plan_credit: '旧套餐抵扣',
+        link_notice: '请打开支付页面完成付款，收款币种和金额以该页面为准。',
         title: '支付订单',
         description: '请选择您的支付方式完成订单',
         product_info: '产品信息',

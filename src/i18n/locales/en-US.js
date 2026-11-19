@@ -642,6 +642,8 @@ export default {
         confirm_purchase:'Confirm Purchase'
     },
     payment: {
+        previous_plan_credit: 'Previous plan credit',
+        link_notice: 'Open the payment page to pay. It shows the currency and amount you will be charged.',
         title: 'Pay Order',
         description: 'Please select your payment method to complete the order',
         product_info: 'Product Information',

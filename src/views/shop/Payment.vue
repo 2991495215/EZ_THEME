@@ -89,6 +89,10 @@
               <div class="info-row" v-if="orderDetail.refund_amount !== null && orderDetail.refund_amount !== undefined && orderDetail.refund_amount > 0">
                 <div class="info-label">{{ $t('payment.refund_amount') }}</div>
                 <div class="info-value">{{ formatAmount(orderDetail.refund_amount) }}</div>
+              </div>
+              <div class="info-row" v-if="planCredit > 0">
+                <div class="info-label">{{ $t('payment.previous_plan_credit') }}</div>
+                <div class="info-value">-{{ formatAmount(planCredit) }}</div>
               </div>
               <div class="info-row" v-if="selectedMethod && handleFeeAmount > 0">
                 <div class="info-label">{{ $t('payment.handling_fee') }}</div>
@@ -358,9 +362,8 @@
               <p v-if="detectBrowser() === 'Safari' && PAYMENT_CONFIG.useSafariPaymentModal && paymentLink">
                 {{ $t('payment.safari_payment_notice') }}
               </p>
-              <p v-else>
-                {{ $t('payment.scan_qrcode') }}
-              </p>
+              <p v-else-if="paymentQRCode">{{ $t('payment.scan_qrcode') }}</p>
+              <p v-else-if="paymentLink">{{ $t('payment.link_notice') }}</p>
               
               <div class="qrcode-container" v-if="paymentQRCode">
                 <QrcodeVue 
@@ -570,7 +573,8 @@ export default {
     
     const formatDate = formatPaymentDate;
     
-    const formatAmount = formatPaymentAmount;
+    // shortcut: historical CNY cutover for this site; use the order currency when the API includes it.
+    const formatAmount = (amount) => formatPaymentAmount(amount, orderDetail.value.id <= 23 ? '¥' : '$');
     
     const formatPeriod = (period) => {
       if (period === 'reset_price' || period === 'deposit') {
@@ -599,19 +603,18 @@ export default {
       }
       
       if (method.handling_fee_fixed) {
-        const fixedFee = (method.handling_fee_fixed / 100).toFixed(2);
-        feeText += feeText ? ` + ¥${fixedFee}` : `¥${fixedFee}`;
+        const fixedFee = formatAmount(method.handling_fee_fixed);
+        feeText += feeText ? ' + ' + fixedFee : fixedFee;
       }
       
       return feeText ? `${t('payment.fee')}: ${feeText}` : '';
     };
     
-    const getPlanPrice = () => {
-      if (!orderDetail.value || !orderDetail.value.plan || !orderDetail.value.period) {
-        return 0;
-      }
-      return orderDetail.value.plan[orderDetail.value.period] || 0;
-    };
+    const planCredit = computed(() => Math.max(0,
+      (orderDetail.value.surplus_amount || 0) - (orderDetail.value.surplus_credit || 0)));
+    const getPlanPrice = () => Number(orderDetail.value.total_amount || 0)
+      + Number(orderDetail.value.discount_amount || 0) + Number(orderDetail.value.balance_amount || 0)
+      + planCredit.value;
     
     const checkPayment = async () => {
       if (orderDetail.value.total_amount > 0 && !selectedMethod.value) {
@@ -1092,6 +1095,7 @@ export default {
       cancelCurrentOrder,
       goToDashboard,
       getPlanPrice,
+      planCredit,
       showCancelConfirm,
       confirmCancel,
       closeModal,

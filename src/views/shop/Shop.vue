@@ -150,6 +150,11 @@
 
       <!-- 套餐列表 -->
 
+      <div v-if="!currencyLoading && !currencySymbol && plans.length" class="no-plans-message" role="alert">
+        <p>{{ $t('shop.config_error') }}</p>
+        <button class="btn-reset-filter" type="button" @click="fetchCurrency">{{ $t('common.retry') }}</button>
+      </div>
+
       <div class="plans-wrapper">
 
         <!-- 无结果提示 -->
@@ -240,7 +245,7 @@
 
             <div class="plan-price">
 
-              <div class="price-display">
+              <div v-if="currencySymbol" class="price-display">
 
                 <span class="currency">{{ currencySymbol }}</span>
 
@@ -251,6 +256,8 @@
               </div>
 
               
+
+              <div v-else-if="currencyLoading" class="skeleton-price" role="status">{{ $t('common.loading') }}</div>
 
               <!-- 支持的周期标签 - 改进显示效果 -->
 
@@ -296,7 +303,7 @@
 
             <!-- 周期折扣计算 -->
 
-            <div class="discount-calculation" v-if="SHOP_CONFIG.enableDiscountCalculation && calculateDiscount(plan).showDiscount">
+            <div class="discount-calculation" v-if="currencySymbol && SHOP_CONFIG.enableDiscountCalculation && calculateDiscount(plan).showDiscount">
 
               <div class="discount-info">
 
@@ -364,7 +371,7 @@
 
               @click="purchasePlan(plan)"
 
-              :disabled="plan.capacity_limit === 0"
+              :disabled="!currencySymbol || plan.capacity_limit === 0"
 
             >
 
@@ -417,7 +424,8 @@ import { useI18n } from 'vue-i18n';
 
 import { useToast } from '@/composables/useToast';
 
-import { fetchPlans, getCommConfig } from '@/api/shop';
+import { fetchPlans } from '@/api/shop';
+import { usePricingCurrency } from './composables/usePricingCurrency';
 
 import { SHOP_CONFIG } from '@/utils/baseConfig';
 
@@ -497,9 +505,7 @@ export default {
 
     const loading = reactive({
 
-      plans: true,
-
-      config: true
+      plans: true
 
     });
 
@@ -507,9 +513,7 @@ export default {
 
     const plans = ref([]);
 
-    const currency = ref('CNY');
-
-    const currencySymbol = ref('¥');
+    const { currencySymbol, currencyLoading, fetchCurrency } = usePricingCurrency();
 
     
 
@@ -785,33 +789,6 @@ export default {
 
     
 
-    const fetchConfig = async () => {
-
-      loading.config = plans.value.length === 0;
-
-      try {
-
-        const response = await getCommConfig();
-
-        if (response.data) {
-
-          currency.value = response.data.currency || 'CNY';
-
-          currencySymbol.value = response.data.currency_symbol || '¥';
-
-        }
-
-      } catch (error) {
-
-        console.error('获取系统配置失败:', error);
-
-      } finally {
-
-        loading.config = false;
-
-      }
-
-    };
 
     
 
@@ -1113,7 +1090,7 @@ export default {
       if (refreshing) return;
       refreshing = true;
       try {
-        await Promise.all([fetchPlanData(), fetchConfig()]);
+        await Promise.all([fetchPlanData(), fetchCurrency()]);
         lastLoad = Date.now();
       } finally {
         refreshing = false;
@@ -1231,9 +1208,9 @@ export default {
 
       loading,
 
-      currency,
-
       currencySymbol,
+      currencyLoading,
+      fetchCurrency,
 
       paymentMethods,
 
@@ -1999,9 +1976,9 @@ export default {
 
         .currency {
 
-          font-size: 24px;
+          font-size: 40px;
 
-          font-weight: 500;
+          font-weight: 700;
 
           color: var(--text-color);
 
