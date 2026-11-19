@@ -53,7 +53,7 @@ const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light'
 const requests = [], errors = [], unexpected = [];
 let languageRegression = false;
 let shopCurrencyGate, orderCurrencyGate;
-let orderCurrency = 'USD', invalidOrderCurrency = true;
+let orderCurrency = 'USD', invalidOrderCurrency = true, checkoutRefresh = false;
 const holdCurrency = () => {
   let release;
   const wait = new Promise(resolve => { release = resolve; });
@@ -77,21 +77,30 @@ try {
     if (url.pathname.startsWith('/api/v1/')) {
       const endpoint = url.pathname.slice('/api/v1'.length);
       let data;
-      if (request.method() !== 'GET' && endpoint !== '/passport/auth/login') {
+      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save'].includes(endpoint)) {
         unexpected.push(request.method() + ' ' + endpoint);
         return route.abort();
       }
       if (endpoint.endsWith('/plan/fetch')) {
-        const selectedPlan = { ...plan, name: languageRegression ? 'Standard 标准' : 'Test plan ' + planVersion };
-        data = url.searchParams.has('id') ? selectedPlan : [selectedPlan];
+        const single = url.searchParams.has('id');
+        await (single ? orderCurrencyGate : shopCurrencyGate)?.wait;
+        const currency = url.searchParams.has('pricing_quote') ? orderCurrency : 'USD';
+        const currencyFields = single && invalidOrderCurrency && orderCurrencyGate ? {} : {
+          currency, currency_symbol: currency === 'USD' ? '$' : '¥'
+        };
+        const selectedPlan = { ...plan, ...currencyFields, month_price: currency === 'CNY' ? 6682 : 1000,
+          name: languageRegression ? 'Standard 标准' : 'Test plan ' + planVersion };
+        data = single ? selectedPlan : [selectedPlan];
       }
       else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') {
-        if (endpoint === '/guest/comm/config') await shopCurrencyGate?.wait;
-        if (endpoint === '/user/comm/config') await orderCurrencyGate?.wait;
-        const currency = endpoint === '/guest/comm/config' ? 'USD' : orderCurrency;
-        const currency_symbol = currency === 'USD' ? '$' : '¥';
-        data = endpoint === '/user/comm/config' && invalidOrderCurrency && orderCurrencyGate
-          ? {} : { currency, currency_symbol, is_email_verify: 1 };
+        data = { currency: 'USD', currency_symbol: '$', is_email_verify: 1 };
+      }
+      else if (endpoint === '/user/order/save') {
+        assert.deepEqual(request.postDataJSON(), { plan_id: '1', period: 'month_price', pricing_currency: 'CNY', quoted_amount: '6682' });
+        assert(!checkoutRefresh);
+        checkoutRefresh = true;
+        orderCurrency = 'USD';
+        return route.fulfill({ status: 409, json: { message: 'Price changed' } });
       }
       else if (endpoint.endsWith('/server/fetch')) data = nodes;
       else if (endpoint.endsWith('/server/machine')) data = machine;
@@ -120,12 +129,14 @@ try {
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
       else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now }];
       else if (endpoint === '/user/order/detail') data = {
-        id: url.searchParams.get('trade_no') === 'legacy' ? 23 : 24,
+        id: url.searchParams.get('trade_no') === 'legacy' ? 99 : 1,
+        currency_symbol: url.searchParams.get('trade_no') === 'legacy' ? '¥' : '$',
         trade_no: url.searchParams.get('trade_no'), status: 0, total_amount: 700,
         surplus_amount: 400, surplus_credit: 100, period: 'month_price',
         plan: { ...plan, month_price: 1300, name: languageRegression ? 'Standard 标准' : plan.name }, created_at: now
       };
-      else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
+      else if (endpoint === '/user/order/fetch') data = [{ id: 1, status: 3, total_amount: 700, currency_symbol: '$', trade_no: 'mock', created_at: now }, { id: 99, status: 3, total_amount: 900, currency_symbol: '¥', trade_no: 'legacy', created_at: now }];
+      else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', charge_amount: 4677, charge_currency: 'CNY', charge_symbol: '¥', display_fee: 0, icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
       else data = [];
       return route.fulfill({ json: { data } });
     }
@@ -172,19 +183,13 @@ try {
   await page.locator('.legal-link').first().click();
   await page.locator('.legal-dialog[open]').waitFor();
   await page.locator('.legal-dialog-close').click();
-  // Login and registration can cache the guest config before the shop opens.
-  const guestConfigPath = '/api/v1/guest/comm/config';
-  const guestConfigRequests = () => requests.filter(url => new URL(url).pathname === guestConfigPath).length;
-  const previousGuestConfigRequests = guestConfigRequests();
-  await page.evaluate(() => { window.testNow += 61000; });
+  const guestPlanPath = '/api/v1/guest/plan/fetch';
   shopCurrencyGate = holdCurrency();
   await Promise.all([
-    page.waitForRequest(request => new URL(request.url()).pathname === guestConfigPath),
+    page.waitForRequest(request => new URL(request.url()).pathname === guestPlanPath),
     navigate('/shop')
   ]);
-  await page.locator('.plan-card').waitFor();
   assert.equal(await page.locator('.plan-card .price-display').count(), 0);
-  assert(await page.locator('.plan-card .btn-purchase').isDisabled());
   shopCurrencyGate.release();
   await page.waitForFunction(() => document.querySelector('.plan-card .currency')?.textContent === '$');
   await page.locator('.period-tag').nth(1).click();
@@ -219,7 +224,6 @@ try {
   await navigate('/shop');
   await page.getByText('Test plan 2', { exact: true }).waitFor();
   assert.equal(await page.locator('.period-tag.active').innerText(), selectedPeriod);
-  assert.equal(guestConfigRequests(), previousGuestConfigRequests + 1);
   assert(await page.evaluate(() => document.querySelector('.main-board') === window.testLayout && !document.body.classList.contains('page-transitioning')));
   await navigate('/docs');
   await page.getByText('中文初始文档', { exact: true }).waitFor();
@@ -307,6 +311,10 @@ try {
   await page.locator('.order-info .amount').filter({ hasText: '$10.00' }).waitFor();
   await page.locator('.order-info .final').filter({ hasText: '$7.00' }).waitFor();
   await page.getByText('-$3.00', { exact: true }).waitFor();
+  await page.getByText('¥46.77', { exact: true }).waitFor();
+  await navigate('/orders');
+  await page.getByText('$7.00', { exact: true }).waitFor();
+  await page.getByText('¥9.00', { exact: true }).waitFor();
   await page.goto(origin + '#/payment?trade_no=legacy');
   await page.reload();
   await page.locator('.order-info .final').filter({ hasText: '¥7.00' }).waitFor();
@@ -374,8 +382,8 @@ try {
   await page.getByText('📦 每月 1000 GB 流量', { exact: true }).waitFor();
   await changeLanguage('English');
   orderCurrencyGate = holdCurrency();
-  await navigate('/order-confirm?id=1&period=month_price');
-  await page.locator('.plan-card .card-title').filter({ hasText: /^Standard$/ }).waitFor();
+  await Promise.all([page.waitForRequest(request => new URL(request.url()).searchParams.get('id') === '1'),
+    navigate('/order-confirm?id=1&period=month_price')]);
   assert.equal(await page.locator('.period-price, .summary-row.total .summary-value:not(.skeleton-text)').count(), 0);
   assert(await page.locator('.btn-order').isDisabled());
   orderCurrencyGate.release();
@@ -386,10 +394,11 @@ try {
   invalidOrderCurrency = false;
   await currencyRetry.click();
   const total = page.locator('.summary-row.total .summary-value:not(.skeleton-text)');
-  await total.filter({ hasText: '¥10.00' }).waitFor();
-  await page.locator('.period-price .amount').filter({ hasText: '¥10.00' }).waitFor();
-  orderCurrency = 'USD';
-  await page.reload();
+  await total.filter({ hasText: '¥66.82' }).waitFor();
+  await page.locator('.period-price .amount').filter({ hasText: '¥66.82' }).waitFor();
+  await page.locator('.btn-order').click();
+  const confirmOrder = page.locator('.order-confirm-modal .btn-confirm');
+  if (await confirmOrder.count()) await confirmOrder.click();
   await total.filter({ hasText: '$10.00' }).waitFor();
   await page.locator('.period-price .amount').filter({ hasText: '$10.00' }).waitFor();
   await page.getByText('📦 1000 GB monthly data', { exact: true }).waitFor();

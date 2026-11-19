@@ -425,7 +425,6 @@ import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast';
 
 import { fetchPlans } from '@/api/shop';
-import { usePricingCurrency } from './composables/usePricingCurrency';
 
 import { SHOP_CONFIG } from '@/utils/baseConfig';
 
@@ -513,7 +512,9 @@ export default {
 
     const plans = ref([]);
 
-    const { currencySymbol, currencyLoading, fetchCurrency } = usePricingCurrency();
+    const currencySymbol = computed(() => plans.value[0]?.currency_symbol || '');
+    const currencyLoading = computed(() => loading.plans);
+    const fetchCurrency = () => fetchPlanData();
 
     
 
@@ -1090,7 +1091,7 @@ export default {
       if (refreshing) return;
       refreshing = true;
       try {
-        await Promise.all([fetchPlanData(), fetchCurrency()]);
+        await fetchPlanData();
         lastLoad = Date.now();
       } finally {
         refreshing = false;

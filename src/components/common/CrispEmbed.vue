@@ -25,7 +25,7 @@ export default {
     const store = useStore();
     const userInfo = ref(null);
     const userSubscribe = ref(null);
-    const currencySymbol = ref('¥'); 
+    const currencySymbol = ref('$'); 
     const crispInitialized = ref(window.CRISP_INITIALIZED || false);
     const isMobile = ref(false);
     

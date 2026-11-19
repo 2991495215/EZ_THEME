@@ -668,8 +668,8 @@ export default {
     
     const creatingCode = ref(false);
     
-    const currency = ref('CNY');
-    const currencySymbol = ref('¥');
+    const currency = ref('USD');
+    const currencySymbol = ref('$');
     
     const inviteCodes = ref([]);
     const selectedCodeIndex = ref(0);
@@ -957,8 +957,8 @@ export default {
       try {
         const res = await getCommissionConfig();
         if (res.data) {
-          currency.value = res.data.currency || 'CNY';
-          currencySymbol.value = res.data.currency_symbol || '¥';
+          currency.value = res.data.currency || 'USD';
+          currencySymbol.value = res.data.currency_symbol || '$';
           
           withdrawClose.value = Number(res.data.withdraw_close);
           

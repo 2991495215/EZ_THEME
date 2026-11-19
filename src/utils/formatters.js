@@ -288,7 +288,7 @@ export function formatUserInfoForTicket(userInfo, ipInfo, userSubscribe = null) 
 
 
 
-    let currencySymbol = '¥';
+    let currencySymbol = '$';
     if (userInfo.currency_symbol) {
 
         currencySymbol = userInfo.currency_symbol;

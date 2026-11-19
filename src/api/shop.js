@@ -3,7 +3,7 @@
 
 export function fetchPlans() {
   return request({
-    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch`,
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch?pricing_quote=1`,
     method: 'get'
   });
 }
@@ -19,19 +19,21 @@ export function getCommConfig() {
 
 export function fetchPlanById(id) {
   return request({
-    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch?id=${id}`,
+    url: `/${localStorage.getItem('token') ? 'user' : 'guest'}/plan/fetch?pricing_quote=1&id=${id}`,
     method: 'get'
   });
 }
 
 
-export function verifyCoupon(code, planId) {
+export function verifyCoupon(code, planId, period) {
   return request({
     url: '/user/coupon/check',
     method: 'post',
     data: {
       code: code,
-      plan_id: planId
+      plan_id: planId,
+      period,
+      pricing_quote: true
     }
   });
 }
@@ -54,9 +56,9 @@ export function getOrderDetail(tradeNo) {
 }
 
 
-export function getPaymentMethods() {
+export function getPaymentMethods(tradeNo) {
   return request({
-    url: '/user/order/getPaymentMethod',
+    url: '/user/order/getPaymentMethod'+(tradeNo ? '?trade_no='+encodeURIComponent(tradeNo) : ''),
     method: 'get'
   });
 }
@@ -81,13 +83,15 @@ export function cancelOrder(tradeNo) {
 }
 
 
-export function checkoutOrder(tradeNo, methodId) {
+export function checkoutOrder(tradeNo, method) {
   return request({
     url: '/user/order/checkout',
     method: 'post',
     data: {
       trade_no: tradeNo,
-      method: methodId
+      method: method?.id,
+      charge_amount: method?.charge_amount,
+      charge_currency: method?.charge_currency
     }
   });
 }

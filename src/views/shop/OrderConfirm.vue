@@ -476,7 +476,6 @@ import { useToast } from '@/composables/useToast';
 import { useRoute, useRouter } from 'vue-router';
 
 import { fetchPlanById, verifyCoupon as checkCoupon, submitOrder as createOrder } from '@/api/shop';
-import { usePricingCurrency } from './composables/usePricingCurrency';
 
 import { getUserInfo } from '@/api/dashboard';
 
@@ -556,7 +555,9 @@ export default {
 
     const userInfo = ref(null);
 
-    const { currencySymbol, currencyLoading, fetchCurrency } = usePricingCurrency();
+    const currencySymbol = computed(() => plan.value?.currency_symbol || '');
+    const currencyLoading = computed(() => loading.plan);
+    const fetchCurrency = () => fetchPlanData();
 
     
 
@@ -845,10 +846,16 @@ export default {
 
       try {
 
-        const response = await checkCoupon(couponCode.value, plan.value.id);
+        const response = await checkCoupon(couponCode.value, plan.value.id, selectedPriceType.value);
 
         
 
+        if (response.data?.currency && response.data.currency !== plan.value.currency) {
+          await fetchPlanData();
+          removeCoupon();
+          showToast(t('order.price_changed', 'Pricing changed. Review the updated price and try again.'), 'warning');
+          return;
+        }
         if (response.data) {
 
           couponApplied.value = true;
@@ -996,7 +1003,9 @@ export default {
 
           plan_id: Number(plan.value.id),
 
-          period: selectedPriceType.value
+          period: selectedPriceType.value,
+          pricing_currency: plan.value.currency,
+          quoted_amount: originalPrice.value
 
         };
 
@@ -1040,6 +1049,12 @@ export default {
 
       } catch (error) {
 
+        if (error.response?.status === 409 || error.status === 409) {
+          await fetchPlanData();
+          removeCoupon();
+          showToast(t('order.price_changed', 'Pricing changed. Review the updated price and try again.'), 'warning');
+          return;
+        }
         console.error('提交订单失败:', error);
 
         showToast(error.response?.message || error.message || t('order.order_failed'), 'error');
@@ -1217,7 +1232,7 @@ export default {
 
     onMounted(async () => {
 
-      await Promise.all([fetchPlanData(), fetchUserInfo(), fetchCurrency()]);
+      await Promise.all([fetchPlanData(), fetchUserInfo()]);
 
     });
 

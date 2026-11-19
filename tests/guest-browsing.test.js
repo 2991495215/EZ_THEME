@@ -21,7 +21,7 @@ test('guest browsing uses public APIs and never requests account or machine data
   for (const read of publicReads) await read();
   const guestURLs = request.mock.calls.map(([config]) => config.url);
   expect(guestURLs).toEqual([
-    '/guest/comm/config', '/guest/comm/config', '/guest/plan/fetch', '/guest/plan/fetch?id=7',
+    '/guest/comm/config', '/guest/comm/config', '/guest/plan/fetch?pricing_quote=1', '/guest/plan/fetch?pricing_quote=1&id=7',
     '/guest/knowledge/fetch?language=zh-CN', '/guest/knowledge/fetch?id=3&language=zh-CN', '/guest/server/fetch'
   ]);
 

@@ -73,7 +73,7 @@ export default {
     const loading = ref(true);
     const otherServiceContainer = ref(null);
     const crispInitialized = ref(window.CRISP_INITIALIZED || false);
-    const currencySymbol = ref('¥'); 
+    const currencySymbol = ref('$'); 
     const userSubscribe = ref(null);  
 
     const serviceType = computed(() => {

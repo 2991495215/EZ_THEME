@@ -612,6 +612,7 @@ export default {
         }
     },
     order: {
+      price_changed: '价格已更新，请核对后重新下单。',
         title: '确认订单',
         description: '请确认您的订单信息并完成支付',
         existing_plan_warning_title: '您已有一个有效共享方案',
@@ -642,6 +643,7 @@ export default {
         confirm_purchase: '确认加入',
     },
     payment: {
+      checkout_held: '已有付款链接，请继续使用原支付方式，或等订单到期后重新选择。',
         previous_plan_credit: '旧套餐抵扣',
         link_notice: '请打开支付页面完成付款，收款币种和金额以该页面为准。',
         title: '支付订单',

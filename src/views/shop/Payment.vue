@@ -25,7 +25,7 @@
               <div v-if="orderDetail.period === 'deposit'">
                 <div class="info-row">
                   <div class="info-label">{{ $t('wallet.deposit.title') }}</div>
-                  <div class="info-value">{{ formatAmount(orderDetail.total_amount) }}</div>
+                  <div class="info-value">{{ formatAmount(displayAmount('total_amount')) }}</div>
                 </div>
               </div>
               <!-- 普通订单显示完整信息 -->
@@ -70,7 +70,7 @@
               <!-- 充值订单显示充值金额 -->
               <div v-if="orderDetail.period === 'deposit'" class="info-row">
                 <div class="info-label">{{ $t('wallet.deposit.title') }}</div>
-                <div class="info-value amount">{{ formatAmount(orderDetail.total_amount) }}</div>
+                <div class="info-value amount">{{ formatAmount(displayAmount('total_amount')) }}</div>
               </div>
               <!-- 普通订单显示套餐金额 -->
               <div v-else class="info-row">
@@ -80,15 +80,15 @@
               
               <div class="info-row discount-row" v-if="orderDetail.discount_amount > 0">
                 <div class="info-label">{{ $t('payment.discount_amount') }}</div>
-                <div class="info-value discount">-{{ formatAmount(orderDetail.discount_amount) }}</div>
+                <div class="info-value discount">-{{ formatAmount(displayAmount('discount_amount')) }}</div>
               </div>
               <div class="info-row" v-if="orderDetail.balance_amount !== null && orderDetail.balance_amount !== undefined && orderDetail.balance_amount > 0">
                 <div class="info-label">{{ $t('payment.use_credit') }}</div>
-                <div class="info-value discount">-{{ formatAmount(orderDetail.balance_amount) }}</div>
+                <div class="info-value discount">-{{ formatAmount(displayAmount('balance_amount')) }}</div>
               </div>
               <div class="info-row" v-if="orderDetail.refund_amount !== null && orderDetail.refund_amount !== undefined && orderDetail.refund_amount > 0">
                 <div class="info-label">{{ $t('payment.refund_amount') }}</div>
-                <div class="info-value">{{ formatAmount(orderDetail.refund_amount) }}</div>
+                <div class="info-value">{{ formatAmount(displayAmount('refund_amount')) }}</div>
               </div>
               <div class="info-row" v-if="planCredit > 0">
                 <div class="info-label">{{ $t('payment.previous_plan_credit') }}</div>
@@ -183,8 +183,8 @@
                 </div>
                 <div class="method-details">
                   <div class="method-name">{{ method.name }}</div>
-                  <div class="method-fee" v-if="method.handling_fee_percent || method.handling_fee_fixed">
-                    {{ formatFee(method) }}
+                  <div class="method-fee" v-if="method.charge_currency">
+                    {{ formatPaymentAmount(method.charge_amount, method.charge_symbol) }}
                   </div>
                 </div>
                 <div class="method-check">
@@ -201,6 +201,9 @@
           </div>
           
           <!-- 按钮区域 -->
+          <p v-if="orderDetail.status === 0 && orderDetail.checkout_held" role="status">
+            {{ $t('payment.checkout_held', 'A payment link is active. Use the same method, or wait for the order to expire before trying a different method.') }}
+          </p>
           <div class="action-buttons">
             <!-- 从订单列表进入且订单已完成 - 显示返回上一页按钮 -->
             <div class="btn-group pay-row" v-if="fromOrderList && (paymentSuccessful || orderDetail.status !== 0)">
@@ -246,7 +249,7 @@
                 <button 
                   class="btn-back secondary-action" 
                   @click="cancelCurrentOrder"
-                  :disabled="loading.cancelling"
+                  :disabled="loading.cancelling || orderDetail.checkout_held"
                 >
                   <IconX v-if="!loading.cancelling" :size="18" />
                   <div v-else class="loader"></div>
@@ -270,7 +273,7 @@
                 <button 
                   class="btn-back secondary-action" 
                   @click="cancelCurrentOrder"
-                  :disabled="loading.cancelling"
+                  :disabled="loading.cancelling || orderDetail.checkout_held"
                 >
                   <IconX v-if="!loading.cancelling" :size="18" />
                   <div v-else class="loader"></div>
@@ -414,7 +417,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { getOrderDetail, getPaymentMethods, checkOrderStatus, cancelOrder, checkoutOrder } from '@/api/shop';
 import { PAYMENT_CONFIG } from '@/utils/baseConfig';
 import {
-  calculateHandlingFee,
+
   formatPaymentAmount,
   formatPaymentDate,
   formatPaymentTraffic
@@ -489,16 +492,16 @@ export default {
     const paymentQRCode = ref(null);
     const paymentLink = ref(null);
     
+    const currentMethod = computed(() => paymentMethods.value.find(m => m.id === selectedMethod.value));
     const handleFeeAmount = computed(() => {
-      const method = paymentMethods.value.find(m => m.id === selectedMethod.value);
-      return calculateHandlingFee(method, orderDetail.value.total_amount);
+      return currentMethod.value?.display_fee ?? orderDetail.value.display_amounts?.handling_amount ?? 0;
     });
     
     const totalWithFee = computed(() => {
       if (!orderDetail.value.total_amount) {
         return 0;
       }
-      return orderDetail.value.total_amount + handleFeeAmount.value;
+      return displayAmount('total_amount') + handleFeeAmount.value;
     });
     
     const fetchOrderDetail = async () => {
@@ -549,9 +552,10 @@ export default {
     const fetchPaymentMethods = async () => {
       loading.methods = true;
       try {
-        const response = await getPaymentMethods();
+        const response = await getPaymentMethods(orderDetail.value.trade_no);
         if (response.data) {
           paymentMethods.value = response.data;
+          if (!paymentMethods.value.some(method => method.id === selectedMethod.value)) selectedMethod.value = null;
           
           if (paymentMethods.value.length === 1 || PAYMENT_CONFIG.autoSelectFirstMethod) {
             if (paymentMethods.value.length > 0) {
@@ -573,8 +577,7 @@ export default {
     
     const formatDate = formatPaymentDate;
     
-    // shortcut: historical CNY cutover for this site; use the order currency when the API includes it.
-    const formatAmount = (amount) => formatPaymentAmount(amount, orderDetail.value.id <= 23 ? '¥' : '$');
+    const formatAmount = (amount) => formatPaymentAmount(amount, orderDetail.value.currency_symbol || '');
     
     const formatPeriod = (period) => {
       if (period === 'reset_price' || period === 'deposit') {
@@ -595,25 +598,10 @@ export default {
     
     const formatTraffic = formatPaymentTraffic;
     
-    const formatFee = (method) => {
-      let feeText = '';
-      
-      if (method.handling_fee_percent) {
-        feeText += `${method.handling_fee_percent}%`;
-      }
-      
-      if (method.handling_fee_fixed) {
-        const fixedFee = formatAmount(method.handling_fee_fixed);
-        feeText += feeText ? ' + ' + fixedFee : fixedFee;
-      }
-      
-      return feeText ? `${t('payment.fee')}: ${feeText}` : '';
-    };
-    
-    const planCredit = computed(() => Math.max(0,
-      (orderDetail.value.surplus_amount || 0) - (orderDetail.value.surplus_credit || 0)));
-    const getPlanPrice = () => Number(orderDetail.value.total_amount || 0)
-      + Number(orderDetail.value.discount_amount || 0) + Number(orderDetail.value.balance_amount || 0)
+    const displayAmount = (field) => Number(orderDetail.value.display_amounts?.[field] ?? orderDetail.value[field] ?? 0);
+    const planCredit = computed(() => Math.max(0, displayAmount('surplus_amount') - displayAmount('surplus_credit')));
+    const getPlanPrice = () => displayAmount('total_amount')
+      + displayAmount('discount_amount') + displayAmount('balance_amount')
       + planCredit.value;
     
     const checkPayment = async () => {
@@ -631,7 +619,7 @@ export default {
           }
         }
         
-        await checkoutOrder(orderDetail.value.trade_no, selectedMethod.value);
+        await checkoutOrder(orderDetail.value.trade_no, currentMethod.value);
         
         showToast(t('payment.payment_processing'), 'info');
         
@@ -837,9 +825,12 @@ export default {
       loading.paying = true;
       
       try {
-        const response = await checkoutOrder(orderDetail.value.trade_no, selectedMethod.value);
+        const response = await checkoutOrder(orderDetail.value.trade_no, currentMethod.value);
         
         if (response.data) {
+          orderDetail.value.checkout_held = true;
+          orderDetail.value.checkout_locked = true;
+          paymentMethods.value = paymentMethods.value.filter(method => method.id === selectedMethod.value);
           if (response.type === 0) {
             paymentQRCode.value = response.data;
             paymentLink.value = null;
@@ -883,6 +874,12 @@ export default {
         }
       } catch (error) {
         console.error('发起支付失败:', error);
+        if (error.response?.status === 409) {
+          await fetchOrderDetail();
+          await fetchPaymentMethods();
+          showToast(error.message, 'warning');
+          return;
+        }
         showToast(t('payment.check_failed'), 'error');
       } finally {
         loading.paying = false;
@@ -1032,8 +1029,9 @@ export default {
     };
     
     onMounted(() => {
-      fetchOrderDetail();
-      fetchPaymentMethods();
+      fetchOrderDetail().then(() => {
+        if (orderDetail.value.trade_no) return fetchPaymentMethods();
+      });
       
       if (route.query.from === 'orders') {
         fromOrderList.value = true;
@@ -1089,7 +1087,8 @@ export default {
       formatAmount,
       formatPeriod,
       formatTraffic,
-      formatFee,
+      displayAmount,
+      formatPaymentAmount,
       selectMethod,
       checkPayment,
       cancelCurrentOrder,

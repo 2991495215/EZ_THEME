@@ -613,6 +613,7 @@ export default {
         }
     },
     order: {
+      price_changed: 'Pricing changed. Review the updated price and try again.',
         title: 'Confirm Order',
         description: 'Please confirm your order details and complete the payment',
         existing_plan_warning_title: 'You already have an active plan',
@@ -642,6 +643,7 @@ export default {
         confirm_purchase:'Confirm Purchase'
     },
     payment: {
+      checkout_held: 'A payment link is active. Use the same method, or wait for the order to expire before trying a different method.',
         previous_plan_credit: 'Previous plan credit',
         link_notice: 'Open the payment page to pay. It shows the currency and amount you will be charged.',
         title: 'Pay Order',
