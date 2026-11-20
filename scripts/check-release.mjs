@@ -53,6 +53,7 @@ const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light'
 const requests = [], errors = [], unexpected = [];
 let languageRegression = false;
 let shopCurrencyGate, orderCurrencyGate;
+let cancelAttempts = 0;
 let orderCurrency = 'USD', invalidOrderCurrency = true, checkoutRefresh = false;
 const holdCurrency = () => {
   let release;
@@ -77,7 +78,7 @@ try {
     if (url.pathname.startsWith('/api/v1/')) {
       const endpoint = url.pathname.slice('/api/v1'.length);
       let data;
-      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save'].includes(endpoint)) {
+      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save', '/user/order/cancel'].includes(endpoint)) {
         unexpected.push(request.method() + ' ' + endpoint);
         return route.abort();
       }
@@ -132,10 +133,17 @@ try {
         id: url.searchParams.get('trade_no') === 'legacy' ? 99 : 1,
         currency_symbol: url.searchParams.get('trade_no') === 'legacy' ? '¥' : '$',
         trade_no: url.searchParams.get('trade_no'), status: 0, total_amount: 700,
+        checkout_held: url.searchParams.get('trade_no') === 'legacy',
+        checkout_hold_remaining: url.searchParams.get('trade_no') === 'legacy' ? 150 : 0,
         surplus_amount: 400, surplus_credit: 100, period: 'month_price',
         plan: { ...plan, month_price: 1300, name: languageRegression ? 'Standard 标准' : plan.name }, created_at: now
       };
-      else if (endpoint === '/user/order/fetch') data = [{ id: 1, status: 3, total_amount: 700, currency_symbol: '$', trade_no: 'mock', created_at: now }, { id: 99, status: 3, total_amount: 900, currency_symbol: '¥', trade_no: 'legacy', created_at: now }];
+      else if (endpoint === '/user/order/cancel') {
+        assert.equal(new URLSearchParams(request.postData()).get('trade_no'), cancelAttempts === 0 ? 'mock' : 'legacy');
+        cancelAttempts++;
+        return route.fulfill({ status: 409, json: { status: 'fail', message: 'An active payment may still settle.', data: { checkout_hold_remaining: 90 } } });
+      }
+      else if (endpoint === '/user/order/fetch') data = [{ id: 1, status: 0, total_amount: 700, currency_symbol: '$', trade_no: 'mock', created_at: now }, { id: 99, status: 3, total_amount: 900, currency_symbol: '¥', trade_no: 'legacy', created_at: now }];
       else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', charge_amount: 4677, charge_currency: 'CNY', charge_symbol: '¥', display_fee: 0, icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
       else data = [];
       return route.fulfill({ json: { data } });
@@ -315,9 +323,36 @@ try {
   await navigate('/orders');
   await page.getByText('$7.00', { exact: true }).waitFor();
   await page.getByText('¥9.00', { exact: true }).waitFor();
+  const cancelButton = page.locator('.cancel-button').and(page.getByRole('button', { name: '取消订单', exact: true })).filter({ visible: true }).first();
+  assert(await cancelButton.isEnabled());
+  await cancelButton.click();
+  let cancellationMessage;
+  page.once('dialog', async dialog => { cancellationMessage = dialog.message(); await dialog.accept(); });
+  await page.getByRole('button', { name: '确认', exact: true }).click();
+  const heldOrder = page.getByRole('button', { name: /付款链接已生成，1 分 \d+ 秒后可取消/ });
+  await heldOrder.waitFor();
+  assert(await heldOrder.isDisabled());
+  assert.equal(cancelAttempts, 1);
+  assert.equal(cancellationMessage, undefined);
+  assert.equal(await page.locator('.toast-error').filter({ hasText: /付款链接|取消订单/ }).count(), 0);
+  await page.evaluate(() => { window.testNow += 91000; });
+  await page.locator('.cancel-button:enabled').filter({ visible: true }).waitFor();
+  assert(await cancelButton.isEnabled());
   await page.goto(origin + '#/payment?trade_no=legacy');
   await page.reload();
   await page.locator('.order-info .final').filter({ hasText: '¥7.00' }).waitFor();
+  await page.getByText(/付款链接已生成，2 分 \d+ 秒后可取消/).waitFor();
+  const detailCancel = page.getByRole('button', { name: '取消订单', exact: true });
+  assert(await detailCancel.isDisabled());
+  await page.evaluate(() => { window.testNow += 151000; });
+  await page.getByText(/付款链接已生成，\d+ 分 \d+ 秒后可取消/).waitFor({ state: 'hidden' });
+  assert(await detailCancel.isEnabled());
+  await detailCancel.click();
+  await page.locator('.cancel-modal .confirm-btn').click();
+  await page.getByText(/付款链接已生成，1 分 \d+ 秒后可取消/).waitFor();
+  assert(await detailCancel.isDisabled());
+  assert.equal(cancelAttempts, 2);
+  assert.equal(await page.locator('.toast-error').filter({ hasText: /付款链接|取消订单/ }).count(), 0);
   for (const [width, expected] of [[1440, 270], [375, 180]]) {
     await page.setViewportSize({ width, height: 900 });
     assert.equal(await page.locator('.method-icon').evaluate(el => el.getBoundingClientRect().width), expected);
@@ -434,7 +469,7 @@ try {
   assert(!requests.some(url => /\/(?:vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(url)));
   assert.deepEqual(errors, []);
   assert.deepEqual(unexpected, []);
-  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons, currency loading and retry, chart failure/retry, Chinese/English dashboard/notice/shop/order/payment/nodes, two-language menu, legal copy and legacy locale migration');
+  console.log('PASS: production package, mock login, legal, locales, cache/refresh, dashboard stability/refresh/retry/QR, docs race, flags/tags/layout, motion, payment icons and cancellation countdown, currency loading and retry, chart failure/retry, Chinese/English dashboard/notice/shop/order/payment/nodes, two-language menu, legal copy and legacy locale migration');
 } finally {
   shopCurrencyGate?.release();
   orderCurrencyGate?.release();

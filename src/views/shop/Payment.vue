@@ -201,9 +201,7 @@
           </div>
           
           <!-- 按钮区域 -->
-          <p v-if="orderDetail.status === 0 && orderDetail.checkout_held" role="status">
-            {{ $t('payment.checkout_held', 'A payment link is active. Use the same method, or wait for the order to expire before trying a different method.') }}
-          </p>
+          <p v-if="cancellationHold">{{ cancellationHold }}</p>
           <div class="action-buttons">
             <!-- 从订单列表进入且订单已完成 - 显示返回上一页按钮 -->
             <div class="btn-group pay-row" v-if="fromOrderList && (paymentSuccessful || orderDetail.status !== 0)">
@@ -249,7 +247,7 @@
                 <button 
                   class="btn-back secondary-action" 
                   @click="cancelCurrentOrder"
-                  :disabled="loading.cancelling || orderDetail.checkout_held"
+                  :disabled="loading.cancelling || !!cancellationHold"
                 >
                   <IconX v-if="!loading.cancelling" :size="18" />
                   <div v-else class="loader"></div>
@@ -273,7 +271,7 @@
                 <button 
                   class="btn-back secondary-action" 
                   @click="cancelCurrentOrder"
-                  :disabled="loading.cancelling || orderDetail.checkout_held"
+                  :disabled="loading.cancelling || !!cancellationHold"
                 >
                   <IconX v-if="!loading.cancelling" :size="18" />
                   <div v-else class="loader"></div>
@@ -413,6 +411,7 @@ import { localizeText } from '@/utils/localizedContent';
 import { ref, reactive, onMounted, computed, onBeforeUnmount, nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from '@/composables/useToast';
+import { useCheckoutHold } from '@/composables/useCheckoutHold';
 import { useRoute, useRouter } from 'vue-router';
 import { getOrderDetail, getPaymentMethods, checkOrderStatus, cancelOrder, checkoutOrder } from '@/api/shop';
 import { PAYMENT_CONFIG } from '@/utils/baseConfig';
@@ -480,6 +479,8 @@ export default {
     });
     
     const orderDetail = ref({});
+    const { syncCheckoutHold, checkoutHoldText, showCancellationHold } = useCheckoutHold();
+    const cancellationHold = computed(() => checkoutHoldText(orderDetail.value));
     const paymentMethods = ref([]);
     const selectedMethod = ref(null);
     const paymentCheckTimer = ref(null);
@@ -531,6 +532,7 @@ export default {
         
         const response = await getOrderDetail(tradeNo);
         if (response.data) {
+          syncCheckoutHold(response.data);
           orderDetail.value = response.data;
           
           if (orderDetail.value.status === 0 && orderDetail.value.total_amount === 0) {
@@ -796,7 +798,7 @@ export default {
     };
     
     const cancelCurrentOrder = () => {
-      if (loading.cancelling) return;
+      if (loading.cancelling || cancellationHold.value) return;
       showCancelConfirm.value = true;
     };
     
@@ -828,7 +830,7 @@ export default {
         const response = await checkoutOrder(orderDetail.value.trade_no, currentMethod.value);
         
         if (response.data) {
-          orderDetail.value.checkout_held = true;
+          syncCheckoutHold(orderDetail.value, { checkout_held: true, ...response });
           orderDetail.value.checkout_locked = true;
           paymentMethods.value = paymentMethods.value.filter(method => method.id === selectedMethod.value);
           if (response.type === 0) {
@@ -919,8 +921,9 @@ export default {
     };
     
     const confirmCancel = async () => {
-      loading.cancelling = true;
       showCancelConfirm.value = false;
+      if (loading.cancelling || cancellationHold.value) return;
+      loading.cancelling = true;
       
       try {
         await cancelOrder(orderDetail.value.trade_no);
@@ -932,6 +935,7 @@ export default {
         
         router.push('/shop');
       } catch (error) {
+        if (showCancellationHold(orderDetail.value, error)) return;
         console.error('取消订单失败:', error);
         showToast(t('payment.cancel_failed'), 'error');
       } finally {
@@ -1092,6 +1096,7 @@ export default {
       selectMethod,
       checkPayment,
       cancelCurrentOrder,
+      cancellationHold,
       goToDashboard,
       getPlanPrice,
       planCredit,

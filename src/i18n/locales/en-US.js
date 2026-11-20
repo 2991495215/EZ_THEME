@@ -372,6 +372,8 @@ export default {
         cancelConfirmTitle: 'Confirm Order Cancellation',
         cancelConfirmText: 'Are you sure you want to cancel this order? This action cannot be undone.',
         cancelSuccess: 'Order cancelled',
+        checkoutHeld: 'A payment link was created. Refresh later to check if you can cancel.',
+        checkoutHoldRemaining: 'Payment link created. You can cancel in {minutes}m {seconds}s.',
         cancelFailed: 'Failed to cancel order',
         welcome: {
             title: 'Order List',
@@ -643,7 +645,6 @@ export default {
         confirm_purchase:'Confirm Purchase'
     },
     payment: {
-      checkout_held: 'A payment link is active. Use the same method, or wait for the order to expire before trying a different method.',
         previous_plan_credit: 'Previous plan credit',
         link_notice: 'Open the payment page to pay. It shows the currency and amount you will be charged.',
         title: 'Pay Order',

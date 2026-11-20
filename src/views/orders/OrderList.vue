@@ -106,11 +106,12 @@
                 <button 
                   class="action-button cancel-button" 
                   @click="showCancelConfirm(order.trade_no)" 
-                  :disabled="order.status !== 0"
-                  :class="{ 'disabled': order.status !== 0 }"
+                  :disabled="order.status !== 0 || !!checkoutHoldText(order)"
+                  :class="{ 'disabled': order.status !== 0 || !!checkoutHoldText(order) }"
                 >
                   <IconX :size="16" />
-                  <span>{{ headerTexts.cancel }}</span>
+                  <span v-if="checkoutHoldText(order)">{{ checkoutHoldText(order) }}</span>
+                  <span v-else>{{ headerTexts.cancel }}</span>
                 </button>
               </div>
             </div>
@@ -157,11 +158,12 @@
                     <button 
                       class="action-button cancel-button" 
                       @click="showCancelConfirm(order.trade_no)" 
-                      :disabled="order.status !== 0"
-                      :class="{ 'disabled': order.status !== 0 }"
+                      :disabled="order.status !== 0 || !!checkoutHoldText(order)"
+                      :class="{ 'disabled': order.status !== 0 || !!checkoutHoldText(order) }"
                     >
                       <IconX :size="16" />
-                      <span>{{ headerTexts.cancel }}</span>
+                      <span v-if="checkoutHoldText(order)">{{ checkoutHoldText(order) }}</span>
+                      <span v-else>{{ headerTexts.cancel }}</span>
                     </button>
                   </td>
                 </tr>
@@ -230,8 +232,10 @@ import {
   IconArrowRight
 } from '@tabler/icons-vue';
 import { fetchOrderList, cancelOrder } from '@/api/orderlist';
+import { useCheckoutHold } from '@/composables/useCheckoutHold';
 
 const { t, locale } = useI18n();
+const { syncCheckoutHold, checkoutHoldText, showCancellationHold } = useCheckoutHold();
 const router = useRouter();
 const $toast = inject('$toast');
 
@@ -315,6 +319,7 @@ const fetchOrders = async () => {
     const result = await fetchOrderList();
     
     if (result && result.data) {
+      result.data.forEach(order => syncCheckoutHold(order));
       orders.value = result.data;
       currentPage.value = 1;
     } else {
@@ -414,10 +419,15 @@ const closeConfirmModal = () => {
 const confirmCancelOrder = async () => {
   if (!currentTradeNo.value || canceling.value) return;
   
+  const order = orders.value.find(order => order.trade_no === currentTradeNo.value);
+  if (!order || checkoutHoldText(order)) {
+    closeConfirmModal();
+    return;
+  }
   canceling.value = true;
   
   try {
-    await cancelOrder(currentTradeNo.value);
+    await cancelOrder(order.trade_no);
     
     if ($toast && typeof $toast.success === 'function') {
       $toast.success(t('orders.cancelSuccess') || '订单已取消');
@@ -427,6 +437,10 @@ const confirmCancelOrder = async () => {
     
     fetchOrders();
   } catch (err) {
+    if (showCancellationHold(order, err)) {
+      closeConfirmModal();
+      return;
+    }
     console.error('取消订单失败, 错误对象:', err);
     
     let errorMessage = t('orders.cancelFailed') || '取消订单失败';

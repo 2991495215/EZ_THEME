@@ -372,6 +372,8 @@ export default {
         cancelConfirmTitle: '确认取消订单',
         cancelConfirmText: '您确定要取消此订单吗？此操作无法撤销。',
         cancelSuccess: '订单已取消',
+        checkoutHeld: '付款链接已生成，暂时无法取消。请稍后刷新查看。',
+        checkoutHoldRemaining: '付款链接已生成，{minutes} 分 {seconds} 秒后可取消',
         cancelFailed: '取消订单失败',
         welcome: {
             title: '订单列表',
@@ -643,7 +645,6 @@ export default {
         confirm_purchase: '确认加入',
     },
     payment: {
-      checkout_held: '已有付款链接，请继续使用原支付方式，或等订单到期后重新选择。',
         previous_plan_credit: '旧套餐抵扣',
         link_notice: '请打开支付页面完成付款，收款币种和金额以该页面为准。',
         title: '支付订单',
