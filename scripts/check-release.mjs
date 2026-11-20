@@ -53,7 +53,7 @@ const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light'
 const requests = [], errors = [], unexpected = [];
 let languageRegression = false;
 let shopCurrencyGate, orderCurrencyGate;
-let cancelAttempts = 0;
+let cancelAttempts = 0, checkoutCancelled = false;
 let orderCurrency = 'USD', invalidOrderCurrency = true, checkoutRefresh = false;
 const holdCurrency = () => {
   let release;
@@ -78,7 +78,7 @@ try {
     if (url.pathname.startsWith('/api/v1/')) {
       const endpoint = url.pathname.slice('/api/v1'.length);
       let data;
-      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save', '/user/order/cancel'].includes(endpoint)) {
+      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save', '/user/order/cancel', '/user/order/checkout'].includes(endpoint)) {
         unexpected.push(request.method() + ' ' + endpoint);
         return route.abort();
       }
@@ -129,10 +129,17 @@ try {
       }
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
       else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now }];
+      else if (endpoint === '/user/order/checkout') {
+        assert.equal(request.postDataJSON().trade_no, 'mock');
+        assert(!checkoutCancelled);
+        checkoutCancelled = true;
+        return route.fulfill({ status: 409, json: { message: '订单已取消。' } });
+      }
       else if (endpoint === '/user/order/detail') data = {
         id: url.searchParams.get('trade_no') === 'legacy' ? 99 : 1,
         currency_symbol: url.searchParams.get('trade_no') === 'legacy' ? '¥' : '$',
-        trade_no: url.searchParams.get('trade_no'), status: 0, total_amount: 700,
+        trade_no: url.searchParams.get('trade_no'),
+        status: checkoutCancelled && url.searchParams.get('trade_no') === 'mock' ? 2 : 0, total_amount: 700,
         checkout_held: url.searchParams.get('trade_no') === 'legacy',
         checkout_hold_remaining: url.searchParams.get('trade_no') === 'legacy' ? 150 : 0,
         surplus_amount: 400, surplus_credit: 100, period: 'month_price',
@@ -320,6 +327,12 @@ try {
   await page.locator('.order-info .final').filter({ hasText: '$7.00' }).waitFor();
   await page.getByText('-$3.00', { exact: true }).waitFor();
   await page.getByText('¥46.77', { exact: true }).waitFor();
+  const payButton = page.getByRole('button', { name: '立即支付', exact: true });
+  await payButton.click();
+  await page.locator('.toast-warning').getByText('订单已取消。', { exact: true }).waitFor();
+  await payButton.waitFor({ state: 'hidden' });
+  assert(checkoutCancelled);
+  checkoutCancelled = false;
   await navigate('/orders');
   await page.getByText('$7.00', { exact: true }).waitFor();
   await page.getByText('¥9.00', { exact: true }).waitFor();

@@ -879,7 +879,7 @@ export default {
         if (error.response?.status === 409) {
           await fetchOrderDetail();
           await fetchPaymentMethods();
-          showToast(error.message, 'warning');
+          showToast(error.response.message || error.message, 'warning');
           return;
         }
         showToast(t('payment.check_failed'), 'error');
