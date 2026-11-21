@@ -4,7 +4,7 @@ const flags = import.meta.glob('../src/assets/i18N/*.svg', { eager: true, query:
 
 test('node names use local flag images without changing labels or unknown prefixes', () => {
   for (const [code, label] of [['US', '美国S1'], ['HK', '香港N1'], ['JP', '日本S13'],
-    ['NL', '荷兰S18'], ['KR', '韩国动态家宽｜S7'], ['TW', '台湾动态家宽｜N5']]) {
+    ['NL', '荷兰S18'], ['DE', '德国N08｜1倍'], ['KR', '韩国动态家宽｜S7'], ['TW', '台湾动态家宽｜N5']]) {
     const emoji = [...code].map(char => String.fromCodePoint(char.charCodeAt(0) - 65 + 0x1F1E6)).join('');
     for (const prefix of [emoji, code, code.toLowerCase()]) {
       const result = formatNodeName(`${prefix} ${label}`);
