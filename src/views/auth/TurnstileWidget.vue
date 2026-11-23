@@ -2,13 +2,18 @@
 let scriptReady;
 
 function loadTurnstile() {
-  if (window.turnstile) return Promise.resolve(window.turnstile);
-  scriptReady ??= new Promise((resolve, reject) => {
+  if (scriptReady) return scriptReady;
+  if (window.turnstile?.render) return Promise.resolve(window.turnstile);
+  scriptReady = new Promise((resolve, reject) => {
     const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    window.onZincTurnstileLoad = () => {
+      delete window.onZincTurnstileLoad;
+      resolve(window.turnstile);
+    };
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onZincTurnstileLoad&render=explicit';
     script.async = true;
-    script.onload = () => window.turnstile?.ready(() => resolve(window.turnstile));
     script.onerror = () => {
+      delete window.onZincTurnstileLoad;
       script.remove();
       scriptReady = undefined;
       reject();
