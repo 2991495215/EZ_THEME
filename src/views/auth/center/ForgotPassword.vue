@@ -300,7 +300,8 @@
 
           <div v-else-if="captchaConfig.type === 'cloudflare'" class="cloudflare-captcha" @click.stop>
 
-            <div id="modal-turnstile"></div>
+            <TurnstileWidget v-if="config.captcha_type === 'turnstile' && !isClosingModal" :site-key="captchaConfig.siteKey" @verified="handleCaptchaModalResponse" />
+            <div v-else id="modal-turnstile"></div>
 
           </div>
 
@@ -371,6 +372,7 @@ import { resetPassword, sendEmailVerify, checkLoginStatus, getWebsiteConfig } fr
 
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
 
+import TurnstileWidget from '../TurnstileWidget.vue';
 import { CAPTCHA_CONFIG, SITE_CONFIG, AUTH_CONFIG } from '@/utils/baseConfig';
 
 import AuthPopup from '@/components/auth/AuthPopup.vue';
@@ -413,6 +415,7 @@ export default {
   name: 'ForgotPasswordView',
 
   components: {
+    TurnstileWidget,
 
     ThemeToggle,
 
@@ -621,7 +624,8 @@ export default {
 
           if (config.is_recaptcha === 1) {
 
-            captchaConfig.siteKey = config.recaptcha_site_key;
+            captchaConfig.type = config.captcha_type === 'turnstile' ? 'cloudflare' : CAPTCHA_CONFIG.captchaType;
+            captchaConfig.siteKey = config.captcha_type === 'turnstile' ? config.turnstile_site_key : config.recaptcha_site_key;
 
 
 
@@ -650,6 +654,7 @@ export default {
 
 
     const loadCaptchaScript = () => {
+      if (config.captcha_type === 'turnstile') return Promise.resolve();
 
       return new Promise((resolve) => {
 
@@ -835,6 +840,7 @@ export default {
       showCaptchaModal.value = true;
 
       captchaModalResponse.value = '';
+      if (config.captcha_type === 'turnstile') return;
 
 
 
@@ -1045,6 +1051,7 @@ export default {
 
 
     const handleCaptchaModalResponse = (response) => {
+      if (config.captcha_type === 'turnstile' && captchaModalResponse.value) return;
 
 
 
@@ -1089,7 +1096,7 @@ export default {
 
         if (captchaData) {
 
-          sendData.recaptcha_data = captchaData;
+          sendData[config.captcha_type === 'turnstile' ? 'turnstile_token' : 'recaptcha_data'] = captchaData;
 
         }
 
@@ -1167,6 +1174,7 @@ export default {
 
       if (config.is_recaptcha === 1 && captchaConfig.siteKey) {
 
+        if (config.captcha_type === 'turnstile') return showCaptchaModalDialog();
         const captchaSuccessElement = document.querySelector('.cloudflare-success-message') ||
 
                                      document.querySelector('.recaptcha-success');
@@ -1458,6 +1466,7 @@ export default {
 
 
     onActivated(() => {
+      if (config.captcha_type === 'turnstile') return;
 
       if (configLoaded.value && config.is_recaptcha === 1 && captchaConfig.type === 'cloudflare') {
 

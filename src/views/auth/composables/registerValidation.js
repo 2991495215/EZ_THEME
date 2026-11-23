@@ -15,7 +15,7 @@ export const buildRegisterPayload = ({ formData, config, captchaResponse }) => {
   }
 
   if (config.is_recaptcha === 1 && captchaResponse) {
-    payload.recaptcha_data = captchaResponse;
+    payload[config.captcha_type === 'turnstile' ? 'turnstile_token' : 'recaptcha_data'] = captchaResponse;
   }
 
   return payload;
