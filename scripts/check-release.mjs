@@ -55,6 +55,7 @@ let languageRegression = false;
 let loginAttempts = 0;
 let shopCurrencyGate, orderCurrencyGate;
 let cancelAttempts = 0, checkoutCancelled = false;
+let resetOrderScenario = false, resetOrderSubmissions = 0;
 let orderCurrency = 'USD', invalidOrderCurrency = true, checkoutRefresh = false;
 const holdCurrency = () => {
   let release;
@@ -109,13 +110,18 @@ try {
           currency, currency_symbol: currency === 'USD' ? '$' : '¥'
         };
         const selectedPlan = { ...plan, ...currencyFields, month_price: currency === 'CNY' ? 6682 : 1000,
-          name: languageRegression ? 'Standard 标准' : 'Test plan ' + planVersion };
+          reset_price: currency === 'CNY' ? 996 : 149, name: languageRegression ? 'Standard 标准' : 'Test plan ' + planVersion };
         data = single ? selectedPlan : [selectedPlan];
       }
       else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') {
         data = { currency: 'USD', currency_symbol: '$', is_email_verify: 1, is_captcha: 1, captcha_type: 'turnstile', turnstile_site_key: 'mock-site-key' };
       }
       else if (endpoint === '/user/order/save') {
+        if (resetOrderScenario) {
+          assert.equal(++resetOrderSubmissions, 1);
+          assert.deepEqual(request.postDataJSON(), { plan_id: '1', period: 'reset_price', pricing_currency: 'USD', quoted_amount: '149' });
+          return route.fulfill({ status: 400, json: { message: 'An order was created in another tab' } });
+        }
         assert.deepEqual(request.postDataJSON(), { plan_id: '1', period: 'month_price', pricing_currency: 'CNY', quoted_amount: '6682' });
         assert(!checkoutRefresh);
         checkoutRefresh = true;
@@ -172,6 +178,9 @@ try {
         assert.equal(new URLSearchParams(request.postData()).get('trade_no'), cancelAttempts === 0 ? 'mock' : 'legacy');
         cancelAttempts++;
         return route.fulfill({ status: 409, json: { status: 'fail', message: 'An active payment may still settle.', data: { checkout_hold_remaining: 90 } } });
+      }
+      else if (endpoint === '/user/order/fetch' && resetOrderScenario) {
+        data = resetOrderSubmissions ? [{ plan_id: 1, status: 0, period: 'reset_price', trade_no: 'mock' }] : [];
       }
       else if (endpoint === '/user/order/fetch') data = [{ id: 1, status: 0, total_amount: 700, currency_symbol: '$', trade_no: 'mock', created_at: now }, { id: 99, status: 3, total_amount: 900, currency_symbol: '¥', trade_no: 'legacy', created_at: now }];
       else if (endpoint === '/user/order/getPaymentMethod') data = [{ id: 1, name: 'Waffo test', charge_amount: 4677, charge_currency: 'CNY', charge_symbol: '¥', display_fee: 0, icon: 'https://theme.test/theme/Xboard/images/logo.webp' }];
@@ -359,7 +368,17 @@ try {
   await page.locator('body.dark-theme').waitFor();
   assert(await page.evaluate(() => document.querySelector('.dashboard-container').getAnimations({ subtree: true }).length === 0));
   await page.emulateMedia({ reducedMotion: 'no-preference', colorScheme: 'light' });
-  await navigate('/payment?trade_no=mock');
+  resetOrderScenario = true;
+  await page.locator('.reset-traffic-btn').click();
+  await page.getByText('重置价格：$1.49', { exact: true }).waitFor();
+  assert.equal(resetOrderSubmissions, 0, 'opening the quote must not create an order');
+  await page.getByRole('button', { name: '创建订单并前往支付', exact: true }).click();
+  await page.waitForURL('**/#/payment?trade_no=mock');
+  await navigate('/dashboard');
+  await page.locator('.reset-traffic-btn').click();
+  await page.waitForURL('**/#/payment?trade_no=mock');
+  assert.equal(resetOrderSubmissions, 1, 'reopening an unpaid reset order must not submit again');
+  resetOrderScenario = false;
   await page.locator('.method-icon img').waitFor();
   await page.locator('.order-info .amount').filter({ hasText: '$10.00' }).waitFor();
   await page.locator('.order-info .final').filter({ hasText: '$7.00' }).waitFor();

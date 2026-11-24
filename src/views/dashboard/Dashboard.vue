@@ -643,8 +643,9 @@
             <div class="warning-icon">
               <IconAlertTriangle :size="48"/>
             </div>
-            <p class="warning-text">{{ $t('dashboard.resetTrafficDesc') }}</p>
-            <p class="note-text">{{ $t('dashboard.resetTrafficWarning') }}</p>
+            <p v-if="resetOrderError" class="warning-text" role="alert">{{ resetOrderError }}</p>
+            <p v-if="resetQuote" class="warning-text">{{ $t('dashboard.resetTrafficPrice', { price: resetQuote.currency_symbol + (resetQuote.reset_price / 100).toFixed(2) }) }}</p>
+            <p v-if="resetQuote" class="note-text">{{ $t('dashboard.resetTrafficWarning') }}</p>
           </div>
           <div class="modal-footer">
             <button class="cancel-btn" @click="closeResetTrafficModal">
@@ -652,7 +653,7 @@
             </button>
             <button
                 class="confirm-btn"
-                :disabled="resetConfirmCooldown > 0 || isCreatingResetOrder"
+                :disabled="!resetQuote || isCreatingResetOrder"
                 @click="createResetTrafficOrder"
             >
               <template v-if="isCreatingResetOrder">
@@ -661,11 +662,7 @@
                   <span>{{ $t('common.loading') }}</span>
                 </span>
               </template>
-              <template v-else>
-                {{
-                  resetConfirmCooldown > 0 ? `${$t('common.confirm')} (${resetConfirmCooldown})` : $t('common.confirm')
-                }}
-              </template>
+              <template v-else>{{ $t('dashboard.createResetOrder') }}</template>
             </button>
           </div>
         </div>
@@ -741,7 +738,8 @@ import CommonDialog from '@/components/popup/CommonDialog.vue';
 import AppCard from '@/components/common/AppCard.vue';
 import {getNotices, getSubscribe, getUserConfig, getUserInfo, getUserStats, setNextPeriod} from '@/api/dashboard';
 import {useToast} from '@/composables/useToast';
-import {submitOrder} from '@/api/shop';
+import {fetchPlanById, submitOrder} from '@/api/shop';
+import {fetchOrderList} from '@/api/orderlist';
 import MarkdownIt from 'markdown-it';
 import shadowrocketIconImg from '@/assets/images/client-img-ios/shadowrocket.png';
 import surgeIconImg from '@/assets/images/client-img-ios/Surge.png';
@@ -1040,20 +1038,55 @@ export default {
     const userPlanId = ref(null);
 
     const showResetTrafficModal = ref(false);
-    const resetConfirmCooldown = ref(0);
-    const resetConfirmTimer = ref(null);
     const isCreatingResetOrder = ref(false);
+    const resetQuote = ref(null);
+    const resetOrderError = ref('');
 
-    const openResetTrafficModal = () => {
+    const goToResetPayment = (tradeNo) => {
+      closeResetTrafficModal();
+      return router.push({path: '/payment', query: {trade_no: tradeNo}});
+    };
+
+    const resolvePendingResetOrder = async (planId) => {
+      const {data} = await fetchOrderList();
+      const openOrders = data.filter(order => [0, 1].includes(Number(order.status)));
+      const pendingReset = openOrders.find(order => Number(order.status) === 0 &&
+        order.period === 'reset_price' && Number(order.plan_id) === Number(planId) && order.trade_no);
+      if (pendingReset) {
+        await goToResetPayment(pendingReset.trade_no);
+      } else if (openOrders.length) {
+        closeResetTrafficModal();
+        showToast(t('dashboard.resetOrderPending'), 'info');
+        await router.push('/orders');
+      }
+      return openOrders.length > 0;
+    };
+
+    const loadResetQuote = async (planId) => {
+      resetQuote.value = null;
+      const {data} = await fetchPlanById(planId);
+      if (!Number.isInteger(data?.reset_price) || data.reset_price < 0 ||
+          !['USD', 'CNY'].includes(data.currency) || !data.currency_symbol) {
+        resetOrderError.value = t('dashboard.resetPriceUnavailable');
+        return;
+      }
+      resetQuote.value = data;
+    };
+
+    const openResetTrafficModal = async () => {
+      if (isCreatingResetOrder.value || !userPlanId.value) return;
+      isCreatingResetOrder.value = true;
+      resetQuote.value = null;
+      resetOrderError.value = '';
       showResetTrafficModal.value = true;
-      resetConfirmCooldown.value = 3;
-      resetConfirmTimer.value = setInterval(() => {
-        if (resetConfirmCooldown.value > 0) {
-          resetConfirmCooldown.value--;
-        } else {
-          clearInterval(resetConfirmTimer.value);
-        }
-      }, 1000);
+      try {
+        const planId = userPlanId.value;
+        if (!await resolvePendingResetOrder(planId)) await loadResetQuote(planId);
+      } catch {
+        resetOrderError.value = t('dashboard.resetPriceUnavailable');
+      } finally {
+        isCreatingResetOrder.value = false;
+      }
     };
     const showPopup = ref(false);
     const popupConfig = reactive({
@@ -1092,51 +1125,35 @@ export default {
 
     const closeResetTrafficModal = () => {
       showResetTrafficModal.value = false;
-      if (resetConfirmTimer.value) {
-        clearInterval(resetConfirmTimer.value);
-      }
     };
 
     const createResetTrafficOrder = async () => {
-      if (resetConfirmCooldown.value > 0) {
-        return;
-      }
-
-      console.log('开始请求：设置 isCreatingResetOrder = true');
+      const quote = resetQuote.value;
+      if (isCreatingResetOrder.value || !quote) return;
       isCreatingResetOrder.value = true;
-
+      resetOrderError.value = '';
       try {
-        if (!userPlanId.value) {
-          showToast(t('common.error_occurred'), 'error');
-          console.log('无套餐ID：重置 isCreatingResetOrder = false');
-          isCreatingResetOrder.value = false;
-          return;
-        }
-
-        console.log('正在调用API，当前状态：', isCreatingResetOrder.value);
-        const response = await submitOrder({
-          plan_id: userPlanId.value,
-          period: 'reset_price'
+        const {data} = await submitOrder({
+          plan_id: quote.id,
+          period: 'reset_price',
+          pricing_currency: quote.currency,
+          quoted_amount: quote.reset_price
         });
-
-        if (response && response.data) {
-          console.log('API请求成功');
-          showToast(t('dashboard.resetTrafficSuccess'), 'success');
-
-          closeResetTrafficModal();
-
-          router.push({
-            path: '/payment',
-            query: {
-              trade_no: response.data
-            }
-          });
-        }
+        if (!data) throw new Error(t('common.error_occurred'));
+        await goToResetPayment(data);
       } catch (error) {
-        console.error('创建重置流量订单失败:', error);
-        showToast(error.message || t('common.error_occurred'), 'error');
+        try {
+          if (await resolvePendingResetOrder(quote.id)) return;
+          if (error.response?.status === 409) {
+            await loadResetQuote(quote.id);
+            if (resetQuote.value) resetOrderError.value = t('dashboard.resetPriceChanged');
+            return;
+          }
+        } catch {
+          // Keep the original submission error if the follow-up request fails.
+        }
+        resetOrderError.value = error.response?.data?.message || t('common.error_occurred');
       } finally {
-        console.log('请求结束：重置 isCreatingResetOrder = false');
         isCreatingResetOrder.value = false;
       }
     };
@@ -1905,7 +1922,8 @@ export default {
       closeResetTrafficModal,
       createResetTrafficOrder,
       showResetTrafficModal,
-      resetConfirmCooldown,
+      resetQuote,
+      resetOrderError,
       showResetTrafficButton,
       isCreatingResetOrder,
       hasIOSClients,
