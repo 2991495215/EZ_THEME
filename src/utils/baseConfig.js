@@ -482,7 +482,7 @@ const DEFAULT_DASHBOARD_CONFIG = {
     resetTrafficDisplayMode: 'low',
 
     // 低流量阈值百分比 (1-100)，当剩余流量百分比低于此值时触发低流量警告
-    lowTrafficThreshold: 10,
+    lowTrafficThreshold: 30,
 
     // 是否启用续费套餐功能 (true=启用, false=禁用)
     enableRenewPlan: true,
