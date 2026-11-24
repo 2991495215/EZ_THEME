@@ -190,6 +190,7 @@ export default {
         emailPrefixPlaceholder: 'Please enter email prefix',
         newPasswordPlaceholder: 'Please enter new password',
         requiresAuth: 'Login Required',
+        captchaUnavailable: 'Human verification is temporarily unavailable.',
         captcha: 'CAPTCHA Verification',
         captchaRequired: 'Please complete CAPTCHA verification',
         captchaInvalid: 'CAPTCHA verification failed, please try again',

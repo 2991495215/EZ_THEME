@@ -93,6 +93,10 @@
               </router-link>
             </div>
 
+            <div v-if="loginCaptchaFailed" class="form-group" role="status">
+              {{ $t('auth.captchaUnavailable') }}
+              <button type="button" @click="loadLoginCaptcha">{{ $t('common.retry') }}</button>
+            </div>
             <div v-if="loginCaptchaKey" class="form-group">
               <div>{{ $t('auth.captcha') }}</div>
               <TurnstileWidget ref="loginCaptcha" :site-key="loginCaptchaKey" @verified="loginCaptchaToken = $event" />
@@ -186,7 +190,7 @@ export default {
     const router = useRouter();
     const { t } = useI18n();
     const { showToast } = useToast();
-    const captcha = useLoginCaptcha(() => showToast(t('messages.configLoadFailed'), 'error'));
+    const captcha = useLoginCaptcha();
     const { goTo } = useNavigator()
 
     const logoPath = ref(SITE_CONFIG.logoPath || './images/txz.png');

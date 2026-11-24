@@ -275,7 +275,13 @@ try {
   releaseEnglish();
   assert.equal(await page.locator('.docs-inner').getAttribute('aria-busy'), 'false');
   assert.equal(await page.getByText('Stale English', { exact: true }).count(), 0);
+  await page.route('**/api/v1/guest/comm/config', route => route.fulfill({ status: 503, json: { message: 'Mock config unavailable' } }), { times: 1 });
+  await page.route(/^https:\/\/challenges\.cloudflare\.com\/turnstile\/v0\/api\.js\?/, route => route.fulfill({ contentType: 'text/javascript', body: '' }), { times: 1 });
   await navigate('/login');
+  const retryCaptcha = page.locator('.auth-form [role=status] button');
+  await retryCaptcha.click();
+  await retryCaptcha.waitFor({ state: 'hidden' });
+  await retryCaptcha.click({ timeout: 20000 });
   await page.locator('input[type=email]').fill('test@example.test');
   await page.locator('input[type=password]').fill('mock-password');
   const captcha = page.locator('.auth-form [data-test-captcha]');

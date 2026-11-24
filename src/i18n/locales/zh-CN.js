@@ -190,6 +190,7 @@ export default {
         emailPrefixPlaceholder: '请输入邮箱前缀',
         newPasswordPlaceholder: '请输入新密码',
         requiresAuth: '需要登录',
+        captchaUnavailable: '人机验证暂时无法加载。',
         captcha: '人机验证',
         captchaRequired: '请完成人机验证',
         captchaInvalid: '人机验证失败，请重试',
