@@ -286,7 +286,6 @@ export default {
         } catch (error) {
           console.error('令牌登录过程中出错:', error);
         } finally {
-        captcha.loginCaptcha.value?.reset();
           loading.value = false;
         }
       }
@@ -369,6 +368,7 @@ export default {
         showToast(error.response?.message || error.message || t('auth.loginFailed'), 'error');
       } finally {
         loading.value = false;
+        captcha.loginCaptcha.value?.reset();
       }
     };
 

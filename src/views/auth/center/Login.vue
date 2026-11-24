@@ -426,7 +426,6 @@ export default {
           console.error('令牌登录过程中出错:', error);
 
         } finally {
-        captcha.loginCaptcha.value?.reset();
 
           loading.value = false;
 
@@ -591,6 +590,7 @@ export default {
       } finally {
 
         loading.value = false;
+        captcha.loginCaptcha.value?.reset();
 
       }
 

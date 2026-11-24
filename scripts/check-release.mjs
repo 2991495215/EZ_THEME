@@ -52,6 +52,7 @@ const machine = { machine: { id: 1, name: 'Test server', is_active: true, last_s
 const context = await browser.newContext({ locale: 'zh-CN', colorScheme: 'light', viewport: { width: 1440, height: 900 } });
 const requests = [], errors = [], unexpected = [];
 let languageRegression = false;
+let loginAttempts = 0;
 let shopCurrencyGate, orderCurrencyGate;
 let cancelAttempts = 0, checkoutCancelled = false;
 let orderCurrency = 'USD', invalidOrderCurrency = true, checkoutRefresh = false;
@@ -132,6 +133,7 @@ try {
       else if (endpoint === '/user/checkLogin') data = { is_login: true };
       else if (endpoint === '/guest/auth/login') {
         assert.equal(new URLSearchParams(request.postData()).get('turnstile_token'), 'regression-captcha');
+        if (++loginAttempts === 1) return route.fulfill({ status: 400, json: { message: 'Mock password rejected' } });
         data = { token: 'regression-only', auth_data: 'regression-only' };
       }
       else if (endpoint === '/user/info') {
@@ -278,9 +280,14 @@ try {
   await page.locator('input[type=password]').fill('mock-password');
   const captcha = page.locator('.auth-form [data-test-captcha]');
   await captcha.waitFor();
-  assert(await page.locator('.auth-form button[type=submit]').isDisabled());
+  const loginButton = page.locator('.auth-form button[type=submit]');
+  assert(await loginButton.isDisabled());
   await captcha.click();
-  await page.locator('button[type=submit]').click();
+  await loginButton.click();
+  await page.getByText('Mock password rejected', { exact: true }).waitFor();
+  assert(await loginButton.isDisabled());
+  await captcha.click();
+  await loginButton.click();
   await page.waitForURL('**/#/dashboard');
   await page.getByText('Dashboard plan 1', { exact: true }).waitFor();
   assert.equal(await page.locator('.stats-grid .stats-card').count(), 4, 'slow pending-items API must not block account cards');
