@@ -75,10 +75,28 @@ try {
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     requests.push(url.href);
+    if (url.hostname === 'challenges.cloudflare.com' && url.pathname === '/turnstile/v0/api.js') {
+      return route.fulfill({ contentType: 'text/javascript', body: `
+        window.turnstile = {
+          render(element, options) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.dataset.testCaptcha = '';
+            button.textContent = 'Mock CAPTCHA';
+            button.onclick = () => options.callback('regression-captcha');
+            element.append(button);
+            return 'mock-captcha';
+          },
+          reset() {},
+          remove() {}
+        };
+        window[new URL(document.currentScript.src).searchParams.get('onload')]();
+      ` });
+    }
     if (url.pathname.startsWith('/api/v1/')) {
       const endpoint = url.pathname.slice('/api/v1'.length);
       let data;
-      if (request.method() !== 'GET' && !['/passport/auth/login', '/user/order/save', '/user/order/cancel', '/user/order/checkout'].includes(endpoint)) {
+      if (request.method() !== 'GET' && !['/guest/auth/login', '/user/order/save', '/user/order/cancel', '/user/order/checkout'].includes(endpoint)) {
         unexpected.push(request.method() + ' ' + endpoint);
         return route.abort();
       }
@@ -94,7 +112,7 @@ try {
         data = single ? selectedPlan : [selectedPlan];
       }
       else if (endpoint.endsWith('/comm/config') || endpoint === '/g/conf') {
-        data = { currency: 'USD', currency_symbol: '$', is_email_verify: 1 };
+        data = { currency: 'USD', currency_symbol: '$', is_email_verify: 1, is_captcha: 1, captcha_type: 'turnstile', turnstile_site_key: 'mock-site-key' };
       }
       else if (endpoint === '/user/order/save') {
         assert.deepEqual(request.postDataJSON(), { plan_id: '1', period: 'month_price', pricing_currency: 'CNY', quoted_amount: '6682' });
@@ -112,7 +130,10 @@ try {
         } else data = { Test: [{ id: 1, title: ++docVersion === 1 ? '中文初始文档' : '中文最新文档', updated_at: now }] };
       }
       else if (endpoint === '/user/checkLogin') data = { is_login: true };
-      else if (endpoint === '/passport/auth/login') data = { token: 'regression-only', auth_data: 'regression-only' };
+      else if (endpoint === '/guest/auth/login') {
+        assert.equal(new URLSearchParams(request.postData()).get('turnstile_token'), 'regression-captcha');
+        data = { token: 'regression-only', auth_data: 'regression-only' };
+      }
       else if (endpoint === '/user/info') {
         if (holdDashboard) await dashboardRefresh;
         data = { plan_id: dashboardVersion === 0 ? null : 1, email: 'test@example.test', balance: dashboardVersion * 100, transfer_enable: 1000000000, u: 0, d: 0 };
@@ -255,6 +276,10 @@ try {
   await navigate('/login');
   await page.locator('input[type=email]').fill('test@example.test');
   await page.locator('input[type=password]').fill('mock-password');
+  const captcha = page.locator('.auth-form [data-test-captcha]');
+  await captcha.waitFor();
+  assert(await page.locator('.auth-form button[type=submit]').isDisabled());
+  await captcha.click();
   await page.locator('button[type=submit]').click();
   await page.waitForURL('**/#/dashboard');
   await page.getByText('Dashboard plan 1', { exact: true }).waitFor();

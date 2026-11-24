@@ -148,13 +148,17 @@
 
 
 
+        <div v-if="loginCaptchaKey" class="form-group">
+          <div>{{ $t('auth.captcha') }}</div>
+          <TurnstileWidget ref="loginCaptcha" :site-key="loginCaptchaKey" @verified="loginCaptchaToken = $event" />
+        </div>
         <button
 
           type="submit"
 
           class="btn btn-primary btn-block"
 
-          :disabled="loading"
+          :disabled="loading || !loginCaptchaReady || (loginCaptchaKey && !loginCaptchaToken)"
 
         >
 
@@ -250,6 +254,8 @@ import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeOff from '@/components/icons/IconEyeOff.vue';
 
 import { login, checkLoginStatus } from '@/api/auth';
+import TurnstileWidget from '../TurnstileWidget.vue';
+import { useLoginCaptcha } from '../useLoginCaptcha';
 
 import { validateEmail, validateRequired } from '@/utils/validators';
 
@@ -272,6 +278,7 @@ export default {
   name: 'LoginView',
 
   components: {
+    TurnstileWidget,
 
     ThemeToggle,
 
@@ -302,6 +309,7 @@ export default {
     const { t } = useI18n();
 
     const { showToast } = useToast();
+    const captcha = useLoginCaptcha(() => showToast(t('messages.configLoadFailed'), 'error'));
 
     const { goTo } = useNavigator()
 
@@ -418,6 +426,7 @@ export default {
           console.error('令牌登录过程中出错:', error);
 
         } finally {
+        captcha.loginCaptcha.value?.reset();
 
           loading.value = false;
 
@@ -547,7 +556,7 @@ export default {
 
     const handleLogin = async () => {
 
-      if (!validateForm()) {
+      if (loading.value || !captcha.loginCaptchaReady.value || (captcha.loginCaptchaKey.value && !captcha.loginCaptchaToken.value) || !validateForm()) {
 
         return;
 
@@ -561,7 +570,7 @@ export default {
 
       try {
 
-        const response = await login(formData);
+        const response = await login(formData, captcha.loginCaptchaToken.value);
 
 
 
@@ -589,6 +598,7 @@ export default {
 
     return {
 
+      ...captcha,
       formData,
 
       errors,

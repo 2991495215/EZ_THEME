@@ -93,10 +93,14 @@
               </router-link>
             </div>
 
+            <div v-if="loginCaptchaKey" class="form-group">
+              <div>{{ $t('auth.captcha') }}</div>
+              <TurnstileWidget ref="loginCaptcha" :site-key="loginCaptchaKey" @verified="loginCaptchaToken = $event" />
+            </div>
             <button
               type="submit"
               class="btn btn-primary btn-block"
-              :disabled="loading"
+              :disabled="loading || !loginCaptchaReady || (loginCaptchaKey && !loginCaptchaToken)"
             >
               <span v-if="loading" class="loading-wrapper">
                 <span>{{ $t('common.loading') }}</span>
@@ -152,6 +156,8 @@ import IconArrowRight from '@/components/icons/IconArrowRight.vue';
 import IconEye from '@/components/icons/IconEye.vue';
 import IconEyeOff from '@/components/icons/IconEyeOff.vue';
 import { login, checkLoginStatus } from '@/api/auth';
+import TurnstileWidget from '../TurnstileWidget.vue';
+import { useLoginCaptcha } from '../useLoginCaptcha';
 import { validateEmail, validateRequired } from '@/utils/validators';
 
 import DomainAuthAlert from '@/components/common/DomainAuthAlert.vue';
@@ -164,6 +170,7 @@ import { useNavigator } from "@/composables/useNavigator";
 export default {
   name: 'LoginView',
   components: {
+    TurnstileWidget,
     ThemeToggle,
     LanguageSelector,
     IconMail,
@@ -179,6 +186,7 @@ export default {
     const router = useRouter();
     const { t } = useI18n();
     const { showToast } = useToast();
+    const captcha = useLoginCaptcha(() => showToast(t('messages.configLoadFailed'), 'error'));
     const { goTo } = useNavigator()
 
     const logoPath = ref(SITE_CONFIG.logoPath || './images/txz.png');
@@ -278,6 +286,7 @@ export default {
         } catch (error) {
           console.error('令牌登录过程中出错:', error);
         } finally {
+        captcha.loginCaptcha.value?.reset();
           loading.value = false;
         }
       }
@@ -342,14 +351,14 @@ export default {
     };
 
     const handleLogin = async () => {
-      if (!validateForm()) {
+      if (loading.value || !captcha.loginCaptchaReady.value || (captcha.loginCaptchaKey.value && !captcha.loginCaptchaToken.value) || !validateForm()) {
         return;
       }
 
       loading.value = true;
 
       try {
-        const response = await login(formData);
+        const response = await login(formData, captcha.loginCaptchaToken.value);
 
         showToast(response.message || t('auth.loginSuccess'), 'success', 3000);
 
@@ -378,6 +387,7 @@ export default {
     };
 
     return {
+      ...captcha,
       formData,
       errors,
       loading,

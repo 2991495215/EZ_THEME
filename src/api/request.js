@@ -39,6 +39,7 @@ const rejectStaleSession = (config) => {
 
 const publicAuthPaths = [
   '/passport/auth/login',
+  '/guest/auth/login',
   '/passport/auth/register',
   '/passport/auth/forget',
   '/passport/auth/token2Login',

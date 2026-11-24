@@ -174,13 +174,13 @@ const normalizeAuthResponse = (response) => {
   return responseData;
 };
 
-export const login = async (loginData) => {
+export const login = async (loginData, turnstileToken) => {
   const { rememberMe, ...requestData } = loginData;
   
   const response = await request({
-    url: '/passport/auth/login',
+    url: '/guest/auth/login',
     method: 'post',
-    data: requestData
+    data: { ...requestData, turnstile_token: turnstileToken }
   });
   
   const responseData = normalizeAuthResponse(response);
