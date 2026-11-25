@@ -5,7 +5,7 @@
       <!-- 网站名称 -->
       <div class="site-logo">
         <img v-if="siteConfig.showLogo" :src="siteConfig.logoPath" alt="Logo" class="site-logo-img" />
-        {{ siteConfig.siteName }}
+        <span class="site-logo-name">{{ siteConfig.siteName }}</span>
       </div>
       
       <!-- 顶部导航栏 - 保持不变 -->
@@ -22,7 +22,10 @@
         >
           <IconGift :size="20" />
         </button>
-        <button v-if="isGuest" class="btn btn-secondary guest-login-btn" @click="$router.push('/login')">{{ $t('auth.guestLogin') }}</button>
+        <button v-if="isGuest" class="btn btn-secondary guest-login-btn" :aria-label="$t('common.login')" @click="$router.push('/login')">
+          <span>{{ $t('auth.guestLogin') }}</span>
+          <IconLogin :size="20" class="guest-login-icon" aria-hidden="true" />
+        </button>
         <UserAvatar v-else :username="username" :avatarUrl="avatarUrl" />
       </div>
     </div>
@@ -79,7 +82,7 @@ import BackToTop from '@/components/common/BackToTop.vue';
 import CustomContextMenu from '@/components/common/CustomContextMenu.vue';
 import CustomerServiceIcon from '@/components/common/CustomerServiceIcon.vue';
 import CrispEmbed from '@/components/common/CrispEmbed.vue';
-import { IconGift } from '@tabler/icons-vue';
+import { IconGift, IconLogin } from '@tabler/icons-vue';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import pageCache from '@/utils/pageCache';
@@ -105,7 +108,8 @@ export default {
     CustomContextMenu,
     CustomerServiceIcon,
     CrispEmbed,
-    IconGift
+    IconGift,
+    IconLogin
   },
   setup() {
     const router = useRouter();
@@ -317,6 +321,10 @@ body.dark-theme .app-shell {
   gap: 12px;
   z-index: 110;
 
+  .guest-login-icon {
+    display: none;
+  }
+
   .guest-login-btn {
     box-sizing: border-box;
     height: 40px;
@@ -347,14 +355,55 @@ body.dark-theme .app-shell {
 
 
 @media (max-width: 768px) {
+  .static-layout {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 16px 0;
+  }
+
   .site-logo {
-    top: 12px;  
-    left: 20px;
-    font-size: 20px;  
-    padding: 5px 10px;
+    position: static;
+    min-width: 0;
+    gap: 6px;
+    padding: 5px 8px;
     border-radius: 8px;
   }
-  
+
+  .site-logo-img {
+    flex: none;
+  }
+
+  .site-logo-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .static-layout > .top-toolbar {
+    position: static;
+    flex: none;
+    gap: 8px;
+
+    .guest-login-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      padding: 0;
+      border-radius: 50%;
+
+      span {
+        display: none;
+      }
+    }
+
+    .guest-login-icon {
+      display: block;
+    }
+  }
+
   .top-toolbar {
     top: 12px;  
     right: 20px;

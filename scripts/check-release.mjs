@@ -250,10 +250,17 @@ try {
   await page.evaluate(() => { window.testLayout = document.querySelector('.main-board'); });
   await navigate('/nodes');
   await page.locator('.node-item').first().waitFor();
-  for (const width of [1440, 768, 375]) {
+  for (const width of [1440, 768, 320, 375]) {
     await page.setViewportSize({ width, height: 900 });
     await page.waitForFunction(() => [...document.querySelectorAll('.node-flag')].every(img => img.complete && img.naturalWidth > 0));
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'horizontal overflow: ' + width);
+    const guestLogin = page.getByRole('button', { name: '登录', exact: true });
+    assert.equal(await guestLogin.locator('span').isVisible(), width > 768);
+    assert.equal(await guestLogin.locator('svg').isVisible(), width <= 768);
+    if (width <= 768) {
+      assert(await page.evaluate(() => document.querySelector('.site-logo').getBoundingClientRect().right
+        <= document.querySelector('.static-layout .top-toolbar').getBoundingClientRect().left), 'mobile header overlap: ' + width);
+    }
   }
   const cards = await page.locator('.node-item').allTextContents();
   assert.match(cards[0], /CN2/); assert.match(cards[0], /CMIN2/); assert(!cards[0].includes('9929'));
@@ -290,7 +297,7 @@ try {
   releaseEnglish();
   assert.equal(await page.locator('.docs-inner').getAttribute('aria-busy'), 'false');
   assert.equal(await page.getByText('Stale English', { exact: true }).count(), 0);
-  await navigate('/login');
+  await page.getByRole('button', { name: '登录', exact: true }).click();
   await page.locator('input[type=email]').fill('test@example.test');
   await page.locator('input[type=password]').fill('mock-password');
   const captcha = page.locator('.auth-form [data-test-captcha]');
