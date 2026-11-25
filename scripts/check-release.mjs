@@ -255,8 +255,8 @@ try {
     await page.waitForFunction(() => [...document.querySelectorAll('.node-flag')].every(img => img.complete && img.naturalWidth > 0));
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'horizontal overflow: ' + width);
     const guestLogin = page.getByRole('button', { name: '登录', exact: true });
-    assert.equal(await guestLogin.locator('span').isVisible(), width > 768);
-    assert.equal(await guestLogin.locator('svg').isVisible(), width <= 768);
+    assert.equal(await guestLogin.innerText(), '');
+    assert(await guestLogin.locator('svg').isVisible());
     if (width <= 768) {
       assert(await page.evaluate(() => document.querySelector('.site-logo').getBoundingClientRect().right
         <= document.querySelector('.static-layout .top-toolbar').getBoundingClientRect().left), 'mobile header overlap: ' + width);

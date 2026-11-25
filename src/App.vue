@@ -23,8 +23,7 @@
           <IconGift :size="20" />
         </button>
         <button v-if="isGuest" class="btn btn-secondary guest-login-btn" :aria-label="$t('common.login')" @click="$router.push('/login')">
-          <span>{{ $t('auth.guestLogin') }}</span>
-          <IconLogin :size="20" class="guest-login-icon" aria-hidden="true" />
+          <IconLogin :size="20" aria-hidden="true" />
         </button>
         <UserAvatar v-else :username="username" :avatarUrl="avatarUrl" />
       </div>
@@ -321,18 +320,17 @@ body.dark-theme .app-shell {
   gap: 12px;
   z-index: 110;
 
-  .guest-login-icon {
-    display: none;
-  }
-
   .guest-login-btn {
     box-sizing: border-box;
+    display: grid;
+    place-items: center;
+    width: 40px;
     height: 40px;
-    padding: 0 16px;
-    font-size: 14px;
+    padding: 0;
+    border-radius: 50%;
     background-color: var(--card-background);
   }
-  
+
   .gift-btn {
     display: flex;
     align-items: center;
@@ -386,22 +384,6 @@ body.dark-theme .app-shell {
     position: static;
     flex: none;
     gap: 8px;
-
-    .guest-login-btn {
-      display: grid;
-      place-items: center;
-      width: 40px;
-      padding: 0;
-      border-radius: 50%;
-
-      span {
-        display: none;
-      }
-    }
-
-    .guest-login-icon {
-      display: block;
-    }
   }
 
   .top-toolbar {
