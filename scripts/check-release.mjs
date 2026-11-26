@@ -69,6 +69,33 @@ let dashboardRefresh;
 let sawChartRetry;
 const chartRetryRequested = new Promise(resolve => { sawChartRetry = resolve; });
 try {
+  for (const { locale, stored, route, title, failure, retry, lang } of [
+    { locale: 'zh-CN', stored: 'en-US', route: '/login', title: 'Loading sign-in page', failure: 'Unable to load the sign-in page', retry: 'Reload', lang: 'en-US' },
+    { locale: 'en-GB', route: '/landing', title: 'Loading home page', failure: 'Unable to load the page', retry: 'Reload', lang: 'en-US' },
+    { locale: 'en-US', stored: 'zh-TW', route: '/shop', title: '正在加载页面', failure: '页面加载失败', retry: '重新加载', lang: 'zh-CN' },
+  ]) {
+    const boot = await browser.newPage({ locale });
+    try {
+      if (stored) await boot.addInitScript(language => localStorage.setItem('language', language), stored);
+      await boot.route('**/*', req => req.request().isNavigationRequest()
+        ? req.fulfill({ contentType: 'text/html; charset=utf-8', body: html }) : req.abort());
+      await boot.clock.install();
+      await boot.goto(origin + '#' + route);
+      assert.equal(await boot.locator('html').getAttribute('lang'), lang);
+      assert.equal(await boot.locator('#appBootTitle').innerText(), title);
+      assert.equal(await boot.locator('#app').innerHTML(), '');
+      if (lang === 'en-US') assert(!/\p{Script=Han}/u.test(await boot.locator('#appBootState').innerText()));
+      await boot.clock.fastForward(15000);
+      assert.equal(await boot.locator('#appBootTitle').innerText(), failure);
+      const button = boot.locator('.app-boot-retry');
+      assert(await button.isVisible());
+      assert.equal(await button.innerText(), retry);
+      if (lang === 'en-US') assert(!/\p{Script=Han}/u.test(await boot.locator('#appBootState').innerText()));
+    } finally {
+      await boot.close();
+    }
+  }
+  console.log('PASS: pre-Vue boot languages and timeout/reload copy');
   await context.addInitScript(() => {
     if (!localStorage.getItem('language')) localStorage.setItem('language', 'zh-CN');
     window.testNow = Date.now();

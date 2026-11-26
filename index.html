@@ -362,9 +362,9 @@
 <div class="app-boot-state" id="appBootState" role="status" aria-live="polite">
     <div class="app-boot-card">
         <div class="app-boot-spinner" aria-hidden="true"></div>
-        <p class="app-boot-title" id="appBootTitle">正在加载登录页面</p>
-        <p class="app-boot-detail" id="appBootDetail">正在准备页面内容，请稍候。</p>
-        <button type="button" class="app-boot-retry" onclick="location.reload()">重新加载</button>
+        <p class="app-boot-title" id="appBootTitle"></p>
+        <p class="app-boot-detail" id="appBootDetail"></p>
+        <button type="button" class="app-boot-retry" onclick="location.reload()"></button>
     </div>
 </div>
 <script>
@@ -373,20 +373,26 @@
         const hash = location.hash;
         const isLanding = hash.startsWith('#/landing');
         const isAuthRoute = /^#\/(?:login|register|forgot-password|reset)(?:[/?]|$)/i.test(hash);
+        let language = navigator.language || navigator.userLanguage || 'zh-CN';
+        try { language = localStorage.getItem('language') || language; } catch (_) {}
+        const zh = language.startsWith('zh');
+        document.documentElement.lang = zh ? 'zh-CN' : 'en-US';
+        const state = document.getElementById('appBootState');
+        const title = document.getElementById('appBootTitle');
+        const detail = document.getElementById('appBootDetail');
+        title.textContent = zh
+            ? (isLanding ? '正在加载首页' : isAuthRoute ? '正在加载登录页面' : '正在加载页面')
+            : (isLanding ? 'Loading home page' : isAuthRoute ? 'Loading sign-in page' : 'Loading page');
+        detail.textContent = zh ? (isLanding ? '正在准备首页内容，请稍候。' : '正在准备页面内容，请稍候。') : 'Please wait while the page loads.';
+        state.querySelector('.app-boot-retry').textContent = zh ? '重新加载' : 'Reload';
         const showFailure = () => {
-            if (finished || !document.getElementById('appBootState')) return;
-            const state = document.getElementById('appBootState');
+            if (finished) return;
             state.classList.add('is-error');
-            document.getElementById('appBootTitle').textContent = isAuthRoute ? '登录页面加载失败' : '页面加载失败';
-            document.getElementById('appBootDetail').textContent = '请检查网络后重新加载，无需先进入游客模式。';
+            title.textContent = zh
+                ? (isAuthRoute ? '登录页面加载失败' : '页面加载失败')
+                : (isAuthRoute ? 'Unable to load the sign-in page' : 'Unable to load the page');
+            detail.textContent = zh ? '请检查网络连接，然后重新加载。' : 'Check your internet connection and reload.';
         };
-        if (isLanding) {
-            document.getElementById('appBootTitle').textContent = '正在加载首页';
-            document.getElementById('appBootDetail').textContent = '正在准备首页内容，请稍候。';
-        } else if (!isAuthRoute) {
-            document.getElementById('appBootTitle').textContent = '正在加载页面';
-            document.getElementById('appBootDetail').textContent = '正在准备页面内容，请稍候。';
-        }
         const isVisible = element => {
             if (!element) return false;
             const style = window.getComputedStyle(element);
@@ -398,11 +404,10 @@
         };
         const finish = () => {
             if (finished) return;
-            const state = document.getElementById('appBootState');
             const target = isAuthRoute
                 ? document.querySelector('#app .auth-container')
                 : document.querySelector('#app > *');
-            if (!state || !isVisible(target)) {
+            if (!isVisible(target)) {
                 window.requestAnimationFrame(finish);
                 return;
             }
