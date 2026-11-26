@@ -106,18 +106,22 @@ try {
     requests.push(url.href);
     if (url.hostname === 'challenges.cloudflare.com' && url.pathname === '/turnstile/v0/api.js') {
       return route.fulfill({ contentType: 'text/javascript', body: `
+        const widgets = new Map();
+        let nextWidget = 0;
         window.turnstile = {
           render(element, options) {
             const button = document.createElement('button');
             button.type = 'button';
-            button.dataset.testCaptcha = '';
+            button.dataset.testCaptcha = options.language;
             button.textContent = 'Mock CAPTCHA';
             button.onclick = () => options.callback('regression-captcha');
             element.append(button);
-            return 'mock-captcha';
+            const id = 'mock-captcha-' + ++nextWidget;
+            widgets.set(id, button);
+            return id;
           },
           reset() {},
-          remove() {}
+          remove(id) { widgets.get(id)?.remove(); widgets.delete(id); }
         };
         window[new URL(document.currentScript.src).searchParams.get('onload')]();
       ` });
@@ -250,7 +254,13 @@ try {
   assert((await page.title()).endsWith('ZINC regression'));
   await page.locator('.language-btn').click();
   assert.deepEqual(await page.locator('.language-item .lang-name').allTextContents(), ['简体中文', 'English']);
-  await page.locator('.language-btn').click();
+  assert.equal(await page.locator('[data-test-captcha]').getAttribute('data-test-captcha'), 'zh');
+  for (const [label, language] of [['English', 'en'], ['简体中文', 'zh']]) {
+    await page.locator('.language-item .lang-name').getByText(label, { exact: true }).click();
+    await page.locator('.auth-form [data-test-captcha="' + language + '"]').waitFor();
+    assert.equal(await page.locator('.auth-form [data-test-captcha]').count(), 1);
+    if (language === 'en') await page.locator('.language-btn').click();
+  }
   assert.equal(new Set(requests.filter(url => /(?:zh-CN|en-US|vi-VN|zh-TW|ja-JP|ko-KR|ru-RU|fa-IR)-/.test(url))).size, 2);
   assert(!requests.some(url => /txz\.png|fonts\.googleapis/.test(url)));
   for (const route of ['/register', '/forgot-password']) {

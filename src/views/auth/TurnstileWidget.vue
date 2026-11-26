@@ -34,10 +34,12 @@ function loadTurnstile() {
 </script>
 
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const props = defineProps({ siteKey: { type: String, required: true } });
 const emit = defineEmits(['verified']);
+const { locale } = useI18n({ useScope: 'global' });
 const container = ref(null);
 const failed = ref(false);
 let widget;
@@ -47,10 +49,11 @@ async function render() {
   failed.value = false;
   try {
     turnstile = await loadTurnstile();
-    if (!container.value) return;
+    if (!container.value || widget != null) return;
     widget = turnstile.render(container.value, {
       sitekey: props.siteKey,
       size: 'flexible',
+      language: locale.value === 'zh-CN' ? 'zh' : 'en',
       callback: token => emit('verified', token),
       'expired-callback': reset,
       'timeout-callback': showFailure,
@@ -78,10 +81,20 @@ function reset() {
   }
 }
 
-onMounted(render);
-onBeforeUnmount(() => {
-  if (widget != null) turnstile.remove(widget);
+function removeWidget() {
+  if (widget == null) return;
+  turnstile.remove(widget);
+  widget = undefined;
+}
+
+watch(locale, () => {
+  if (widget == null) return;
+  emit('verified', '');
+  removeWidget();
+  render();
 });
+onMounted(render);
+onBeforeUnmount(removeWidget);
 defineExpose({ reset });
 </script>
 
