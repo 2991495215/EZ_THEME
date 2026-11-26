@@ -398,10 +398,16 @@ try {
   await page.locator('.copy-action').click();
   await backups.waitFor();
   assert.equal(await page.evaluate(() => window.lastCopied), 'https://net.zinc.run/s/mock-token?flag=clash');
-  await backups.getByText('有响应', { exact: true }).first().waitFor();
+  const timings = backups.locator('.probe-latency').filter({ hasText: /^[1-9]\d* ms$/ });
+  await timings.nth(1).waitFor();
+  assert.equal(await timings.count(), 2);
+  await backups.getByRole('button', { name: '已复制 net.zinc.run' }).waitFor();
   await backups.getByText('连接失败或超时', { exact: true }).waitFor();
   await backups.getByRole('button', { name: '复制 sub.zinc-zinc.com' }).click();
   assert.equal(await page.evaluate(() => window.lastCopied), 'https://sub.zinc-zinc.com/s/mock-token?flag=clash');
+  await backups.getByRole('button', { name: '已复制 sub.zinc-zinc.com' }).waitFor();
+  await backups.getByRole('button', { name: '复制 net.zinc.run' }).click();
+  assert.equal(await page.evaluate(() => window.lastCopied), 'https://net.zinc.run/s/mock-token?flag=clash');
   await backups.getByRole('button', { name: '关闭' }).click();
   await backups.waitFor({ state: 'hidden' });
   await page.locator('.qrcode-action').click();

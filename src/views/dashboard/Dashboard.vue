@@ -379,13 +379,14 @@
               <div v-for="entry in subscriptionEntries" :key="entry.host" class="backup-subscription-row">
                 <span>
                   <strong>{{ entry.host }}</strong>
-                  <small aria-live="polite">{{ $t('dashboard.' + (subscriptionStatus[entry.host] || 'probePending')) }}</small>
+                  <small aria-live="polite" :class="{ 'probe-latency': typeof subscriptionStatus[entry.host] === 'number' }">
+                    {{ typeof subscriptionStatus[entry.host] === 'number' ? subscriptionStatus[entry.host] + ' ms' : $t('dashboard.' + (subscriptionStatus[entry.host] || 'probePending')) }}
+                  </small>
                 </span>
-                <button v-if="!entry.current" type="button" class="backup-copy-button" @click="copySubscriptionUrl(entry.url)"
-                        :aria-label="$t('common.copy') + ' ' + entry.host">
-                  {{ $t('common.copy') }}
+                <button type="button" class="backup-copy-button" @click="copySubscriptionUrl(entry.url)"
+                        :aria-label="$t(entry.url === copiedSubscriptionUrl ? 'dashboard.copiedSubscription' : 'common.copy') + ' ' + entry.host">
+                  {{ $t(entry.url === copiedSubscriptionUrl ? 'dashboard.copiedSubscription' : 'common.copy') }}
                 </button>
-                <small v-else>{{ $t('dashboard.copiedSubscription') }}</small>
               </div>
             </div>
           </section>
@@ -951,6 +952,7 @@ export default {
     const showBackupSubscriptions = ref(false);
     const backupCloseButton = ref(null);
     const subscriptionStatus = ref({});
+    const copiedSubscriptionUrl = ref('');
     const {showToast} = useToast();
     const qrCodeUrl = ref('');
 
@@ -1575,7 +1577,6 @@ export default {
       if (current.protocol !== 'https:') return [];
       return [...new Set([current.host, 'net.zinc.run', 'sub.zinc-zinc.com', 'net.zinc-zinc.com'])].map(host => ({
         host,
-        current: host === current.host,
         url: host === current.host ? userPlan.value.subscribeUrl : 'https://' + host + current.pathname + current.search + current.hash,
       }));
     });
@@ -1597,6 +1598,7 @@ export default {
             textarea.remove();
           }
         }
+        copiedSubscriptionUrl.value = url;
         showToast(t('dashboard.subscriptionCopied'), 'success', 3000);
         return true;
       } catch {
@@ -1626,11 +1628,12 @@ export default {
         let status = 'probeFailed';
         try {
           // Probe HTTPS without sending the subscription URL or browser credentials.
+          const start = performance.now();
           await fetch('https://' + host + '/api/v1/client/subscribe', {
             method: 'HEAD', mode: 'no-cors', credentials: 'omit', cache: 'no-store',
             referrerPolicy: 'no-referrer', signal: controller.signal,
           });
-          status = 'probeResponded';
+          status = Math.max(1, Math.round(performance.now() - start));
         } catch {
           // A network error or timeout does not establish the cause.
         }
@@ -1969,6 +1972,7 @@ export default {
       backupCloseButton,
       subscriptionEntries,
       subscriptionStatus,
+      copiedSubscriptionUrl,
       platforms,
       activePlatform,
       clientGuidePlatforms,
@@ -3293,8 +3297,11 @@ export default {
 
   strong, small { display: block; overflow-wrap: anywhere; }
 
+  .probe-latency { color: var(--success-color); }
+
   .backup-copy-button {
     flex: none;
+    min-inline-size: 5.5em;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 5px 10px;
