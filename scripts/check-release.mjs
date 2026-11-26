@@ -104,6 +104,11 @@ try {
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     requests.push(url.href);
+    if (['net.zinc.run', 'sub.zinc-zinc.com', 'net.zinc-zinc.com'].includes(url.hostname)) {
+      assert.equal(url.pathname + url.search, '/api/v1/client/subscribe');
+      assert.equal(request.method(), 'HEAD');
+      return url.hostname === 'net.zinc-zinc.com' ? route.abort() : route.fulfill({ status: 204 });
+    }
     if (url.hostname === 'challenges.cloudflare.com' && url.pathname === '/turnstile/v0/api.js') {
       return route.fulfill({ contentType: 'text/javascript', body: `
         const widgets = new Map();
@@ -186,7 +191,7 @@ try {
         }
         data = { plan: dashboardVersion === 0 ? null : { ...plan, name: 'Dashboard plan ' + dashboardVersion },
           transfer_enable: dashboardVersion === 4 ? 0 : 1000000000,
-          u: 100000000, d: 100000000, subscribe_url: 'https://theme.test/mock' };
+          u: 100000000, d: 100000000, subscribe_url: 'https://net.zinc.run/s/mock-token?flag=clash' };
       }
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
       else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now }];
@@ -378,6 +383,27 @@ try {
     .some(animation => animation.effect.getTiming().iterations === Infinity)), 'dashboard must not run decorative loops');
   if (process.env.REGRESSION_SCREENSHOT) await page.screenshot({ path: process.env.REGRESSION_SCREENSHOT, fullPage: true });
   await page.locator('.subscription-actions button').filter({ hasText: '导入订阅' }).click();
+  await page.evaluate(() => {
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: async text => {
+      if (window.rejectCopy) throw new Error('Blocked clipboard');
+      window.lastCopied = text;
+    }}});
+    window.rejectCopy = true;
+  });
+  const backups = page.getByRole('dialog', { name: '备用订阅地址' });
+  await page.locator('.copy-action').click();
+  await page.getByText('复制失败，请手动复制', { exact: true }).waitFor();
+  assert.equal(await backups.count(), 0);
+  await page.evaluate(() => { window.rejectCopy = false; });
+  await page.locator('.copy-action').click();
+  await backups.waitFor();
+  assert.equal(await page.evaluate(() => window.lastCopied), 'https://net.zinc.run/s/mock-token?flag=clash');
+  await backups.getByText('有响应', { exact: true }).first().waitFor();
+  await backups.getByText('连接失败或超时', { exact: true }).waitFor();
+  await backups.getByRole('button', { name: '复制 sub.zinc-zinc.com' }).click();
+  assert.equal(await page.evaluate(() => window.lastCopied), 'https://sub.zinc-zinc.com/s/mock-token?flag=clash');
+  await backups.getByRole('button', { name: '关闭' }).click();
+  await backups.waitFor({ state: 'hidden' });
   await page.locator('.qrcode-action').click();
   await page.locator('.qrcode-modal img').waitFor();
   assert((await page.locator('.qrcode-modal img').getAttribute('src')).startsWith('data:image/png'));

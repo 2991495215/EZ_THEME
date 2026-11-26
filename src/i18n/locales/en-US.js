@@ -286,6 +286,12 @@ export default {
 
         importTitle: 'Select Import Method',
         copySubscription: 'Copy Subscription Link',
+        backupSubscriptions: 'Backup subscription links',
+        backupSubscriptionHint: 'Checked from this browser. Results only show whether each endpoint responds.',
+        copiedSubscription: 'Just copied',
+        probePending: 'Checking…',
+        probeResponded: 'Responded',
+        probeFailed: 'Connection failed or timed out',
         copySubscriptionDesc: 'Copy subscription link to clipboard',
         scanQRCode: 'Scan QR Code to Subscribe',
         scanQRCodeDesc: 'Use the client to scan the QR code to import',

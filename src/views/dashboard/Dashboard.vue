@@ -364,6 +364,34 @@
         </AppCard>
       </transition>
 
+      <transition name="fade">
+        <div v-if="showBackupSubscriptions" class="qrcode-modal-overlay" @click="showBackupSubscriptions = false">
+          <section class="qrcode-modal" role="dialog" aria-modal="true" aria-labelledby="backup-subscriptions-title"
+                   @click.stop @keydown.esc.stop="showBackupSubscriptions = false">
+            <div class="qrcode-header">
+              <h3 id="backup-subscriptions-title">{{ $t('dashboard.backupSubscriptions') }}</h3>
+              <button ref="backupCloseButton" class="close-btn" type="button" :aria-label="$t('common.close')" @click="showBackupSubscriptions = false">
+                <span class="close-icon"></span>
+              </button>
+            </div>
+            <div class="backup-subscriptions">
+              <p>{{ $t('dashboard.backupSubscriptionHint') }}</p>
+              <div v-for="entry in subscriptionEntries" :key="entry.host" class="backup-subscription-row">
+                <span>
+                  <strong>{{ entry.host }}</strong>
+                  <small aria-live="polite">{{ $t('dashboard.' + (subscriptionStatus[entry.host] || 'probePending')) }}</small>
+                </span>
+                <button v-if="!entry.current" type="button" class="backup-copy-button" @click="copySubscriptionUrl(entry.url)"
+                        :aria-label="$t('common.copy') + ' ' + entry.host">
+                  {{ $t('common.copy') }}
+                </button>
+                <small v-else>{{ $t('dashboard.copiedSubscription') }}</small>
+              </div>
+            </div>
+          </section>
+        </div>
+      </transition>
+
       <!-- QR码模态窗口 -->
       <transition name="fade">
         <div v-if="showQrCode" class="qrcode-modal-overlay" @click="showQrCode = false">
@@ -920,6 +948,9 @@ export default {
     const showNoticeDetails = ref(false);
     const showImportCard = ref(false);
     const showQrCode = ref(false);
+    const showBackupSubscriptions = ref(false);
+    const backupCloseButton = ref(null);
+    const subscriptionStatus = ref({});
     const {showToast} = useToast();
     const qrCodeUrl = ref('');
 
@@ -1534,51 +1565,82 @@ export default {
       qrCodeLoading.value = false;
     };
 
-    const copySubscription = () => {
-      if (userPlan.value.subscribeUrl) {
-        const copyWithAPI = () => {
-          navigator.clipboard.writeText(userPlan.value.subscribeUrl)
-              .then(() => {
-                showToast(t('dashboard.subscriptionCopied'), 'success', 3000);
-              })
-              .catch(() => {
-                showToast(t('dashboard.copyFailed'), 'error', 3000);
-              });
-        };
+    const subscriptionEntries = computed(() => {
+      let current;
+      try {
+        current = new URL(userPlan.value.subscribeUrl);
+      } catch {
+        return [];
+      }
+      if (current.protocol !== 'https:') return [];
+      return [...new Set([current.host, 'net.zinc.run', 'sub.zinc-zinc.com', 'net.zinc-zinc.com'])].map(host => ({
+        host,
+        current: host === current.host,
+        url: host === current.host ? userPlan.value.subscribeUrl : 'https://' + host + current.pathname + current.search + current.hash,
+      }));
+    });
 
-        const copyWithFallback = () => {
-          try {
-            const textarea = document.createElement('textarea');
-            textarea.value = userPlan.value.subscribeUrl;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '0';
-            textarea.style.top = '0';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-
-            const successful = document.execCommand('copy');
-            document.body.removeChild(textarea);
-
-            if (successful) {
-              showToast(t('dashboard.subscriptionCopied'), 'success', 3000);
-            } else {
-              showToast(t('dashboard.copyFailed'), 'error', 3000);
-            }
-          } catch (err) {
-            console.error('使用后备方法复制失败:', err);
-            showToast(t('dashboard.copyFailed'), 'error', 3000);
-          }
-        };
-
+    const copySubscriptionUrl = async (url) => {
+      if (!url) return false;
+      try {
         if (navigator.clipboard) {
-          copyWithAPI();
+          await navigator.clipboard.writeText(url);
         } else {
-          copyWithFallback();
+          const textarea = document.createElement('textarea');
+          textarea.value = url;
+          textarea.style.cssText = 'position:fixed;left:0;top:0;opacity:0';
+          document.body.appendChild(textarea);
+          try {
+            textarea.select();
+            if (!document.execCommand('copy')) throw new Error('Copy failed');
+          } finally {
+            textarea.remove();
+          }
         }
+        showToast(t('dashboard.subscriptionCopied'), 'success', 3000);
+        return true;
+      } catch {
+        showToast(t('dashboard.copyFailed'), 'error', 3000);
+        return false;
       }
     };
+
+    const copySubscription = async () => {
+      if (await copySubscriptionUrl(userPlan.value.subscribeUrl) && showImportCard.value && subscriptionEntries.value.length > 1) {
+        showBackupSubscriptions.value = true;
+      }
+    };
+
+    watch(showBackupSubscriptions, async (visible, _, onCleanup) => {
+      if (!visible) return;
+      subscriptionStatus.value = {};
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      let closed = false;
+      onCleanup(() => {
+        closed = true;
+        clearTimeout(timeout);
+        controller.abort();
+      });
+      const pending = subscriptionEntries.value.map(async ({ host }) => {
+        let status = 'probeFailed';
+        try {
+          // Probe HTTPS without sending the subscription URL or browser credentials.
+          await fetch('https://' + host + '/api/v1/client/subscribe', {
+            method: 'HEAD', mode: 'no-cors', credentials: 'omit', cache: 'no-store',
+            referrerPolicy: 'no-referrer', signal: controller.signal,
+          });
+          status = 'probeResponded';
+        } catch {
+          // A network error or timeout does not establish the cause.
+        }
+        if (!closed) subscriptionStatus.value[host] = status;
+      });
+      await nextTick();
+      backupCloseButton.value?.focus();
+      await Promise.all(pending);
+      clearTimeout(timeout);
+    });
 
     const importToClient = (clientType) => {
       if (!userPlan.value.subscribeUrl) {
@@ -1851,6 +1913,7 @@ export default {
     onDeactivated(() => {
       window.removeEventListener('resize', handleResize);
       showQrCode.value = false;
+      showBackupSubscriptions.value = false;
       showNoticeDetails.value = false;
       showPopup.value = false;
       closeResetTrafficModal();
@@ -1901,6 +1964,11 @@ export default {
       formatTraffic,
       toggleImportCard,
       copySubscription,
+      copySubscriptionUrl,
+      showBackupSubscriptions,
+      backupCloseButton,
+      subscriptionEntries,
+      subscriptionStatus,
       platforms,
       activePlatform,
       clientGuidePlatforms,
@@ -3206,6 +3274,33 @@ export default {
     font-size: 18px;
     color: var(--text-color);
     font-weight: 600;
+  }
+}
+
+.backup-subscriptions {
+  padding: 16px 20px;
+
+  p { margin: 0 0 12px; }
+
+  .backup-subscription-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border-color);
+  }
+
+  strong, small { display: block; overflow-wrap: anywhere; }
+
+  .backup-copy-button {
+    flex: none;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 5px 10px;
+    color: var(--theme-color);
+    background: transparent;
+    cursor: pointer;
   }
 }
 

@@ -286,6 +286,12 @@ export default {
 
         importTitle: '选择导入方式',
         copySubscription: '复制订阅地址',
+        backupSubscriptions: '备用订阅地址',
+        backupSubscriptionHint: '以下状态由当前浏览器检测，仅表示入口是否响应。',
+        copiedSubscription: '刚已复制',
+        probePending: '检测中…',
+        probeResponded: '有响应',
+        probeFailed: '连接失败或超时',
         copySubscriptionDesc: '复制订阅链接到剪贴板',
         scanQRCode: '扫描二维码订阅',
         scanQRCodeDesc: '使用客户端扫描二维码导入',
