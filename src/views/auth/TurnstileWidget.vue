@@ -44,15 +44,22 @@ const container = ref(null);
 const failed = ref(false);
 let widget;
 let turnstile;
+let size;
+let resizeObserver;
+
+function widgetSize() {
+  return container.value.clientWidth < 300 ? 'compact' : 'normal';
+}
 
 async function render() {
   failed.value = false;
   try {
     turnstile = await loadTurnstile();
     if (!container.value || widget != null) return;
+    size = widgetSize();
     widget = turnstile.render(container.value, {
       sitekey: props.siteKey,
-      size: 'flexible',
+      size,
       language: locale.value === 'zh-CN' ? 'zh' : 'en',
       callback: token => emit('verified', token),
       'expired-callback': reset,
@@ -87,19 +94,30 @@ function removeWidget() {
   widget = undefined;
 }
 
-watch(locale, () => {
+function refreshWidget() {
   if (widget == null) return;
   emit('verified', '');
   removeWidget();
   render();
+}
+
+watch(locale, refreshWidget);
+onMounted(() => {
+  resizeObserver = new ResizeObserver(() => {
+    if (widget != null && size !== widgetSize()) refreshWidget();
+  });
+  resizeObserver.observe(container.value);
+  render();
 });
-onMounted(render);
-onBeforeUnmount(removeWidget);
+onBeforeUnmount(() => {
+  resizeObserver.disconnect();
+  removeWidget();
+});
 defineExpose({ reset });
 </script>
 
 <template>
-  <div>
+  <div class="turnstile-widget">
     <div ref="container"></div>
     <div v-if="failed" role="status">
       {{ $t('auth.captchaUnavailable') }}
@@ -107,3 +125,11 @@ defineExpose({ reset });
     </div>
   </div>
 </template>
+
+<style scoped>
+.turnstile-widget {
+  width: 100%;
+  max-width: 300px;
+  min-width: 0;
+}
+</style>
