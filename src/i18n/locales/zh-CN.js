@@ -286,8 +286,7 @@ export default {
 
         importTitle: '选择导入方式',
         copySubscription: '复制订阅地址',
-        backupSubscriptions: '备用订阅地址',
-        backupSubscriptionHint: '以下为当前浏览器检测到的入口响应耗时。',
+        backupSubscriptions: '订阅地址',
         copiedSubscription: '已复制',
         probePending: '检测中…',
         probeFailed: '连接失败或超时',

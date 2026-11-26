@@ -375,7 +375,6 @@
               </button>
             </div>
             <div class="backup-subscriptions">
-              <p>{{ $t('dashboard.backupSubscriptionHint') }}</p>
               <div v-for="entry in subscriptionEntries" :key="entry.host" class="backup-subscription-row">
                 <span>
                   <strong>{{ entry.host }}</strong>
@@ -3283,8 +3282,6 @@ export default {
 
 .backup-subscriptions {
   padding: 16px 20px;
-
-  p { margin: 0 0 12px; }
 
   .backup-subscription-row {
     display: flex;

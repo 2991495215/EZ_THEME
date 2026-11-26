@@ -286,8 +286,7 @@ export default {
 
         importTitle: 'Select Import Method',
         copySubscription: 'Copy Subscription Link',
-        backupSubscriptions: 'Backup subscription links',
-        backupSubscriptionHint: 'Response times measured by this browser.',
+        backupSubscriptions: 'Subscription links',
         copiedSubscription: 'Copied',
         probePending: 'Checking…',
         probeFailed: 'Connection failed or timed out',

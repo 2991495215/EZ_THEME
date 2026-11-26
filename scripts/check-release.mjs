@@ -390,7 +390,7 @@ try {
     }}});
     window.rejectCopy = true;
   });
-  const backups = page.getByRole('dialog', { name: '备用订阅地址' });
+  const backups = page.getByRole('dialog', { name: '订阅地址' });
   await page.locator('.copy-action').click();
   await page.getByText('复制失败，请手动复制', { exact: true }).waitFor();
   assert.equal(await backups.count(), 0);
