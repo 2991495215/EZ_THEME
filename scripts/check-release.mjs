@@ -320,6 +320,13 @@ try {
   for (const width of [1440, 768, 375]) {
     await page.setViewportSize({ width, height: 900 });
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'dashboard overflow: ' + width);
+    await page.waitForFunction(() => document.querySelector('.site-logo-img')?.naturalWidth > 0);
+    const logo = page.locator('.site-logo-img');
+    const { width: logoWidth, height: logoHeight } = await logo.boundingBox();
+    const expectedLogoSize = width > 768 ? 32 : 28;
+    assert.deepEqual([logoWidth, logoHeight], [expectedLogoSize, expectedLogoSize]);
+    assert.match(await logo.getAttribute('src'), /\/images\/zinc-logo-large\.webp$/);
+    assert.equal(await page.locator('link[rel="icon"]').getAttribute('href'), await logo.getAttribute('src'));
   }
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.mouse.move(0, 0);

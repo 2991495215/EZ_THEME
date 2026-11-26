@@ -73,7 +73,7 @@ export const config  = {
         showLogo: true,
 
         // 网站Logo路径
-        logoPath: import.meta.env.BASE_URL + 'images/logo.webp',
+        logoPath: import.meta.env.BASE_URL + 'images/zinc-logo-large.webp',
 
         // Landing页面多语言标语
         landingText: {

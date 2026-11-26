@@ -298,8 +298,8 @@ body.dark-theme .app-shell {
   gap: 10px;
   
   .site-logo-img {
-    height: 24px;
-    width: 24px;
+    height: 32px;
+    width: 32px;
     border-radius: 6px;
     object-fit: cover;
   }
@@ -370,7 +370,9 @@ body.dark-theme .app-shell {
     border-radius: 8px;
   }
 
-  .site-logo-img {
+  .site-logo .site-logo-img {
+    height: 28px;
+    width: 28px;
     flex: none;
   }
 
