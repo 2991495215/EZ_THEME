@@ -3308,6 +3308,13 @@ export default {
     color: var(--theme-color);
     background: transparent;
     cursor: pointer;
+
+    &:active { background: rgba(var(--theme-color-rgb), 0.16); }
+
+    @media (prefers-reduced-motion: no-preference) {
+      transition: transform 120ms ease-out;
+      &:active { transform: scale(0.94); }
+    }
   }
 }
 
