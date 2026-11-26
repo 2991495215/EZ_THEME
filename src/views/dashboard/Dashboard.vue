@@ -1575,7 +1575,7 @@ export default {
         return [];
       }
       if (current.protocol !== 'https:') return [];
-      return [...new Set([current.host, 'net.zinc.run', 'sub.zinc-zinc.com'])].map(host => ({
+      return [...new Set([current.host, 'net.zinc.run', 'sub.zinc.run', 'sub.zinc-zinc.com'])].map(host => ({
         host,
         url: host === current.host ? userPlan.value.subscribeUrl : 'https://' + host + current.pathname + current.search + current.hash,
       }));

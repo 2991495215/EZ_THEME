@@ -104,7 +104,7 @@ try {
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
     requests.push(url.href);
-    if (['net.zinc.run', 'sub.zinc-zinc.com'].includes(url.hostname)) {
+    if (['net.zinc.run', 'sub.zinc.run', 'sub.zinc-zinc.com'].includes(url.hostname)) {
       assert.equal(url.pathname + url.search, '/api/v1/client/subscribe');
       assert.equal(request.method(), 'HEAD');
       return url.hostname === 'net.zinc.run' ? route.abort() : route.fulfill({ status: 204 });
@@ -399,11 +399,14 @@ try {
   await backups.waitFor();
   assert.equal(await page.evaluate(() => window.lastCopied), 'https://net.zinc.run/s/mock-token?flag=clash');
   const timings = backups.locator('.probe-latency').filter({ hasText: /^[1-9]\d* ms$/ });
-  await timings.waitFor();
-  assert.equal(await backups.locator('.backup-copy-button').count(), 2);
+  await timings.nth(1).waitFor();
+  assert.deepEqual(await backups.locator('.backup-subscription-row strong').allTextContents(),
+    ['net.zinc.run', 'sub.zinc.run', 'sub.zinc-zinc.com']);
   assert.equal(await backups.getByText('net.zinc-zinc.com', { exact: true }).count(), 0);
   await backups.getByRole('button', { name: '已复制 net.zinc.run' }).waitFor();
   await backups.getByText('连接失败或超时', { exact: true }).waitFor();
+  await backups.getByRole('button', { name: '复制 sub.zinc.run', exact: true }).click();
+  assert.equal(await page.evaluate(() => window.lastCopied), 'https://sub.zinc.run/s/mock-token?flag=clash');
   await backups.getByRole('button', { name: '复制 sub.zinc-zinc.com' }).click();
   assert.equal(await page.evaluate(() => window.lastCopied), 'https://sub.zinc-zinc.com/s/mock-token?flag=clash');
   await backups.getByRole('button', { name: '已复制 sub.zinc-zinc.com' }).waitFor();
