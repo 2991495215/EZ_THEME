@@ -60,7 +60,7 @@ async function render() {
     widget = turnstile.render(container.value, {
       sitekey: props.siteKey,
       size,
-      language: locale.value === 'zh-CN' ? 'zh' : 'en',
+      language: locale.value === 'zh-CN' ? 'zh-cn' : 'en',
       callback: token => emit('verified', token),
       'expired-callback': reset,
       'timeout-callback': showFailure,

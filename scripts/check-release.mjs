@@ -260,14 +260,14 @@ try {
   assert((await page.title()).endsWith('ZINC regression'));
   await page.locator('.language-btn').click();
   assert.deepEqual(await page.locator('.language-item .lang-name').allTextContents(), ['简体中文', 'English']);
-  assert.equal(await page.locator('[data-test-captcha]').getAttribute('data-test-captcha'), 'zh');
+  assert.equal(await page.locator('[data-test-captcha]').getAttribute('data-test-captcha'), 'zh-cn');
   await page.locator('[data-test-captcha][data-size="normal"]').waitFor();
   await page.setViewportSize({ width: 320, height: 900 });
   await page.locator('[data-test-captcha][data-size="compact"]').waitFor();
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.locator('[data-test-captcha][data-size="normal"]').waitFor();
 
-  for (const [label, language] of [['English', 'en'], ['简体中文', 'zh']]) {
+  for (const [label, language] of [['English', 'en'], ['简体中文', 'zh-cn']]) {
     await page.locator('.language-item .lang-name').getByText(label, { exact: true }).click();
     await page.locator('.auth-form [data-test-captcha="' + language + '"]').waitFor();
     assert.equal(await page.locator('.auth-form [data-test-captcha]').count(), 1);
