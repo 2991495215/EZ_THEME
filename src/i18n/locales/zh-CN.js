@@ -597,8 +597,7 @@ export default {
                 deposit: '充值'
             },
             discount: {
-                relative: '相对折扣大约',
-                savings: '为您节省'
+                summary: '{period}约省 {percent}（{amount}）'
             }
         },
         stats: {

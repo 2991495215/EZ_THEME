@@ -12,6 +12,7 @@ const englishText = {
   'Hysteria2 加密传输': 'Encrypted transport with Hysteria2',
   '方案不设限速，实际速度取决于线路与网络': 'No plan speed cap; actual speeds depend on the route and network',
   '方案不限速，实际速度取决于线路与网络': 'No plan speed cap; actual speeds depend on the route and network',
+  '包含CN2 GIA、AS9929、CMIN2三网优化线路': 'Includes optimized routes via CN2 GIA, AS9929, and CMIN2',
   '包含三网优化线路': 'Includes routes optimized for China Telecom, China Unicom and China Mobile',
   '同时在线设备数量不限': 'Unlimited simultaneous devices',
   '节点页面可以前往探针查看服务器状态。': 'Open the server monitor from the Nodes page to view server status.',

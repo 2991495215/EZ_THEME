@@ -598,8 +598,7 @@ export default {
                 deposit: 'Deposit'
             },
             discount: {
-                relative: 'Relative discount approx',
-                savings: 'saves you'
+                summary: '{period}: save about {percent} ({amount})'
             }
         },
         stats: {

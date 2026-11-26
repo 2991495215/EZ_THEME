@@ -39,7 +39,7 @@ const browser = await chromium.launch({
 });
 const origin = 'https://theme.test/';
 const now = Math.floor(Date.now() / 1000);
-const plan = { id: 1, name: 'Test plan', transfer_enable: 100, capacity_limit: null, content: JSON.stringify([{ feature: '📦 每月 1000 GB 流量', support: true }, { feature: '📱 支持 10 台设备同时在线', support: true }, { feature: '⭐ 包含三网优化线路', support: true }]),
+const plan = { id: 1, name: 'Test plan', transfer_enable: 100, capacity_limit: null, content: JSON.stringify([{ feature: '📦 每月 1000 GB 流量', support: true }, { feature: '📱 支持 10 台设备同时在线', support: true }, { feature: '⭐ 包含CN2 GIA、AS9929、CMIN2三网优化线路', support: true }]),
   month_price: 1000, quarter_price: 2500, half_year_price: null, year_price: null,
   two_year_price: null, three_year_price: null, onetime_price: null };
 const nodes = ['US 美国S12', 'US 美国S16', 'HK 香港S1'].map((name, index) => ({
@@ -495,6 +495,8 @@ try {
   await navigate('/shop');
   await page.locator('.plan-card .card-title').filter({ hasText: /^Standard$/ }).waitFor();
   await page.getByText('📦 1000 GB monthly data', { exact: true }).waitFor();
+  await page.locator('.discount-info').filter({ hasText: /Quarterly: save about \d+% \(\$[\d.]+\)/ }).waitFor();
+  await page.getByText('⭐ Includes optimized routes via CN2 GIA, AS9929, and CMIN2', { exact: true }).waitFor();
   assert(!/[\u3400-\u9fff]/u.test(await page.locator('.plan-card').first().innerText()));
   await changeLanguage('简体中文');
   await page.getByText('Standard 标准', { exact: true }).waitFor();
@@ -521,6 +523,7 @@ try {
   await total.filter({ hasText: '$10.00' }).waitFor();
   await page.locator('.period-price .amount').filter({ hasText: '$10.00' }).waitFor();
   await page.getByText('📦 1000 GB monthly data', { exact: true }).waitFor();
+  await page.getByText('⭐ Includes optimized routes via CN2 GIA, AS9929, and CMIN2', { exact: true }).waitFor();
   await changeLanguage('简体中文');
   await page.getByText('Standard 标准', { exact: true }).waitFor();
   await changeLanguage('English');

@@ -305,19 +305,11 @@
 
             <div class="discount-calculation" v-if="currencySymbol && SHOP_CONFIG.enableDiscountCalculation && calculateDiscount(plan).showDiscount">
 
-              <div class="discount-info">
-
-                <span class="period-name">{{ calculateDiscount(plan).periodName }}</span>
-
-                <span class="discount-label">&nbsp;{{ $t('shop.plan.discount.relative') }} </span>
-
-                <span class="discount-value">&nbsp;{{ calculateDiscount(plan).discountPercentage }}%</span>
-
-                <span class="saving-text">，{{ $t('shop.plan.discount.savings') }} </span>
-
-                <span class="saving-amount">&nbsp;{{ currencySymbol }}{{ calculateDiscount(plan).savingsAmount }}</span>
-
-              </div>
+              <i18n-t keypath="shop.plan.discount.summary" tag="div" class="discount-info">
+                <template #period><span class="period-name">{{ calculateDiscount(plan).periodName }}</span></template>
+                <template #percent><span class="discount-value">{{ calculateDiscount(plan).discountPercentage }}%</span></template>
+                <template #amount><span class="saving-amount">{{ currencySymbol }}{{ calculateDiscount(plan).savingsAmount }}</span></template>
+              </i18n-t>
 
             </div>
 
@@ -2157,41 +2149,11 @@ export default {
 
         
 
-        .discount-label {
-
-          font-weight: 500;
-
-          
-
-          
-
-          &::first-line,
-
-          &:first-child {
-
-            color: var(--theme-color);
-
-            font-weight: 700;
-
-          }
-
-        }
-
-        
-
         .discount-value {
 
           font-weight: 700;
 
           color: var(--theme-color);
-
-        }
-
-        
-
-        .saving-text {
-
-          font-weight: 400;
 
         }
 
