@@ -574,6 +574,27 @@ try {
   await page.getByText('VPS buying guide', { exact: true }).waitFor();
   await page.locator('.notice-item .btn-notice').nth(1).click();
   await page.getByText('Open the server monitor from the Nodes page to view server status.', { exact: true }).waitFor();
+  const noticeModal = page.locator('.notice-modal');
+  const previousNotice = noticeModal.getByRole('button', { name: 'Previous', exact: true });
+  const nextNotice = noticeModal.getByRole('button', { name: 'Next', exact: true });
+  const desktopViewport = page.viewportSize();
+  for (const viewport of [desktopViewport, { width: 320, height: 568 }]) {
+    await page.setViewportSize(viewport);
+    assert(await previousNotice.isDisabled());
+    for (const button of [previousNotice, nextNotice]) {
+      assert(await button.isVisible());
+      const { x, y, width, height } = await button.boundingBox();
+      assert(x >= 0 && y >= 0 && x + width <= viewport.width && y + height <= viewport.height);
+      if (viewport.width === 320) assert(height >= 44);
+    }
+    await nextNotice.click();
+    await noticeModal.getByRole('heading', { name: 'Next notice', exact: true }).waitFor();
+    await noticeModal.getByText('Next notice body', { exact: true }).waitFor();
+    assert(await nextNotice.isDisabled());
+    await previousNotice.click();
+    await noticeModal.getByRole('heading', { name: 'VPS buying guide', exact: true }).waitFor();
+  }
+  await page.setViewportSize(desktopViewport);
   await page.evaluate(() => window.tickNoticeRotation());
   assert.equal(await page.locator('.notice-modal .popup-title').textContent(), 'VPS buying guide');
   await page.locator('.notice-modal .popup-close-btn').click();

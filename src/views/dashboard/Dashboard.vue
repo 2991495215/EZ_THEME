@@ -112,10 +112,20 @@
                   <IconX :size="20"/>
                 </button>
               </div>
-              <div class="notice-modal-content">
+              <div class="notice-modal-content" :key="currentNoticeIndex">
                 <div v-html="processedNoticeContent" class="notice-content"></div>
               </div>
               <div class="notice-modal-footer">
+                <button class="popup-action-btn adaptive-btn" @click="prevNotice"
+                        :disabled="currentNoticeIndex <= 0">
+                  <IconChevronLeft :size="16"/>
+                  {{ $t('common.prevNotice') }}
+                </button>
+                <button class="popup-action-btn adaptive-btn" @click="nextNotice"
+                        :disabled="currentNoticeIndex >= notices.data.length - 1">
+                  {{ $t('common.nextNotice') }}
+                  <IconChevronRight :size="16"/>
+                </button>
                 <button class="popup-action-btn adaptive-btn" @click="closeNoticeModal">
                   {{ $t('common.close') }}
                 </button>
@@ -3984,6 +3994,8 @@ export default {
   border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 
   .popup-action-btn {
     padding: 8px 20px;
@@ -4059,6 +4071,11 @@ export default {
 
       .notice-modal-footer {
         padding: 12px 15px;
+
+        .adaptive-btn {
+          min-height: 44px;
+          padding-inline: 12px;
+        }
       }
     }
   }
