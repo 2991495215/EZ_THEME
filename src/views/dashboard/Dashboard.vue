@@ -1900,6 +1900,7 @@ export default {
       if (!autoRotateNotices.value) return;
 
       createTimer(timers, 'noticeRotation', () => {
+        if (showNoticeDetails.value) return;
         if (notices.value && notices.value.data && notices.value.data.length > 1) {
           nextNotice();
         }

@@ -100,6 +100,11 @@ try {
     if (!localStorage.getItem('language')) localStorage.setItem('language', 'zh-CN');
     window.testNow = Date.now();
     Date.now = () => window.testNow;
+    const setInterval = window.setInterval;
+    window.setInterval = (callback, delay, ...args) => {
+      if (delay === 8000) window.tickNoticeRotation = () => callback(...args);
+      return setInterval.call(window, callback, delay === 8000 ? 2147483647 : delay, ...args);
+    };
   });
   await context.route('**/*', async route => {
     const request = route.request(), url = new URL(request.url());
@@ -194,7 +199,10 @@ try {
           u: 100000000, d: 100000000, subscribe_url: 'https://net.zinc.run/s/mock-token?flag=clash' };
       }
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
-      else if (endpoint === '/user/notice/fetch') data = [{ id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now }];
+      else if (endpoint === '/user/notice/fetch') data = [
+        { id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now },
+        { id: 2, title: 'Next notice', content: 'Next notice body', created_at: now },
+      ];
       else if (endpoint === '/user/order/checkout') {
         assert.equal(request.postDataJSON().trade_no, 'mock');
         assert(!checkoutCancelled);
@@ -566,7 +574,12 @@ try {
   await page.getByText('VPS buying guide', { exact: true }).waitFor();
   await page.locator('.notice-item .btn-notice').nth(1).click();
   await page.getByText('Open the server monitor from the Nodes page to view server status.', { exact: true }).waitFor();
+  await page.evaluate(() => window.tickNoticeRotation());
+  assert.equal(await page.locator('.notice-modal .popup-title').textContent(), 'VPS buying guide');
   await page.locator('.notice-modal .popup-close-btn').click();
+  await page.evaluate(() => window.tickNoticeRotation());
+  await page.locator('.notice-item .notice-title').getByText('Next notice', { exact: true }).waitFor();
+  await page.locator('.notice-item .btn-notice').first().click();
   await changeLanguage('简体中文');
   await page.getByText('当前出口检测', { exact: true }).waitFor();
   await page.getByText('服务器购买建议', { exact: true }).waitFor();
