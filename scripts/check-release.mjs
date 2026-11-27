@@ -201,7 +201,7 @@ try {
       else if (endpoint === '/user/getStat') { await initialStats; data = [0, 0]; }
       else if (endpoint === '/user/notice/fetch') data = [
         { id: 1, title: '服务器购买建议', content: '节点页面可以前往探针查看服务器状态。', created_at: now },
-        { id: 2, title: 'Next notice', content: 'Next notice body', created_at: now },
+        { id: 2, title: 'Next notice', content: 'Next notice body' + '\n\nAdditional notice details.'.repeat(40), created_at: now },
       ];
       else if (endpoint === '/user/order/checkout') {
         assert.equal(request.postDataJSON().trade_no, 'mock');
@@ -577,9 +577,16 @@ try {
   const noticeModal = page.locator('.notice-modal');
   const previousNotice = noticeModal.getByRole('button', { name: 'Previous', exact: true });
   const nextNotice = noticeModal.getByRole('button', { name: 'Next', exact: true });
-  const desktopViewport = page.viewportSize();
-  for (const viewport of [desktopViewport, { width: 320, height: 568 }]) {
+  const noticeBody = noticeModal.locator('.notice-modal-content');
+  const noticeLayout = () => noticeModal.evaluate(async modal => {
+    await Promise.allSettled(modal.getAnimations().map(animation => animation.finished));
+    const { x, y, width, height } = modal.getBoundingClientRect();
+    return [x, y, width, height, modal.querySelector('.notice-modal-footer').getBoundingClientRect().top];
+  });
+  const previousViewport = page.viewportSize();
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 320, height: 568 }]) {
     await page.setViewportSize(viewport);
+    const initialLayout = await noticeLayout();
     assert(await previousNotice.isDisabled());
     for (const button of [previousNotice, nextNotice]) {
       assert(await button.isVisible());
@@ -590,11 +597,15 @@ try {
     await nextNotice.click();
     await noticeModal.getByRole('heading', { name: 'Next notice', exact: true }).waitFor();
     await noticeModal.getByText('Next notice body', { exact: true }).waitFor();
+    assert.deepEqual(await noticeLayout(), initialLayout, 'longer notice must keep dialog and footer in place');
+    assert(await noticeBody.evaluate(body => { body.scrollTop = body.scrollHeight; return body.scrollTop > 0; }));
     assert(await nextNotice.isDisabled());
     await previousNotice.click();
     await noticeModal.getByRole('heading', { name: 'VPS buying guide', exact: true }).waitFor();
+    assert.deepEqual(await noticeLayout(), initialLayout);
+    assert.equal(await noticeBody.evaluate(body => body.scrollTop), 0);
   }
-  await page.setViewportSize(desktopViewport);
+  await page.setViewportSize(previousViewport);
   await page.evaluate(() => window.tickNoticeRotation());
   assert.equal(await page.locator('.notice-modal .popup-title').textContent(), 'VPS buying guide');
   await page.locator('.notice-modal .popup-close-btn').click();

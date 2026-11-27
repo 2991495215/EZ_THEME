@@ -105,7 +105,7 @@
       <transition name="fade">
         <div v-if="showNoticeDetails" class="notice-modal-overlay" @click="closeNoticeModal">
           <transition name="popup-slide">
-            <div v-if="showNoticeDetails" class="notice-modal" :style="noticeModalStyle" @click.stop>
+            <div v-if="showNoticeDetails" class="notice-modal" @click.stop>
               <div class="notice-modal-header">
                 <h2 class="popup-title">{{ translateContent(notices.data[currentNoticeIndex].title) }}</h2>
                 <button class="popup-close-btn" @click="closeNoticeModal">
@@ -719,7 +719,6 @@ import {
   inject,
   nextTick,
   onActivated,
-  onBeforeUnmount,
   onDeactivated,
   onMounted,
   onUnmounted,
@@ -1479,9 +1478,6 @@ export default {
           currentNoticeIndex.value = popupNoticeIndex;
           showNoticeDetails.value = true;
           sessionStorage.setItem(popupShownKey, 'true');
-          nextTick(() => {
-            updateModalHeight();
-          });
         }
       }
     };
@@ -1530,9 +1526,6 @@ export default {
 
     const showNoticeModal = () => {
       showNoticeDetails.value = true;
-      nextTick(() => {
-        updateModalHeight();
-      });
     };
 
     const closeNoticeModal = () => {
@@ -1859,31 +1852,6 @@ export default {
       }
     });
 
-    const windowWidth = ref(window.innerWidth);
-    const windowHeight = ref(window.innerHeight);
-    const noticeModalStyle = ref({});
-
-    const updateModalHeight = () => {
-      const isMobile = windowWidth.value <= 768;
-      const availableHeight = windowHeight.value * (isMobile ? 0.75 : 0.8);
-
-      noticeModalStyle.value = {
-        maxHeight: `${availableHeight}px`
-      };
-    };
-
-    const handleResize = () => {
-      windowWidth.value = window.innerWidth;
-      windowHeight.value = window.innerHeight;
-      if (showNoticeDetails.value) {
-        updateModalHeight();
-      }
-    };
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('resize', handleResize);
-    });
-
     const renewPlan = () => {
       if (!userPlanId.value) {
         showToast(t('dashboard.noPlanToRenew'), 'error', 3000);
@@ -1918,8 +1886,6 @@ export default {
     };
 
     onActivated(() => {
-      handleResize();
-      window.addEventListener('resize', handleResize);
       if (needRefreshData.value) {
         fetchUserInfo(true);
         fetchSubscribe(true);
@@ -1932,7 +1898,6 @@ export default {
     });
 
     onDeactivated(() => {
-      window.removeEventListener('resize', handleResize);
       showQrCode.value = false;
       showBackupSubscriptions.value = false;
       showNoticeDetails.value = false;
@@ -2003,7 +1968,6 @@ export default {
       closeNoticeModal,
       showNoticeDetails,
       checkForPopupNotices,
-      noticeModalStyle,
       openResetTrafficModal,
       popupConfig,
       handlePopupClose,
@@ -3811,7 +3775,8 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  max-height: 80vh;
+  box-sizing: border-box;
+  height: min(620px, 80dvh, 100%);
   animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (prefers-color-scheme: dark) {
@@ -3820,6 +3785,7 @@ export default {
 }
 
 .notice-modal-header {
+  flex-shrink: 0;
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -3856,6 +3822,7 @@ export default {
 }
 
 .notice-modal-content {
+  min-height: 0;
   padding: 20px;
   overflow-y: auto;
   flex: 1;
@@ -3990,6 +3957,7 @@ export default {
 }
 
 .notice-modal-footer {
+  flex-shrink: 0;
   padding: 15px 20px;
   border-top: 1px solid var(--border-color);
   display: flex;
@@ -4055,7 +4023,7 @@ export default {
 
     .notice-modal {
       max-width: 100%;
-      max-height: 85vh;
+      height: min(620px, 75dvh, 100%);
 
       .notice-modal-header {
         padding: 15px;
