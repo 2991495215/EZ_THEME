@@ -286,6 +286,9 @@ export default {
 
         importTitle: 'Select Import Method',
         copySubscription: 'Copy Subscription Link',
+        longTermDomain: 'Long-term domain',
+        backupDomain: 'Backup domain',
+        defaultDomain: 'Default domain',
         backupSubscriptions: 'Subscription links',
         copiedSubscription: 'Copied',
         probePending: 'Checking…',

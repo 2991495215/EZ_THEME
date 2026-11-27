@@ -286,6 +286,9 @@ export default {
 
         importTitle: '选择导入方式',
         copySubscription: '复制订阅地址',
+        longTermDomain: '长期域名',
+        backupDomain: '备用域名',
+        defaultDomain: '默认域名',
         backupSubscriptions: '订阅地址',
         copiedSubscription: '已复制',
         probePending: '检测中…',

@@ -377,7 +377,7 @@
             <div class="backup-subscriptions">
               <div v-for="entry in subscriptionEntries" :key="entry.host" class="backup-subscription-row">
                 <span>
-                  <strong>{{ entry.host }}</strong>
+                  <strong>{{ entry.host }}</strong> <small>{{ $t('dashboard.' + entry.group) }}</small>
                   <small aria-live="polite" :class="{ 'probe-latency': typeof subscriptionStatus[entry.host] === 'number' }">
                     {{ typeof subscriptionStatus[entry.host] === 'number' ? subscriptionStatus[entry.host] + ' ms' : $t('dashboard.' + (subscriptionStatus[entry.host] || 'probePending')) }}
                   </small>
@@ -892,6 +892,7 @@ export default {
     const clientConfig = reactive(CLIENT_CONFIG);
     const notices = ref([]);
     const autoRotateNotices = ref(true);
+    const subscriptionDomains = ref(null);
     const userPlan = ref({
       deviceLimit: null,
       aliveIp: 0,
@@ -1389,6 +1390,7 @@ export default {
           if (subscribe.reset_day) {
             userPlan.value.resetDay = subscribe.reset_day;
           }
+          subscriptionDomains.value = subscribe.subscription_domains ?? null;
           if (subscribe.subscribe_url) {
             userPlan.value.subscribeUrl = subscribe.subscribe_url;
           }
@@ -1574,7 +1576,13 @@ export default {
         return [];
       }
       if (current.protocol !== 'https:') return [];
-      return [...new Set([current.host, 'net.zinc.run', 'sub.zinc.run', 'sub.zinc-zinc.com'])].map(host => ({
+      const groups = subscriptionDomains.value;
+      const primary = groups?.subscription_long_term_domains ?? ['net.zinc.run', 'sub.zinc.run', 'sub.zinc-zinc.com'];
+      const backup = groups?.subscription_backup_domains ?? [];
+      return [...new Set([current.host, ...primary.map(host => host.toLowerCase()), ...backup.map(host => host.toLowerCase())])].map(host => ({
+        group: host === current.host && !primary.some(entry => entry.toLowerCase() === host)
+          ? (backup.some(entry => entry.toLowerCase() === host) ? 'backupDomain' : 'defaultDomain')
+          : (primary.some(entry => entry.toLowerCase() === host) ? 'longTermDomain' : 'backupDomain'),
         host,
         url: host === current.host ? userPlan.value.subscribeUrl : 'https://' + host + current.pathname + current.search + current.hash,
       }));
