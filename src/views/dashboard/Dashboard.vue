@@ -3883,6 +3883,10 @@ export default {
       font-weight: 600;
     }
 
+    :deep(> :first-child) {
+      margin-top: 0;
+    }
+
     :deep(blockquote) {
       border-left: 4px solid var(--theme-color);
       padding: 10px 15px;
